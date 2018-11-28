@@ -1,0 +1,7 @@
+{
+"host": "IP",
+"port": "puerto",
+"user": "usuario de la base",
+"password": "pass de la base",
+"database": "nombre de la base"
+}
