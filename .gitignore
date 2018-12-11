@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 *DS_Store
 *creds.txt
+*.h5
 
 # C extensions
 *.so

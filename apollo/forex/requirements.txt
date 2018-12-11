@@ -1,0 +1,7 @@
+pandas
+git+https://github.com/oanda/oandapy.git
+tqdm
+bs4
+statsmodels
+scipy
+lxml
