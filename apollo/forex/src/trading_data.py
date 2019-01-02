@@ -603,9 +603,9 @@ variables = {'Diff USD_JPY_closeMid': ['USD_JPY_volume',
   'Diff USD_JPY_lowMid']}
 
 models = {}
-models['Linreg_Diff USD_JPY_closeMid'] = OLSResults.load('../models/Linreg_close.h5')
-models['Linreg_Diff USD_JPY_highMid'] = OLSResults.load('../models/Linreg_high.h5')
-models['Linreg_Diff USD_JPY_lowMid'] = OLSResults.load('../models/Linreg_low.h5')
+models['Linreg_Diff USD_JPY_closeMid'] = OLSResults.load('./models/Linreg_close.h5')
+models['Linreg_Diff USD_JPY_highMid'] = OLSResults.load('./models/Linreg_high.h5')
+models['Linreg_Diff USD_JPY_lowMid'] = OLSResults.load('./models/Linreg_low.h5')
 
 pricediff = True
 instrument = 'USD_JPY'
@@ -646,7 +646,7 @@ instruments = ['USD_JPY',
                'SPX500_USD']
 
 granularity = 'H1'
-start = '2018-11-25'
+start = str(dt.now()- timedelta(days=5)).split(' ')[0]
 end = str(dt.now())
 freq = 'D'
 trading = True
@@ -975,9 +975,9 @@ variables = {'Diff USD_JPY_closeMid': ['USD_JPY_volume',
 
 from statsmodels.regression.linear_model import OLSResults
 models = {}
-models['Logreg_Diff USD_JPY_closeMid'] = OLSResults.load('../models/Logreg_close.h5')
-models['Logreg_Diff USD_JPY_highMid'] = OLSResults.load('../models/Logreg_high.h5')
-models['Logreg_Diff USD_JPY_lowMid'] = OLSResults.load('../models/Logreg_low.h5')
+models['Logreg_Diff USD_JPY_closeMid'] = OLSResults.load('./models/Logreg_close.h5')
+models['Logreg_Diff USD_JPY_highMid'] = OLSResults.load('./models/Logreg_high.h5')
+models['Logreg_Diff USD_JPY_lowMid'] = OLSResults.load('./models/Logreg_low.h5')
 
 pricediff = True
 instrument = 'USD_JPY'
@@ -2785,29 +2785,29 @@ variables = {'Diff USD_JPY_closeMid1': ['USD_JPY_volume',
 
 from statsmodels.regression.linear_model import OLSResults
 models = {}
-models['Logreg_Diff USD_JPY_closeMid1'] = OLSResults.load('../models/Logreg_Diff USD_JPY_closeMid1.h5')
-models['Logreg_Diff USD_JPY_highMid1'] = OLSResults.load('../models/Logreg_Diff USD_JPY_highMid1.h5')
-models['Logreg_Diff USD_JPY_lowMid1'] = OLSResults.load('../models/Logreg_Diff USD_JPY_lowMid1.h5')
+models['Logreg_Diff USD_JPY_closeMid1'] = OLSResults.load('./models/Logreg_Diff USD_JPY_closeMid1.h5')
+models['Logreg_Diff USD_JPY_highMid1'] = OLSResults.load('./models/Logreg_Diff USD_JPY_highMid1.h5')
+models['Logreg_Diff USD_JPY_lowMid1'] = OLSResults.load('./models/Logreg_Diff USD_JPY_lowMid1.h5')
 
-models['Logreg_Diff USD_JPY_closeMid2'] = OLSResults.load('../models/Logreg_Diff USD_JPY_closeMid2.h5')
-models['Logreg_Diff USD_JPY_highMid2'] = OLSResults.load('../models/Logreg_Diff USD_JPY_highMid2.h5')
-models['Logreg_Diff USD_JPY_lowMid2'] = OLSResults.load('../models/Logreg_Diff USD_JPY_lowMid2.h5')
+models['Logreg_Diff USD_JPY_closeMid2'] = OLSResults.load('./models/Logreg_Diff USD_JPY_closeMid2.h5')
+models['Logreg_Diff USD_JPY_highMid2'] = OLSResults.load('./models/Logreg_Diff USD_JPY_highMid2.h5')
+models['Logreg_Diff USD_JPY_lowMid2'] = OLSResults.load('./models/Logreg_Diff USD_JPY_lowMid2.h5')
 
-models['Logreg_Diff USD_JPY_closeMid3'] = OLSResults.load('../models/Logreg_Diff USD_JPY_closeMid3.h5')
-models['Logreg_Diff USD_JPY_highMid3'] = OLSResults.load('../models/Logreg_Diff USD_JPY_highMid3.h5')
-models['Logreg_Diff USD_JPY_lowMid3'] = OLSResults.load('../models/Logreg_Diff USD_JPY_lowMid3.h5')
+models['Logreg_Diff USD_JPY_closeMid3'] = OLSResults.load('./models/Logreg_Diff USD_JPY_closeMid3.h5')
+models['Logreg_Diff USD_JPY_highMid3'] = OLSResults.load('./models/Logreg_Diff USD_JPY_highMid3.h5')
+models['Logreg_Diff USD_JPY_lowMid3'] = OLSResults.load('./models/Logreg_Diff USD_JPY_lowMid3.h5')
 
-models['Logreg_Diff USD_JPY_closeMid4'] = OLSResults.load('../models/Logreg_Diff USD_JPY_closeMid4.h5')
-models['Logreg_Diff USD_JPY_highMid4'] = OLSResults.load('../models/Logreg_Diff USD_JPY_highMid4.h5')
-models['Logreg_Diff USD_JPY_lowMid4'] = OLSResults.load('../models/Logreg_Diff USD_JPY_lowMid4.h5')
+models['Logreg_Diff USD_JPY_closeMid4'] = OLSResults.load('./models/Logreg_Diff USD_JPY_closeMid4.h5')
+models['Logreg_Diff USD_JPY_highMid4'] = OLSResults.load('./models/Logreg_Diff USD_JPY_highMid4.h5')
+models['Logreg_Diff USD_JPY_lowMid4'] = OLSResults.load('./models/Logreg_Diff USD_JPY_lowMid4.h5')
 
-models['Logreg_Diff USD_JPY_closeMid5'] = OLSResults.load('../models/Logreg_Diff USD_JPY_closeMid5.h5')
-models['Logreg_Diff USD_JPY_highMid5'] = OLSResults.load('../models/Logreg_Diff USD_JPY_highMid5.h5')
-models['Logreg_Diff USD_JPY_lowMid5'] = OLSResults.load('../models/Logreg_Diff USD_JPY_lowMid5.h5')
+models['Logreg_Diff USD_JPY_closeMid5'] = OLSResults.load('./models/Logreg_Diff USD_JPY_closeMid5.h5')
+models['Logreg_Diff USD_JPY_highMid5'] = OLSResults.load('./models/Logreg_Diff USD_JPY_highMid5.h5')
+models['Logreg_Diff USD_JPY_lowMid5'] = OLSResults.load('./models/Logreg_Diff USD_JPY_lowMid5.h5')
 
-models['Logreg_Diff USD_JPY_closeMid6'] = OLSResults.load('../models/Logreg_Diff USD_JPY_closeMid6.h5')
-models['Logreg_Diff USD_JPY_highMid6'] = OLSResults.load('../models/Logreg_Diff USD_JPY_highMid6.h5')
-models['Logreg_Diff USD_JPY_lowMid6'] = OLSResults.load('../models/Logreg_Diff USD_JPY_lowMid6.h5')
+models['Logreg_Diff USD_JPY_closeMid6'] = OLSResults.load('./models/Logreg_Diff USD_JPY_closeMid6.h5')
+models['Logreg_Diff USD_JPY_highMid6'] = OLSResults.load('./models/Logreg_Diff USD_JPY_highMid6.h5')
+models['Logreg_Diff USD_JPY_lowMid6'] = OLSResults.load('./models/Logreg_Diff USD_JPY_lowMid6.h5')
 
 
 pricediff = True
