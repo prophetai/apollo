@@ -1,5 +1,8 @@
 pandas
 git+https://github.com/oanda/oandapy.git
+matplotlib
+sklearn
+psycopg2
 tqdm
 bs4
 statsmodels

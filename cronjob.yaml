@@ -1,7 +1,7 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: forex-cron
+  name: forex-cron-new
 spec:
   schedule: "0 * * * *"
   concurrencyPolicy: "Forbid"
@@ -12,8 +12,7 @@ spec:
       template:
         spec:
           containers:
-            - name: forex-cron
-              image: gcr.io/winter-return-223922/forex_cron:latest
-              command: ["python3"]
-              args: ["/home/forex/trading_data.py"]
+            - name: forex-cron-new
+              image: gcr.io/winter-return-223922/forex_update:latest
+              command: ["/home/apollo/init.sh"]
           restartPolicy: Never
