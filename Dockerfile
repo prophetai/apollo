@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-MAINTAINER deds15@gmail.com
+MAINTAINER "Dudley Díaz <deds15@gmail.com>"
 
 RUN apt-get update
 RUN apt-get -y install cron
@@ -24,4 +24,3 @@ WORKDIR /home/apollo
 # Copy the files to running the models and the models
 
 COPY apollo ./
-COPY init.sh .

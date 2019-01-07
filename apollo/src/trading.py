@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys, getopt
+import logging
 import pandas as pd
 import numpy as np
 from statsmodels.regression.linear_model import OLSResults
@@ -20,8 +22,15 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bs4 import BeautifulSoup
 
+# Setup logging
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%m/%d/%Y %I:%M:%S %p',
+    level=logging.DEBUG,
+    #filename='log.txt'
+)
+
 COMMASPACE = ', '
-print(f"email_from:{os.environ['email_from']} email_members:{os.environ['email_members']} email_pass:{os.environ['email_pass']}")
 candleformat = 'midpoint'
 instrument = 'USD_JPY'
 instruments = ['USD_JPY',
@@ -109,7 +118,6 @@ fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].str[:13]
 
 fxcm = fxcm.drop(0)
 
-print(fxcm[-10:])
 
 variableshhll = pd.read_csv('./models/HHLL_variables.csv', index_col=0)
 
@@ -180,8 +188,6 @@ op_sell['Proba TP'] = new_preds[probas].iloc[1].values
 op_sell['Stop Loss'] = new_preds[prices].iloc[0].values
 op_sell['Proba SL'] = new_preds[probas].iloc[0].values
 
-print(op_buy)
-print(op_sell)
 
 """# H-C/C-L"""
 
@@ -223,8 +229,6 @@ fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].astype(s
 fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].str[:13]
 
 fxcm = fxcm.drop(0)
-
-print(fxcm[-10:])
 
 variableshcl = pd.read_csv('./models/HCL_variables.csv', index_col=0)
 
@@ -346,8 +350,6 @@ sell_limits['Sell Limit 1.5'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid'
 sell_limits['Sell Limit 2'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*2
 sell_limits['Sell Limit 2.5'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*2.5
 
-print(buy_limits.round(3))
-print(sell_limits.round(3))
 
 """## Gameplan"""
 
@@ -386,8 +388,8 @@ op_buy['Buy Limits'].iloc[6] = buy_limits['Buy Limit 2.5'].loc['Set at']
 op_buy['Proba Buy Limits'].iloc[6] = buy_limits['Proba 2.5'].loc['Set at']
 
 
-op_buy = op_buy.drop(['Stop Loss', 'Proba SL'], axis=1)
-op_sell = op_sell.drop(['Stop Loss', 'Proba SL'], axis=1)
+op_buy = op_buy.drop(['Stop Loss', 'Proba SL'], axis=1).round(3)
+op_sell = op_sell.drop(['Stop Loss', 'Proba SL'], axis=1).round(3)
 
 
 def send_email(subject,fromaddr, toaddr, password,body_text):
@@ -412,8 +414,6 @@ def send_email(subject,fromaddr, toaddr, password,body_text):
     hora_now = int(dt.now(tz=pytz.utc).timestamp() * 1000)
     hora_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
 
-    #mail = os.environ['EMAIL']
-    #password = os.environ['EMAIL_PASSWORD']
     msg = MIMEMultipart()
     msg.preamble = f'Predicciones de la hora {hora_now}'
     msg['From'] = fromaddr
@@ -438,5 +438,42 @@ def send_email(subject,fromaddr, toaddr, password,body_text):
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
 
+def main(argv):
+    """
+    Main
+    """
+    stackdriver_logging = False
+    try:
+      opts, args = getopt.getopt(argv,"l:",["logging"])
+    except getopt.GetoptError:
+        print('trading.py -l')
+        sys.exit(2)
 
-send_email('Predicciones de USDJPY', os.environ['email_from'], os.environ['email_members'],os.environ['email_pass'], [op_buy, op_sell])
+    for opt, arg in opts:
+        if opt == '-h':
+            print('hola!!')
+            print('automl.py -l')
+            sys.exit(2)
+        elif opt in ("-l", "--logging"):
+            stackdriver_logging = True
+
+    if stackdriver_logging:
+        import google.cloud.logging
+        # Inicia el cliente de logs de Google
+        logging_client = google.cloud.logging.Client()
+        # Configura que todos los logs se vayan a stackdriver
+        logging_client.setup_logging()
+
+    #send emails
+    send_email('Predicciones de USDJPY',
+                os.environ['email_from'],
+                os.environ['email_members'],
+                os.environ['email_pass'],
+                [op_buy, op_sell])
+
+if __name__ == '__main__':
+    #load settings
+    with open ("src/settings.py", "r") as file:
+        exec(file.read())
+
+    main(sys.argv)
