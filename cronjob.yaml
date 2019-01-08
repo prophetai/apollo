@@ -8,12 +8,12 @@ spec:
   failedJobsHistoryLimit: 10
   jobTemplate:
     spec:
-      backoffLimit: 0
+      backoffLimit: 2
       template:
         spec:
           containers:
             - name: forex-cron
-              image: gcr.io/winter-return-223922/forex_cron:latest
+              image: gcr.io/winter-return-223922/forex_update:latest
               command: ["python3"]
-              args: ["/home/forex/trading_data.py"]
+              args: ["/home/apollo/src/trading.py", "-l"]
           restartPolicy: Never

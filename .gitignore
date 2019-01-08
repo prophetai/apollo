@@ -5,6 +5,9 @@ __pycache__/
 *DS_Store
 *creds.txt
 *.h5
+*.csv
+creds.sh
+init.sh
 
 # C extensions
 *.so
@@ -86,6 +89,7 @@ celerybeat-schedule
 
 # Environments
 .env
+.env0
 .venv
 env/
 venv/

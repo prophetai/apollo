@@ -1,5 +1,5 @@
 FROM ubuntu:latest
-MAINTAINER deds15@gmail.com
+MAINTAINER "Dudley Díaz <deds15@gmail.com>"
 
 RUN apt-get update
 RUN apt-get -y install cron
@@ -11,14 +11,16 @@ RUN apt install -y python3-pip
 RUN alias pip=pip3
 RUN apt install -y git
 COPY requirements.txt ./
+
+#Install needed libraries and credentials
 RUN pip3 install -r requirements.txt
 
+#Assign the editor for the VM
 RUN export EDITOR=vim
 
-#stablish the working directory
-WORKDIR /home/forex
+#Establish the working directory
+WORKDIR /home/apollo
 
 # Copy the files to running the models and the models
-COPY models ./models
-COPY email ./email
-COPY src ./
+
+COPY apollo ./
