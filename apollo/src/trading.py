@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+
+# coding: utf-8
 
 import os
 import sys, getopt
@@ -60,12 +61,10 @@ instruments = ['USD_JPY',
                'EUR_USD']
 
 granularity = 'H1'
-start = str(dt.now() + datetime.timedelta(days=-2))[:10]
+start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
 freq = 'D'
 trading = True
-
-time.sleep(30) #sleep for one second.
 
 gf = get_forex(instrument, instruments, granularity, start, end, candleformat, freq, trading)
 
@@ -81,7 +80,22 @@ sd['intercept'] = 1
 
 
 
+
 models = {}
+
+models['HHLL_LogDiff USD_JPY_highMid-1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-1.h5')
+models['HHLL_LogDiff USD_JPY_highMid-2'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-2.h5')
+models['HHLL_LogDiff USD_JPY_highMid-3'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-3.h5')
+models['HHLL_LogDiff USD_JPY_highMid-4'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-4.h5')
+models['HHLL_LogDiff USD_JPY_highMid-5'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-5.h5')
+models['HHLL_LogDiff USD_JPY_highMid-6'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-6.h5')
+
+models['HHLL_LogDiff USD_JPY_lowMid-1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-1.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-2'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-2.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-3'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-3.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-4'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-4.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-5'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-5.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-6'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-6.h5')
 
 models['HHLL_LogDiff USD_JPY_highMid0'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid0.h5')
 models['HHLL_LogDiff USD_JPY_highMid1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid1.h5')
@@ -118,14 +132,13 @@ fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].str[:13]
 
 fxcm = fxcm.drop(0)
 
-
 variableshhll = pd.read_csv('./models/HHLL_variables.csv', index_col=0)
 
 for i in Actuals:
-    for k in [0,1,2,3,4,5,6]:
+    for k in [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]:
         i = i.replace('HHLL_', '')
-        df = sd[variableshhll[i + str(k)].values.tolist()]
-        x = df.values
+        var = variableshhll[i + str(k)].dropna().values.tolist()
+        x = sd[var].values
         imod = 'HHLL_' + i + str(k)
         mod = models[imod]
         act = i.replace('HHLL_LogDiff ', '')
@@ -136,27 +149,59 @@ classpredsm.columns = ['Prices']
 
 classpredsm = classpredsm.drop('USD_JPY_date')
 
+
+# In[3]:
+
+
+high = [i for i in classpredsm.index if 'high' in i and 'Future' in i]
+high = classpredsm['Prices'].loc[high]
+low = [i for i in classpredsm.index if 'low' in i and 'Future' in i]
+low = classpredsm['Prices'].loc[low]
+
+
+# In[4]:
+
+
 new_preds = classpredsm.iloc[:2]
 
 new_preds.columns = ['Prices']
-
-for i in [0,1,2,3,4,5,6]:
+k = 0
+for i in [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]:
     l = [j for j in classpredsm.index if str(i) in j]
-    new_preds['p(' + str(i) + ')'] = classpredsm.loc[l]['Prices'].values
+    new_preds['p(' + str(i) + ')'] = 0
+    new_preds['p(' + str(i) + ')'].iloc[0] = high.values[k]
+    new_preds['p(' + str(i) + ')'].iloc[1] = low.values[k]
     new_preds[str(i/100) + '%'] = 0
-    new_preds[str(i/100) + '%'].iloc[:2] = new_preds['Prices'] * (1+i/10000)
-    new_preds[str(i/100) + '%'].iloc[-1:] = new_preds['Prices'] * (1-i/10000)
+    new_preds[str(i/100) + '%'].iloc[0] = new_preds['Prices'].iloc[0] * (1+i/10000)
+    new_preds[str(i/100) + '%'].iloc[1] = new_preds['Prices'].iloc[1] * (1-i/10000)
+    k += 1
 
 new_preds = new_preds.round(3)
 
 new_preds = new_preds.drop('Prices', axis=1)
 
+
+# In[5]:
+
+
 probas = [i for i in new_preds.columns if 'p(' in i]
 prices = [i for i in new_preds.columns if '%' in i or 'P' in i]
-indx = 'Buy'
 
-op_buy = pd.DataFrame({'Take Profit': np.zeros(7)},
-                  index=[indx + '0',
+
+# In[6]:
+
+
+indx = 'Buy'
+current_open = gf['USD_JPY_openMid'].iloc[-1]
+
+op_buy = pd.DataFrame({'Take Profit': np.zeros(13)},
+                  index=[indx + '-6',
+                         indx + '-5',
+                         indx + '-4',
+                         indx + '-3',
+                         indx + '-2',
+                         indx + '-1',
+                         indx + '0',
                          indx + '1',
                          indx + '2',
                          indx + '3',
@@ -164,17 +209,19 @@ op_buy = pd.DataFrame({'Take Profit': np.zeros(7)},
                          indx + '5',
                          indx + '6'])
 
-
 op_buy['Take Profit'] = new_preds[prices].iloc[0].values
-op_buy['Proba TP'] = new_preds[probas].iloc[0].values
-
-op_buy['Stop Loss'] = new_preds[prices].iloc[1].values
-op_buy['Proba SL'] = new_preds[probas].iloc[1].values
+op_buy['Probability'] = new_preds[probas].iloc[0].values
 
 indx = 'Sell'
 
-op_sell = pd.DataFrame({'Take Profit': np.zeros(7)},
-                  index=[indx + '0',
+op_sell = pd.DataFrame({'Take Profit': np.zeros(13)},
+                  index=[indx + '-6',
+                         indx + '-5',
+                         indx + '-4',
+                         indx + '-3',
+                         indx + '-2',
+                         indx + '-1',
+                         indx + '0',
                          indx + '1',
                          indx + '2',
                          indx + '3',
@@ -183,214 +230,55 @@ op_sell = pd.DataFrame({'Take Profit': np.zeros(7)},
                          indx + '6'])
 
 op_sell['Take Profit'] = new_preds[prices].iloc[1].values
-op_sell['Proba TP'] = new_preds[probas].iloc[1].values
+op_sell['Probability'] = new_preds[probas].iloc[1].values
 
-op_sell['Stop Loss'] = new_preds[prices].iloc[0].values
-op_sell['Proba SL'] = new_preds[probas].iloc[0].values
+op_buy['Open'] = current_open
+op_sell['Open'] = current_open
 
+op_buy.loc[op_buy['Open'] > op_buy['Take Profit'], ['Take Profit', 'Probability']] = np.nan
+op_sell.loc[op_sell['Open'] < op_sell['Take Profit'], ['Take Profit', 'Probability']]  = np.nan
 
-"""# H-C/C-L"""
+opb = op_buy[:6]
+opb2 = op_buy[6:]
+opb.loc['Buy_'] = np.nan
 
-models = {}
+opb['Sell Limit'] = opb2['Take Profit'].values
+opb['Sell Limit Probability'] = opb2['Probability'].values
 
-models['HCL_Diff High-Close0.2'] = OLSResults.load('./models/HCL_Diff High-Close0.2.h5')
-models['HCL_Diff High-Close0.4'] = OLSResults.load('./models/HCL_Diff High-Close0.4.h5')
-models['HCL_Diff High-Close0.6'] = OLSResults.load('./models/HCL_Diff High-Close0.6.h5')
-models['HCL_Diff High-Close1'] = OLSResults.load('./models/HCL_Diff High-Close1.h5')
-models['HCL_Diff High-Close1.5'] = OLSResults.load('./models/HCL_Diff High-Close1.5.h5')
-models['HCL_Diff High-Close2'] = OLSResults.load('./models/HCL_Diff High-Close2.h5')
-models['HCL_Diff High-Close2.5'] = OLSResults.load('./models/HCL_Diff High-Close2.5.h5')
+opb.index = opb2.index
 
-models['HCL_Diff Close-Low0.2'] = OLSResults.load('./models/HCL_Diff Close-Low0.2.h5')
-models['HCL_Diff Close-Low0.4'] = OLSResults.load('./models/HCL_Diff Close-Low0.4.h5')
-models['HCL_Diff Close-Low0.6'] = OLSResults.load('./models/HCL_Diff Close-Low0.6.h5')
-models['HCL_Diff Close-Low1'] = OLSResults.load('./models/HCL_Diff Close-Low1.h5')
-models['HCL_Diff Close-Low1.5'] = OLSResults.load('./models/HCL_Diff Close-Low1.5.h5')
-models['HCL_Diff Close-Low2'] = OLSResults.load('./models/HCL_Diff Close-Low2.h5')
-models['HCL_Diff Close-Low2.5'] = OLSResults.load('./models/HCL_Diff Close-Low2.5.h5')
+ops = op_sell[:6]
+ops2 = op_sell[6:]
+ops.loc['Buy_'] = np.nan
 
-pricediff = True
-instrument = 'USD_JPY'
+ops['Buy Limit'] = ops2['Take Profit'].values
+ops['Buy Limit Probability'] = ops2['Probability'].values
 
-Actuals = ['Diff High-Close',
-           'Diff Close-Low']
+ops.index = ops2.index
 
-Responses = ['future High-Close',
-             'future Close-Low']
+new_order = [2,0,1,3,4]
+opb = opb[opb.columns[new_order]]
+ops = ops[ops.columns[new_order]]
 
 
-prices = ['USD_JPY_highMid', 'USD_JPY_lowMid', 'USD_JPY_closeMid', 'USD_JPY_date']
-
-gf['Diff High-Close'] = gf['USD_JPY_highMid'] - gf['USD_JPY_closeMid']
-gf['Diff Close-Low'] = gf['USD_JPY_closeMid'] - gf['USD_JPY_lowMid']
-
-fxcm = gf[prices]
-fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].astype(str)
-fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].str[:13]
-
-fxcm = fxcm.drop(0)
-
-variableshcl = pd.read_csv('./models/HCL_variables.csv', index_col=0)
-
-for i in Actuals:
-    for k in [0.2,0.4,0.6,1,1.5,2,2.5]:
-        i = i.replace('HCL_', '')
-        df = sd[variableshcl[i + str(k)].values.tolist()]
-        x = df.values
-        imod = 'HCL_' + i + str(k)
-        mod = models[imod]
-        act = i.replace('HCL_Diff ', '')
-        fxcm['Future ' + act + str(k)] = mod.predict(x)
-
-classpredsm = pd.DataFrame(fxcm.iloc[-2])
-classpredsm.columns = ['Prices']
-
-classpredsm = classpredsm.drop('USD_JPY_date')
-
-new_preds = classpredsm.iloc[:2]
-
-new_preds.columns = ['Prices']
-
-high_close = classpredsm.loc['USD_JPY_highMid']['Prices'] - classpredsm.loc['USD_JPY_closeMid']['Prices']
-close_low = classpredsm.loc['USD_JPY_closeMid']['Prices'] - classpredsm.loc['USD_JPY_lowMid']['Prices']
-
-buy_limits = pd.DataFrame({'Buy Limit 0.2': np.zeros(2),
-                       'Proba 0.2': np.zeros(2),
-                       'Buy Limit 0.4': np.zeros(2),
-                       'Proba 0.4': np.zeros(2),
-                       'Buy Limit 0.6': np.zeros(2),
-                       'Proba 0.6': np.zeros(2),
-                       'Buy Limit 1': np.zeros(2),
-                       'Proba 1': np.zeros(2),
-                       'Buy Limit 1.5': np.zeros(2),
-                       'Proba 1.5': np.zeros(2),
-                       'Buy Limit 2': np.zeros(2),
-                       'Proba 2': np.zeros(2),
-                       'Buy Limit 2.5': np.zeros(2),
-                       'Proba 2.5': np.zeros(2)},
-                     index = ['Set at', 'Take Profit'])
-
-buy_limits['Proba 0.2'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low0.2']['Prices']
-buy_limits['Proba 0.4'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low0.4']['Prices']
-buy_limits['Proba 0.6'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low0.6']['Prices']
-buy_limits['Proba 1'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low1']['Prices']
-buy_limits['Proba 1.5'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low1.5']['Prices']
-buy_limits['Proba 2'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low2']['Prices']
-buy_limits['Proba 2.5'].loc['Set at'] = classpredsm.loc['Future Diff Close-Low2.5']['Prices']
-
-buy_limits['Buy Limit 0.2'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*0.2
-buy_limits['Buy Limit 0.4'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*0.4
-buy_limits['Buy Limit 0.6'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*0.6
-buy_limits['Buy Limit 1'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*1
-buy_limits['Buy Limit 1.5'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*1.5
-buy_limits['Buy Limit 2'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*2
-buy_limits['Buy Limit 2.5'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*2.5
-
-buy_limits['Proba 0.2'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close0.2']['Prices']
-buy_limits['Proba 0.4'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close0.4']['Prices']
-buy_limits['Proba 0.6'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close0.6']['Prices']
-buy_limits['Proba 1'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close1']['Prices']
-buy_limits['Proba 1.5'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close1.5']['Prices']
-buy_limits['Proba 2'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close2']['Prices']
-buy_limits['Proba 2.5'].loc['Take Profit'] = classpredsm.loc['Future Diff High-Close2.5']['Prices']
-
-buy_limits['Buy Limit 0.2'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*0.2
-buy_limits['Buy Limit 0.4'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*0.4
-buy_limits['Buy Limit 0.6'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*0.6
-buy_limits['Buy Limit 1'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*1
-buy_limits['Buy Limit 1.5'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*1.5
-buy_limits['Buy Limit 2'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*2
-buy_limits['Buy Limit 2.5'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*2.5
-
-sell_limits = pd.DataFrame({'Sell Limit 0.2': np.zeros(2),
-                       'Proba 0.2': np.zeros(2),
-                       'Sell Limit 0.4': np.zeros(2),
-                       'Proba 0.4': np.zeros(2),
-                       'Sell Limit 0.6': np.zeros(2),
-                       'Proba 0.6': np.zeros(2),
-                       'Sell Limit 1': np.zeros(2),
-                       'Proba 1': np.zeros(2),
-                       'Sell Limit 1.5': np.zeros(2),
-                       'Proba 1.5': np.zeros(2),
-                       'Sell Limit 2': np.zeros(2),
-                       'Proba 2': np.zeros(2),
-                       'Sell Limit 2.5': np.zeros(2),
-                       'Proba 2.5': np.zeros(2)},
-                     index = ['Set at', 'Take Profit'])
-
-sell_limits['Proba 0.2'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low0.2']['Prices']
-sell_limits['Proba 0.4'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low0.4']['Prices']
-sell_limits['Proba 0.6'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low0.6']['Prices']
-sell_limits['Proba 1'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low1']['Prices']
-sell_limits['Proba 1.5'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low1.5']['Prices']
-sell_limits['Proba 2'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low2']['Prices']
-sell_limits['Proba 2.5'].loc['Take Profit'] = classpredsm.loc['Future Diff Close-Low2.5']['Prices']
-
-sell_limits['Sell Limit 0.2'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*0.2
-sell_limits['Sell Limit 0.4'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*0.4
-sell_limits['Sell Limit 0.6'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*0.6
-sell_limits['Sell Limit 1'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*1
-sell_limits['Sell Limit 1.5'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*1.5
-sell_limits['Sell Limit 2'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*2
-sell_limits['Sell Limit 2.5'].loc['Take Profit'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] - close_low*2.5
-
-sell_limits['Proba 0.2'].loc['Set at'] = classpredsm.loc['Future Diff High-Close0.2']['Prices']
-sell_limits['Proba 0.4'].loc['Set at'] = classpredsm.loc['Future Diff High-Close0.4']['Prices']
-sell_limits['Proba 0.6'].loc['Set at'] = classpredsm.loc['Future Diff High-Close0.6']['Prices']
-sell_limits['Proba 1'].loc['Set at'] = classpredsm.loc['Future Diff High-Close1']['Prices']
-sell_limits['Proba 1.5'].loc['Set at'] = classpredsm.loc['Future Diff High-Close1.5']['Prices']
-sell_limits['Proba 2'].loc['Set at'] = classpredsm.loc['Future Diff High-Close2']['Prices']
-sell_limits['Proba 2.5'].loc['Set at'] = classpredsm.loc['Future Diff High-Close2.5']['Prices']
-
-sell_limits['Sell Limit 0.2'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*0.2
-sell_limits['Sell Limit 0.4'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*0.4
-sell_limits['Sell Limit 0.6'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*0.6
-sell_limits['Sell Limit 1'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*1
-sell_limits['Sell Limit 1.5'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*1.5
-sell_limits['Sell Limit 2'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*2
-sell_limits['Sell Limit 2.5'].loc['Set at'] = classpredsm.loc['USD_JPY_closeMid']['Prices'] + high_close*2.5
+# In[7]:
 
 
-"""## Gameplan"""
-
-op_sell['Sell Limits'] = np.nan
-op_sell['Proba Sell Limits'] = np.nan
-op_sell['Sell Limits'].iloc[0] = sell_limits['Sell Limit 0.2'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[0] = sell_limits['Proba 0.2'].loc['Set at']
-op_sell['Sell Limits'].iloc[1] = sell_limits['Sell Limit 0.4'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[1] = sell_limits['Proba 0.4'].loc['Set at']
-op_sell['Sell Limits'].iloc[2] = sell_limits['Sell Limit 0.6'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[2] = sell_limits['Proba 0.6'].loc['Set at']
-op_sell['Sell Limits'].iloc[3] = sell_limits['Sell Limit 1'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[3] = sell_limits['Proba 1'].loc['Set at']
-op_sell['Sell Limits'].iloc[4] = sell_limits['Sell Limit 1.5'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[4] = sell_limits['Proba 1.5'].loc['Set at']
-op_sell['Sell Limits'].iloc[5] = sell_limits['Sell Limit 2'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[5] = sell_limits['Proba 2'].loc['Set at']
-op_sell['Sell Limits'].iloc[6] = sell_limits['Sell Limit 2.5'].loc['Set at']
-op_sell['Proba Sell Limits'].iloc[6] = sell_limits['Proba 2.5'].loc['Set at']
-
-op_buy['Buy Limits'] = np.nan
-op_buy['Proba Buy Limits'] = np.nan
-op_buy['Buy Limits'].iloc[0] = buy_limits['Buy Limit 0.2'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[0] = buy_limits['Proba 0.2'].loc['Set at']
-op_buy['Buy Limits'].iloc[1] = buy_limits['Buy Limit 0.4'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[1] = buy_limits['Proba 0.4'].loc['Set at']
-op_buy['Buy Limits'].iloc[2] = buy_limits['Buy Limit 0.6'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[2] = buy_limits['Proba 0.6'].loc['Set at']
-op_buy['Buy Limits'].iloc[3] = buy_limits['Buy Limit 1'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[3] = buy_limits['Proba 1'].loc['Set at']
-op_buy['Buy Limits'].iloc[4] = buy_limits['Buy Limit 1.5'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[4] = buy_limits['Proba 1.5'].loc['Set at']
-op_buy['Buy Limits'].iloc[5] = buy_limits['Buy Limit 2'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[5] = buy_limits['Proba 2'].loc['Set at']
-op_buy['Buy Limits'].iloc[6] = buy_limits['Buy Limit 2.5'].loc['Set at']
-op_buy['Proba Buy Limits'].iloc[6] = buy_limits['Proba 2.5'].loc['Set at']
+op_buy['Profit 0.01'] = 100*(op_buy['Take Profit'] - op_buy['Open'])
+op_sell['Profit 0.01'] = 100*(-op_sell['Take Profit'] + op_sell['Open'])
 
 
-op_buy = op_buy.drop(['Stop Loss', 'Proba SL'], axis=1).round(3)
-op_sell = op_sell.drop(['Stop Loss', 'Proba SL'], axis=1).round(3)
+# In[8]:
 
+
+new = [2,0,1,3]
+op_buy = op_buy[op_buy.columns[new]]
+op_sell = op_sell[op_sell.columns[new]]
+
+
+
+print(op_buy)
+print(op_sell)
 
 def send_email(subject,fromaddr, toaddr, password,body_text):
     """
