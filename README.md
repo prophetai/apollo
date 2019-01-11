@@ -10,7 +10,7 @@ Yes, just a few:
 - [Docker](https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac)
 
 You need also two important things:
-  - The models(.h5) and variable names (.csv) that create the predictions
+  - The add the `/models` folder inside `/apollo` with the models(.h5) and variable names (.csv) that create the predictions
   - Filling in an `.env` file with the needed environment variables
 
 You can find an example of the `.env` file named`.env.dist` at `apollo/src`

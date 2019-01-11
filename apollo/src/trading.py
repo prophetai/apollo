@@ -339,7 +339,6 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print('hola!!')
             print('automl.py -l')
             sys.exit(2)
         elif opt in ("-l", "--logging"):
