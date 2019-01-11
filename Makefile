@@ -11,5 +11,5 @@ push:
 	export PROJECT_ID=$$(gcloud config list --format 'value(core.project)')
 	gcloud docker -- push gcr.io/$${PROJECT_ID}/forex_update:latest
 ## Elimina lo creado por build y run
-clean:
-	@bash -x scripts/uninstall.sh
+cronjob:
+	kubectl create -f ./cronjob.yaml
