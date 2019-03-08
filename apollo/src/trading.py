@@ -1,6 +1,7 @@
 
 # coding: utf-8
 
+import argparse
 import os
 import sys, getopt
 import logging
@@ -22,6 +23,8 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bs4 import BeautifulSoup
+from trade.order import Order
+
 
 # Setup logging
 logging.basicConfig(
@@ -66,6 +69,8 @@ end = str(dt.now())[:10]
 freq = 'D'
 trading = True
 
+#obtenemos los datos del instrumento principal y de los adicionales
+time.sleep(10) #damos oportunidad a OANDA de que tenga los datos que necesitamos
 gf = get_forex(instrument, instruments, granularity, start, end, candleformat, freq, trading)
 
 sd = setup_data(gf,
@@ -83,35 +88,35 @@ sd['intercept'] = 1
 
 models = {}
 
-models['HHLL_LogDiff USD_JPY_highMid-1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-1.h5')
-models['HHLL_LogDiff USD_JPY_highMid-2'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-2.h5')
-models['HHLL_LogDiff USD_JPY_highMid-3'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-3.h5')
-models['HHLL_LogDiff USD_JPY_highMid-4'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-4.h5')
-models['HHLL_LogDiff USD_JPY_highMid-5'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-5.h5')
-models['HHLL_LogDiff USD_JPY_highMid-6'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid-6.h5')
+models['HHLL_LogDiff USD_JPY_highMid-1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-1.h5')
+models['HHLL_LogDiff USD_JPY_highMid-2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-2.h5')
+models['HHLL_LogDiff USD_JPY_highMid-3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-3.h5')
+models['HHLL_LogDiff USD_JPY_highMid-4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-4.h5')
+models['HHLL_LogDiff USD_JPY_highMid-5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-5.h5')
+models['HHLL_LogDiff USD_JPY_highMid-6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-6.h5')
 
-models['HHLL_LogDiff USD_JPY_lowMid-1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-1.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-2'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-2.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-3'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-3.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-4'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-4.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-5'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-5.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-6'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid-6.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-1.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-2.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-3.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-4.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-5.h5')
+models['HHLL_LogDiff USD_JPY_lowMid-6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-6.h5')
 
-models['HHLL_LogDiff USD_JPY_highMid0'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid0.h5')
-models['HHLL_LogDiff USD_JPY_highMid1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid1.h5')
-models['HHLL_LogDiff USD_JPY_highMid2'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid2.h5')
-models['HHLL_LogDiff USD_JPY_highMid3'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid3.h5')
-models['HHLL_LogDiff USD_JPY_highMid4'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid4.h5')
-models['HHLL_LogDiff USD_JPY_highMid5'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid5.h5')
-models['HHLL_LogDiff USD_JPY_highMid6'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_highMid6.h5')
+models['HHLL_LogDiff USD_JPY_highMid0'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid0.h5')
+models['HHLL_LogDiff USD_JPY_highMid1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid1.h5')
+models['HHLL_LogDiff USD_JPY_highMid2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid2.h5')
+models['HHLL_LogDiff USD_JPY_highMid3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid3.h5')
+models['HHLL_LogDiff USD_JPY_highMid4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid4.h5')
+models['HHLL_LogDiff USD_JPY_highMid5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid5.h5')
+models['HHLL_LogDiff USD_JPY_highMid6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid6.h5')
 
-models['HHLL_LogDiff USD_JPY_lowMid0'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid0.h5')
-models['HHLL_LogDiff USD_JPY_lowMid1'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid1.h5')
-models['HHLL_LogDiff USD_JPY_lowMid2'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid2.h5')
-models['HHLL_LogDiff USD_JPY_lowMid3'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid3.h5')
-models['HHLL_LogDiff USD_JPY_lowMid4'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid4.h5')
-models['HHLL_LogDiff USD_JPY_lowMid5'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid5.h5')
-models['HHLL_LogDiff USD_JPY_lowMid6'] = OLSResults.load('./models/HHLL_LogDiff USD_JPY_lowMid6.h5')
+models['HHLL_LogDiff USD_JPY_lowMid0'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid0.h5')
+models['HHLL_LogDiff USD_JPY_lowMid1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid1.h5')
+models['HHLL_LogDiff USD_JPY_lowMid2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid2.h5')
+models['HHLL_LogDiff USD_JPY_lowMid3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid3.h5')
+models['HHLL_LogDiff USD_JPY_lowMid4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid4.h5')
+models['HHLL_LogDiff USD_JPY_lowMid5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid5.h5')
+models['HHLL_LogDiff USD_JPY_lowMid6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid6.h5')
 
 
 pricediff = True
@@ -132,7 +137,7 @@ fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].str[:13]
 
 fxcm = fxcm.drop(0)
 
-variableshhll = pd.read_csv('./models/HHLL_variables.csv', index_col=0)
+variableshhll = pd.read_csv('./src/models/HHLL_variables.csv', index_col=0)
 
 for i in Actuals:
     for k in [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]:
@@ -159,9 +164,6 @@ low = [i for i in classpredsm.index if 'low' in i and 'Future' in i]
 low = classpredsm['Prices'].loc[low]
 
 
-# In[4]:
-
-
 new_preds = classpredsm.iloc[:2]
 
 new_preds.columns = ['Prices']
@@ -181,18 +183,12 @@ new_preds = new_preds.round(3)
 new_preds = new_preds.drop('Prices', axis=1)
 
 
-# In[5]:
-
-
 probas = [i for i in new_preds.columns if 'p(' in i]
 prices = [i for i in new_preds.columns if '%' in i or 'P' in i]
 
 
-# In[6]:
-
-
 indx = 'Buy'
-current_open = gf['USD_JPY_openMid'].iloc[-1]
+current_open = gf['USD_JPY_openMid'].iloc[-1].round(3)
 
 op_buy = pd.DataFrame({'Take Profit': np.zeros(13)},
                   index=[indx + '-6',
@@ -261,14 +257,9 @@ opb = opb[opb.columns[new_order]]
 ops = ops[ops.columns[new_order]]
 
 
-# In[7]:
-
 
 op_buy['Profit 0.01'] = 100*(op_buy['Take Profit'] - op_buy['Open'])
 op_sell['Profit 0.01'] = 100*(-op_sell['Take Profit'] + op_sell['Open'])
-
-
-# In[8]:
 
 
 new = [2,0,1,3]
@@ -276,9 +267,58 @@ op_buy = op_buy[op_buy.columns[new]]
 op_sell = op_sell[op_sell.columns[new]]
 
 
+buckets = pd.read_csv('./src/models/HHLL_buckets.csv', index_col=0)
+highs = [c for c in buckets.columns if 'high' in c]
+lows = [c for c in buckets.columns if 'low' in c]
 
+op_buy['bucket'] = np.nan
+
+def mapper(x):
+    res = np.nan
+    if x < 0.1:
+        res = '0-10'
+    if x >= 0.1 and x < 0.2:
+        res = '10-20'
+    if x >= 0.2 and x < 0.3:
+        res = '20-30'
+    if x >= 0.3 and x < 0.4:
+        res = '30-40'
+    if x >= 0.4 and x < 0.5:
+        res = '40-50'
+    if x >= 0.5 and x < 0.6:
+        res = '50-60'
+    if x >= 0.6 and x < 0.7:
+        res = '60-70'
+    if x >= 0.7 and x < 0.8:
+        res = '70-80'
+    if x >= 0.8 and x < 0.9:
+        res = '80-90'
+    if x >= 0.9:
+        res = '90-100'
+    return res
+
+for i in range(len(op_buy)):
+    bucket_col = buckets[buckets[highs].columns[i]]
+    ind = mapper(op_buy.iloc[i]['Probability'])
+    try:
+        op_buy['bucket'].iloc[i] = bucket_col.loc[ind]
+    except:
+        pass
+
+op_sell['bucket'] = np.nan
+for i in range(len(op_sell)):
+    bucket_col = buckets[buckets[lows].columns[i]]
+    ind = mapper(op_sell.iloc[i]['Probability'])
+    try:
+        op_sell['bucket'].iloc[i] = bucket_col.loc[ind]
+    except:
+        pass
+op_buy.drop(columns=['Profit 0.01'], inplace=True)
+op_sell.drop(columns=['Profit 0.01'], inplace=True)
 print(op_buy)
 print(op_sell)
+
+
 
 def send_email(subject,fromaddr, toaddr, password,body_text):
     """
@@ -289,7 +329,7 @@ def send_email(subject,fromaddr, toaddr, password,body_text):
     """
 
     toaddr = toaddr.split(' ')
-    html_template = open("./email/email_template.html", 'r')
+    html_template = open("./src/email/email_template.html", 'r')
     html_template = html_template.read()
 
     # datetime object with timezone awareness:
@@ -313,8 +353,6 @@ def send_email(subject,fromaddr, toaddr, password,body_text):
     br = soup.new_tag('br')
 
     for i, table in enumerate(soup.select('table.dataframe')):
-        print(f'i: {i}')
-        print(f'body_text[{i}]: {body_text[i]}')
         table.replace_with(BeautifulSoup(body_text[i].to_html(), "html.parser"))
 
 
@@ -330,26 +368,23 @@ def main(argv):
     """
     Main
     """
-    stackdriver_logging = False
-    try:
-      opts, args = getopt.getopt(argv,"l:",["logging"])
-    except getopt.GetoptError:
-        print('trading.py -l')
-        sys.exit(2)
+    parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
+    parser.add_argument('-o','--order', action='store_true',
+                        help='Determine if you want to make an order')
 
-    for opt, arg in opts:
-        if opt == '-h':
-            print('automl.py -l')
-            sys.exit(2)
-        elif opt in ("-l", "--logging"):
-            stackdriver_logging = True
+    args = parser.parse_args()
+    make_order = args.order or False
 
-    if stackdriver_logging:
-        import google.cloud.logging
-        # Inicia el cliente de logs de Google
-        logging_client = google.cloud.logging.Client()
-        # Configura que todos los logs se vayan a stackdriver
-        logging_client.setup_logging()
+    if make_order:
+        # Hacer decisón para la posición
+
+        # Pone orden a precio de mercado
+        new_order = Order()
+        new_order.make_market_order(units, inv_instrument)
+        # Poner stop loss de orden
+        new_order.set_stop_loss(stop_loss)
+        # Poner Take profit
+        new_order.set_take_profit(take_profit)
 
     #send emails
     send_email('Predicciones de USDJPY',
