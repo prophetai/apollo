@@ -9,6 +9,10 @@ import pandas as pd
 import numpy as np
 from statsmodels.regression.linear_model import OLSResults
 
+from send_predictions.email_send import send_email, create_html
+from send_predictions.telegram_send import telegram_bot
+
+
 #utolities propias
 from utils import get_forex, setup_data
 
@@ -16,15 +20,6 @@ from utils import get_forex, setup_data
 import datetime
 from datetime import datetime as dt
 import time
-import pytz
-
-#librerías para mandar correo
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from bs4 import BeautifulSoup
-from trade.order import Order
-
 
 # Setup logging
 logging.basicConfig(
@@ -34,7 +29,6 @@ logging.basicConfig(
     #filename='log.txt'
 )
 
-COMMASPACE = ', '
 candleformat = 'midpoint'
 instrument = 'USD_JPY'
 instruments = ['USD_JPY',
@@ -64,8 +58,9 @@ instruments = ['USD_JPY',
                'EUR_USD']
 
 granularity = 'H1'
-start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
-end = str(dt.now())[:10]
+start = str(datetime.datetime.now() + datetime.timedelta(days=-3))[:10]
+end = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
+print(f'start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
@@ -319,55 +314,15 @@ print(op_buy)
 print(op_sell)
 
 
-
-def send_email(subject,fromaddr, toaddr, password,body_text):
-    """
-    Manda email de tu correo a tu correo
-    Args:
-        subject (str): Asunto del correo
-        body_test (str): Cuerpo del correo
-    """
-
-    toaddr = toaddr.split(' ')
-    html_template = open("./src/email/email_template.html", 'r')
-    html_template = html_template.read()
-
-    # datetime object with timezone awareness:
-    dt.now(tz=pytz.utc)
-
-    # seconds from epoch:
-    dt.now(tz=pytz.utc).timestamp()
-
-    # ms from epoch:
-    hora_now = int(dt.now(tz=pytz.utc).timestamp() * 1000)
-    hora_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-
-    msg = MIMEMultipart()
-    msg.preamble = f'Predicciones de la hora {hora_now}'
-    msg['From'] = fromaddr
-    msg['To'] = COMMASPACE.join(toaddr)
-    msg['Subject'] = subject + ' '+str(hora_now)
-
-    soup = BeautifulSoup(html_template, features="lxml")
-    find_buy = soup.find("table", {"id": "buy_table"})
-    br = soup.new_tag('br')
-
-    for i, table in enumerate(soup.select('table.dataframe')):
-        table.replace_with(BeautifulSoup(body_text[i].to_html(), "html.parser"))
-
-
-    msg.attach(MIMEText(soup, 'html'))
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(fromaddr, password)
-    text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
-    server.quit()
-
 def main(argv):
     """
     Main
     """
+    TOKEN = os.environ['telegram_token']
+    CHAT_ID = os.environ['telegram_chat_id']
+    html_template_path ="./src/assets/email/email_template.html"
+    hora_now = time.strftime('%Y-%m-%d %H:%M:%S', datetime.datetime.now() + datetime.timedelta(hours=-6))
+
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
     parser.add_argument('-o','--order', action='store_true',
                         help='Determine if you want to make an order')
@@ -386,12 +341,19 @@ def main(argv):
         # Poner Take profit
         new_order.set_take_profit(take_profit)
 
-    #send emails
+
+    html_file = create_html([op_buy, op_sell], html_template_path)
+    # send emails
     send_email('Predicciones de USDJPY',
                 os.environ['email_from'],
                 os.environ['email_members'],
                 os.environ['email_pass'],
-                [op_buy, op_sell])
+                html_file)
+
+    # send telegram
+    bot = telegram_bot(TOKEN, html_file)
+    bot.send_message(CHAT_ID, f"Predicciones de la hora {hora_now}")
+    bot.send_file(CHAT_ID, html_file)
 
 if __name__ == '__main__':
     #load settings
