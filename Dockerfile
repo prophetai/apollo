@@ -1,11 +1,12 @@
 FROM ubuntu:latest
 MAINTAINER "Dudley Díaz <deds15@gmail.com>"
 
-RUN apt-get update
-RUN apt-get -y install cron
+ENV LANG C.UTF-8
+RUN apt-get update && apt-get -y install cron
 RUN apt-get -y install vim
-RUN apt-get -y install python3
-RUN alias python=python3
+RUN apt-get -y install python
+RUN apt-get -y install wkhtmltopdf
+RUN alias python=python
 RUN apt-get -y install python-pip
 RUN apt install -y python3-pip
 RUN alias pip=pip3

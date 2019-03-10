@@ -2,6 +2,7 @@
 # coding: utf-8
 
 import argparse
+import pytz
 import os
 import sys, getopt
 import logging
@@ -9,7 +10,7 @@ import pandas as pd
 import numpy as np
 from statsmodels.regression.linear_model import OLSResults
 
-from send_predictions.email_send import send_email, create_html
+from send_predictions.email_send import send_email, create_html, from_html_to_jpg
 from send_predictions.telegram_send import telegram_bot
 
 
@@ -58,9 +59,9 @@ instruments = ['USD_JPY',
                'EUR_USD']
 
 granularity = 'H1'
-start = str(datetime.datetime.now() + datetime.timedelta(days=-3))[:10]
-end = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
-print(f'start:{start}, end:{end}')
+start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
+end = str(dt.now())[:10]
+print(f'Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
@@ -321,7 +322,8 @@ def main(argv):
     TOKEN = os.environ['telegram_token']
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
-    hora_now = time.strftime('%Y-%m-%d %H:%M:%S', datetime.datetime.now() + datetime.timedelta(hours=-6))
+
+    hora_now = f'{datetime.datetime.now() - datetime.timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
     parser.add_argument('-o','--order', action='store_true',
@@ -341,8 +343,9 @@ def main(argv):
         # Poner Take profit
         new_order.set_take_profit(take_profit)
 
+    html_file, html_path = create_html([op_buy, op_sell], html_template_path)
+    image_file, image_name = from_html_to_jpg(html_path)
 
-    html_file = create_html([op_buy, op_sell], html_template_path)
     # send emails
     send_email('Predicciones de USDJPY',
                 os.environ['email_from'],
@@ -351,9 +354,9 @@ def main(argv):
                 html_file)
 
     # send telegram
-    bot = telegram_bot(TOKEN, html_file)
+    bot = telegram_bot(TOKEN)
     bot.send_message(CHAT_ID, f"Predicciones de la hora {hora_now}")
-    bot.send_file(CHAT_ID, html_file)
+    bot.send_photo(CHAT_ID, f'{image_name}')
 
 if __name__ == '__main__':
     #load settings

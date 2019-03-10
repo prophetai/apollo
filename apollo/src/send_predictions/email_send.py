@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import pytz
 import time
 from datetime import datetime as dt
+import imgkit
 
 #librerías para mandar correo
 import smtplib
@@ -58,4 +61,14 @@ def create_html(body_text, html_template_path):
     for i, table in enumerate(soup.select('table.dataframe')):
         table.replace_with(BeautifulSoup(body_text[i].to_html(), "html.parser"))
 
-    return soup
+    html_path = f"USDJPY_predictions.html"
+    with open(html_path, "w") as file:
+        file.write(str(soup))
+
+    return soup, html_path
+
+def from_html_to_jpg(html_path):
+    file_name = html_path.split('.html')[0] + '.jpg'
+    image = imgkit.from_file(html_path, file_name)
+
+    return image, file_name

@@ -6,7 +6,7 @@ build:
 ## Corre el contenedor hecho en build
 run:
 	export PROJECT_ID=$$(gcloud config list --format 'value(core.project)')
-	docker run gcr.io/$${PROJECT_ID}/forex_update:latest python3 /home/apollo/src/trading.py
+	docker run --rm gcr.io/$${PROJECT_ID}/forex_update:latest python3 /home/apollo/src/trading.py
 ## Hace push el contenedor creado hacia el repositorio que esté configurado
 push:
 	export PROJECT_ID=$$(gcloud config list --format 'value(core.project)')

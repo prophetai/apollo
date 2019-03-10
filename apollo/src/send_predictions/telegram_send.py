@@ -24,8 +24,12 @@ class telegram_bot():
     def send_message(self,chat_id, message):
         self.bot.send_message(chat_id=chat_id, text=message)
 
-    def send_file(self,chat_id, file):
-        self.bot.send_document(chat_id=chat_id, document=open(file, 'rb'))
+    def send_file(self,chat_id, file_path):
+        self.bot.send_document(chat_id=chat_id, document=open(file_path, 'rb'))
+
+    def send_photo(self,chat_id, photo_path):
+        self.bot.send_photo(chat_id=chat_id, photo=open(photo_path, 'rb'))
+
 
 def main():
     TOKEN = os.environ['telegram_token']
