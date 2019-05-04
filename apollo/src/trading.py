@@ -1,4 +1,3 @@
-
 # coding: utf-8
 
 import argparse
@@ -61,7 +60,7 @@ instruments = ['USD_JPY',
 granularity = 'H1'
 start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
-print(f'Data from start:{start}, end:{end}')
+print('Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
@@ -334,7 +333,7 @@ def main(argv):
 
     if make_order:
         # Hacer decisón para la posición
-
+        
         # Pone orden a precio de mercado
         new_order = Order()
         new_order.make_market_order(units, inv_instrument)

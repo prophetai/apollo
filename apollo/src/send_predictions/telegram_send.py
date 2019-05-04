@@ -37,6 +37,5 @@ def main():
     bot = telegram_bot(TOKEN)
 
     hora_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime() )#- dt.timedelta(hours=6))
-
     bot.send_message(CHAT_ID, f"Predicciones de la hora {hora_now}")
     bot.send_file(CHAT_ID,'./src/assets/email/email_template.html')
