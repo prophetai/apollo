@@ -12,7 +12,7 @@ init.sh
 # C extensions
 *.so
 
-# Distribution / packaging
+# Distribution / packaging 
 .Python
 build/
 develop-eggs/
@@ -109,3 +109,6 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# VS code specifics
+.vscode

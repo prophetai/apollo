@@ -1,0 +1,11 @@
+hostname: api-fxpractice.oanda.com
+streaming_hostname: stream-fxpractice.oanda.com
+port: 443
+ssl: true
+token: 26fc98e8a6694e14ba203a7064823e0c-65abfcb93c9e39d4b600edb50e0329f3
+username: mrdeds
+datetime_format: RFC3339
+accounts:
+- 101-004-9843479-001
+- 101-004-9843479-002
+active_account: 101-004-9843479-002

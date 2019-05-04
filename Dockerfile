@@ -1,11 +1,17 @@
 FROM ubuntu:latest
-MAINTAINER "Dudley Díaz <deds15@gmail.com>"
+LABEL maintainer "Dudley Díaz <deds15@gmail.com>"
 
-RUN apt-get update
-RUN apt-get -y install cron
+ENV LANG C.UTF-8
+RUN apt-get update -y && apt-get -y install cron
 RUN apt-get -y install vim
-RUN apt-get -y install python3
-RUN alias python=python3
+RUN apt-get -y install python
+RUN apt-get -y install xfonts-75dpi
+RUN DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential xorg libssl-dev libxrender-dev wget
+RUN wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+    dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+    apt-get install -f
+
+RUN alias python=python
 RUN apt-get -y install python-pip
 RUN apt install -y python3-pip
 RUN alias pip=pip3

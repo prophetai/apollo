@@ -80,7 +80,7 @@ def get_forex(instrument,
 
         if trading == False:
             pbar.close()
-        date = pd.DatetimeIndex(df['time'], tz='UTC')
+        date = pd.DatetimeIndex(df['time'])
         df['date'] = date
         cols = [j + '_' + k for k in df.columns]
         df.columns = cols
