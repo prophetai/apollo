@@ -39,10 +39,10 @@ class Order():
             	"instrument": self.inv_instrument,
             	"units": units,
                 "takeProfitOnFill":{
-                    "price": self.take_profit
+                    "price": str(self.take_profit)
                 },
                 "stopLossOnFill":{
-                    "price": self.stop_loss
+                    "price": str(self.stop_loss)
                 }
             }
         }

@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import oandapy as opy
+import v20
 import psycopg2
 import logging
 import os
@@ -95,6 +96,15 @@ def get_forex(instrument,
                        right_on=join_id, how='left')
 
     return dat
+def get_indicator(instrument, indicator):
+    oanda = v20.pricing()
+    response = api.pricing.get(
+            account_id,
+            instruments=",".join(args.instrument),
+            since=latest_price_time,
+            includeUnitsAvailable=False
+        )
+    return data
 
 def calculate_difference(dat, log=True, drop=False):
     """
@@ -217,13 +227,13 @@ def reduce_multicol_randomly(data, instrument, dontdrop=[]):
     while len(dropping) >= 2:
         vif = get_vif(dat)
         svif = vif.sort_values('vif').reset_index(drop=True)
-        display(svif)
+        print(svif)
         dropping = svif[svif['vif'] >= 100]
         try:
             vif_drops = list(dropping.sample(n=int(len(dropping)/2))['feature'].values)
             dat = dat.drop(vif_drops, axis=1)
         except:
-            display(svif)
+            print(svif)
 
     df['intercept'] = 1
     dfcols = list(dat.columns) + dontdrop
@@ -376,7 +386,7 @@ def model_precision(y, predictions, sc, disp=False):
     res.loc['MCC'] = mcc
 
     if disp != False:
-        display(res)
+        print(res)
 
     return accuracy, precision, recall, f1_score, mcc
 
@@ -570,8 +580,8 @@ def show_metrics(y, predictions, sc=0.5, disp=True, n=10):
     """
     yt = y.copy()
     predictionst = predictions.copy()
-    display(qcut_precision(yt, predictionst, n))
-    display(tenbin_cutscore(yt, predictionst))
+    print(qcut_precision(yt, predictionst, n))
+    print(tenbin_cutscore(yt, predictionst))
     metrics = model_precision(yt, predictionst, sc, disp)
     plot_roc(yt, predictionst)
     plot_prc(yt, predictionst)
@@ -616,8 +626,8 @@ def model_creation_hhll(dat, instrument, prints, scaling):
                 df[response] = np.exp(df[actual].shift(-1)).apply(lambda x: 1 if x>=(1 + k/10000) else 0)
             df = df.drop(Actuals, axis=1)
             df = df.dropna()
-            display(df.head())
-            display(df.corr()[[response]].sort_values(response))
+            print(df.head())
+            print(df.corr()[[response]].sort_values(response))
             X_train, X_test, y_train, y_test = train_test(df,
                                                           response,
                                                           train_size=0.75,
@@ -681,14 +691,14 @@ def model_creation_hcl(dat, instrument, prints, scaling):
             logging.info(k)
             df = DF.copy()
             df[response] = df[actual].shift(-1)
-            display(df[[actual,response]].head())
+            print(df[[actual,response]].head())
             df[response] = df[response].div(df[actual])
-            display(df[[actual,response]].head())
+            print(df[[actual,response]].head())
             df[response] = df[response].apply(lambda x: 1 if x>=k else 0)
             #df = df.drop(Actuals, axis=1)
             #df = get_bestvars(df, response, 0.05, dontdrop=None, fecha=None)
             df = df.dropna()
-            display(df.corr()[[response]].sort_values(response))
+            print(df.corr()[[response]].sort_values(response))
             X_train, X_test, y_train, y_test = train_test(df,
                                                           response,
                                                           train_size=0.75,
@@ -760,7 +770,7 @@ def model_creation_mc(dat, instrument, prints, scaling):
     #df = df.drop(Actuals, axis=1)
     #df = get_bestvars(df, response, 0.05, dontdrop=None, fecha=None)
     df = df.dropna()
-    display(df.corr()[[response]].sort_values(response))
+    print(df.corr()[[response]].sort_values(response))
     X_train, X_test, y_train, y_test = train_test(df,
                                                   response,
                                                   train_size=0.75,

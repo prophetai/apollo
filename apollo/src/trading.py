@@ -9,6 +9,9 @@ import pandas as pd
 import numpy as np
 from statsmodels.regression.linear_model import OLSResults
 
+from trade.logic import Decide
+from trade.order import Order
+
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg
 from send_predictions.telegram_send import telegram_bot
 
@@ -60,7 +63,7 @@ instruments = ['USD_JPY',
 granularity = 'H1'
 start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
-print('Data from start:{start}, end:{end}')
+print(f'Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
@@ -333,14 +336,19 @@ def main(argv):
 
     if make_order:
         # Hacer decisón para la posición
-        
+        new_order = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+        new_order.get_all_pips()
+        units = 1 #* new_order.magnitude
+        inv_instrument = 'USD_JPY'
+        stop_loss = round(new_order.stop_loss,2)
+        take_profit = round(new_order.take_profit,2)
         # Pone orden a precio de mercado
-        new_order = Order()
-        new_order.make_market_order(units, inv_instrument)
+        new_order = Order(inv_instrument, take_profit, stop_loss)
+        new_order.make_market_order(units)
         # Poner stop loss de orden
-        new_order.set_stop_loss(stop_loss)
+        #new_order.set_stop_loss(stop_loss)
         # Poner Take profit
-        new_order.set_take_profit(take_profit)
+        #new_order.set_take_profit(take_profit)
 
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
     image_file, image_name = from_html_to_jpg(html_path)

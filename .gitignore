@@ -112,3 +112,5 @@ venv.bak/
 
 # VS code specifics
 .vscode
+apollo/USDJPY_predictions.jpg
+apollo/USDJPY_predictions.html

@@ -1,13 +1,30 @@
 # coding: utf-8
 
-def get_profit(open_price, close_price, lots):
-        pip_dif = close_price - open_price
+def get_profit(open_price, tp_price, lots):
+        pip_dif = abs(tp_price - open_price)
 
         profit_yen = pip_dif * lots * 1000
 
-        profit_dlls = profit_yen / close_price
+        profit_dlls = profit_yen / tp_price
 
         return profit_dlls
+def get_loss(open_price, sl_price, lots):
+    pip_dif = sl_price - open_price
+
+    loss_yen = pip_dif * lots * 1000
+
+    loss_dlls = loss_yen / sl_price
+
+    return loss_dlls
+
+def get_loss_sell(open_price, sl_price, lots):
+    pip_dif = sl_price - open_price
+
+    loss_yen = pip_dif * lots * 1000
+
+    loss_dlls = loss_yen / sl_price
+
+    return loss_dlls
 
 if __name__ == '__main__':
     open_price = 109.562
