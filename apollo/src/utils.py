@@ -96,15 +96,7 @@ def get_forex(instrument,
                        right_on=join_id, how='left')
 
     return dat
-def get_indicator(instrument, indicator):
-    oanda = v20.pricing()
-    response = api.pricing.get(
-            account_id,
-            instruments=",".join(args.instrument),
-            since=latest_price_time,
-            includeUnitsAvailable=False
-        )
-    return data
+
 
 def calculate_difference(dat, log=True, drop=False):
     """
