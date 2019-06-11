@@ -114,5 +114,5 @@ venv.bak/
 .vscode
 apollo/USDJPY_predictions.jpg
 apollo/USDJPY_predictions.html
-config.yaml
-cronjob.yaml
+*config.yaml
+*cronjob.yaml
