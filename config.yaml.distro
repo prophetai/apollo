@@ -1,0 +1,11 @@
+hostname: hostname
+streaming_hostname: streaminghostname
+port: port
+ssl: true
+token: token
+username: username
+datetime_format: datetimeforma
+accounts:
+- account
+- account
+active_account: account

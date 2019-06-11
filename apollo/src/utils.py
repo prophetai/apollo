@@ -515,7 +515,7 @@ def plot_roc(y, predictions):
         y (array): Vector de variable objetivo
         predictions (array): Vector de predicciones
     """
-    fpr, tpr, thresholds = roc_curve(y,
+    fpr, tpr, _ = roc_curve(y,
                                      predictions,
                                      pos_label=None,
                                      sample_weight=None,
@@ -539,7 +539,7 @@ def plot_prc(y, predictions):
         predictions (array): Vector de predicciones
     """
     average_precision = average_precision_score(y, predictions).round(5)
-    precision, recall, threshold = precision_recall_curve(y, predictions)
+    precision, recall, _ = precision_recall_curve(y, predictions)
     step_kwargs = ({'step': 'post'}
                    if 'step' in signature(plt.fill_between).parameters
                    else {})
@@ -578,6 +578,7 @@ def show_metrics(y, predictions, sc=0.5, disp=True, n=10):
     plot_prc(yt, predictionst)
     plt.subplots_adjust(left=3.1, right=5.1, bottom=2, top=3, hspace=0.2, wspace=0.5)
     plt.show()
+    print(metrics)
 
 def model_creation_hhll(dat, instrument, prints, scaling):
     """
@@ -671,10 +672,8 @@ def model_creation_hcl(dat, instrument, prints, scaling):
     df = dat.copy()
     DF = df.copy()
 
-    Actuals = ['Diff High-Close'.format(instrument),
-               'Diff Close-Low'.format(instrument)]
-    Responses = ['future high-close',
-                 'future close-low']
+    Actuals = [f'Diff High-Close_{instrument}', f'Diff Close-Low_{instrument}']
+    Responses = ['future high-close', 'future close-low']
     models = {}
     variables = {}
     for k in [1.5, 2, 2.5]:
