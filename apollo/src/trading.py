@@ -340,7 +340,7 @@ def main(argv):
         op_sell_dec = op_sell.copy()
         decision = Decide(op_buy_dec, op_sell_dec, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
         decision.get_all_pips()
-        units = 1 * decision.direction
+        units = 100 * decision.direction
         inv_instrument = 'USD_JPY'
         stop_loss = decision.stop_loss
         take_profit = decision.take_profit
