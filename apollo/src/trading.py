@@ -9,6 +9,9 @@ import pandas as pd
 import numpy as np
 from statsmodels.regression.linear_model import OLSResults
 
+from trade.logic import Decide
+from trade.order import Order
+
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg
 from send_predictions.telegram_send import telegram_bot
 
@@ -60,12 +63,12 @@ instruments = ['USD_JPY',
 granularity = 'H1'
 start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
-print('Data from start:{start}, end:{end}')
+print(f'Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
 #obtenemos los datos del instrumento principal y de los adicionales
-time.sleep(10) #damos oportunidad a OANDA de que tenga los datos que necesitamos
+time.sleep(5) #damos oportunidad a OANDA de que tenga los datos que necesitamos
 gf = get_forex(instrument, instruments, granularity, start, end, candleformat, freq, trading)
 
 sd = setup_data(gf,
@@ -150,7 +153,7 @@ classpredsm.columns = ['Prices']
 classpredsm = classpredsm.drop('USD_JPY_date')
 
 
-# In[3]:
+
 
 
 high = [i for i in classpredsm.index if 'high' in i and 'Future' in i]
@@ -333,15 +336,25 @@ def main(argv):
 
     if make_order:
         # Hacer decisón para la posición
+        op_buy_dec = op_buy.copy()
+        op_sell_dec = op_sell.copy()
+        decision = Decide(op_buy_dec, op_sell_dec, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+        decision.get_all_pips()
+        units = 1 * decision.direction
+        inv_instrument = 'USD_JPY'
+        stop_loss = decision.stop_loss
+        take_profit = decision.take_profit
+
+        print(f'\n{decision.decision}')
         
         # Pone orden a precio de mercado
-        new_order = Order()
-        new_order.make_market_order(units, inv_instrument)
-        # Poner stop loss de orden
-        new_order.set_stop_loss(stop_loss)
-        # Poner Take profit
-        new_order.set_take_profit(take_profit)
-
+        print(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}')
+        
+        if units != 0:
+            new_order = Order(inv_instrument, take_profit, stop_loss)
+            new_order.make_market_order(units)
+        op_buy, 
+    
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
     image_file, image_name = from_html_to_jpg(html_path)
 
@@ -356,6 +369,8 @@ def main(argv):
     bot = telegram_bot(TOKEN)
     bot.send_message(CHAT_ID, f"Predicciones de la hora {hora_now}")
     bot.send_photo(CHAT_ID, f'{image_name}')
+    if make_order:
+        bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
 
 if __name__ == '__main__':
     #load settings
