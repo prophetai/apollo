@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import oandapy as opy
 import v20
-import psycopg2
 import logging
 import os
 from datetime import datetime as dt

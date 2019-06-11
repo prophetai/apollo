@@ -153,7 +153,7 @@ classpredsm.columns = ['Prices']
 classpredsm = classpredsm.drop('USD_JPY_date')
 
 
-# In[3]:
+
 
 
 high = [i for i in classpredsm.index if 'high' in i and 'Future' in i]
@@ -336,7 +336,9 @@ def main(argv):
 
     if make_order:
         # Hacer decisón para la posición
-        decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+        op_buy_dec = op_buy.copy()
+        op_sell_dec = op_sell.copy()
+        decision = Decide(op_buy_dec, op_sell_dec, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
         decision.get_all_pips()
         units = 1 * decision.direction
         inv_instrument = 'USD_JPY'
@@ -351,7 +353,7 @@ def main(argv):
         if units != 0:
             new_order = Order(inv_instrument, take_profit, stop_loss)
             new_order.make_market_order(units)
-
+        op_buy, 
     
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
     image_file, image_name = from_html_to_jpg(html_path)

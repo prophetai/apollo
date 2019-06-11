@@ -15,5 +15,5 @@ spec:
             - name: forex-cron
               image: gcr.io/winter-return-223922/forex_update:latest
               command: ["python3"]
-              args: ["/home/apollo/src/trading.py"]
+              args: ["/home/apollo/src/trading.py -o"]
           restartPolicy: Never
