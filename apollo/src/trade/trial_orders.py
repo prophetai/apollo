@@ -1,4 +1,4 @@
-from order import Order
+from .order import Order
 
 units = 1
 inv_instrument = "USD_JPY"
