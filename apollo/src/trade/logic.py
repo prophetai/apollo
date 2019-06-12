@@ -70,7 +70,7 @@ class Decide:
             buy_decision_tp = data_buy_tp_aux.loc[buy_decision_tp_idx]
             buy_gain = buy_decision_tp['portfolio_gain'] - self.portfolio
             print(f'buy_gain: {buy_gain}')
-            time.sleep(1)
+
             if buy_gain > self.spread:
                 greater_spread = True
             else:
@@ -141,13 +141,13 @@ class Decide:
         if decision_buy > decision_sell and buy_decision_tp['portfolio_gain'] - portfolio >  self.spread :
             self.decision = self.decision + '\n Buy!\n' + str(buy_decision_tp) + str(buy_decision_sl) + f'\n Expected Utility: {decision_buy}'
             self.direction = 1
-            self.take_profit = round(buy_decision_tp['Take Profit'] + self.spread,2)
-            self.stop_loss = round(buy_decision_sl['Stop Loss'] - self.spread,2)
+            self.take_profit = round(buy_decision_tp['Take Profit'] + self.spread/2,3) # IMPORTANT!! SPREAD WAS ADDED
+            self.stop_loss = round(buy_decision_sl['Stop Loss'] - self.spread/2,3)
         elif decision_sell > decision_buy and sell_decision_tp['portfolio_gain'] - portfolio  >  self.spread :
             self.decision = self.decision +'\n Sell!\n' + str(sell_decision_tp) + str(sell_decision_sl) + f'\n Expected Utility: {decision_sell}'
             self.direction = -1
-            self.take_profit = round(sell_decision_tp['Take Profit'] - self.spread, 2)
-            self.stop_loss = round(sell_decision_sl['Stop Loss'] + self.spread, 2)   
+            self.take_profit = round(sell_decision_tp['Take Profit'] - self.spread/2, 3)
+            self.stop_loss = round(sell_decision_sl['Stop Loss'] + self.spread/2, 3)   
         else:
             self.decision = f'Neutral \nBuy utility:{decision_buy} \nSell utility: {decision_sell})'
             self.decision += f"\nBuy Gain ${sell_decision_tp['portfolio_gain'] - portfolio}"
