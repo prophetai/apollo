@@ -3,6 +3,7 @@
 build:
 	export PROJECT_ID=$$(gcloud config list --format 'value(core.project)')
 	docker build --rm=true -t gcr.io/$${PROJECT_ID}/forex_update:latest .
+	docker system prune --volumes -f
 ## Corre el contenedor hecho en build
 run:
 	export PROJECT_ID=$$(gcloud config list --format 'value(core.project)')
