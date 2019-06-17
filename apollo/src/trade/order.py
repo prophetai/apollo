@@ -51,9 +51,9 @@ class Order():
         url = os.environ['trading_url']
         #try:
         response = requests.post(url, json=data, headers=self.hed)
-        print(response)
+        print(f'Response code for Order sent:\n{response}')
         json_response = response.json()
-        print(json_response)
+        print(f'Content of response:\n{json_response}')
         self.tradeID = json_response['orderCreateTransaction']['id']
         #self.market_price = json_response['orderCreateTransaction']['price']
         #except requests.exceptions.RequestException as e:

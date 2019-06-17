@@ -16,13 +16,15 @@ from send_predictions.email_send import send_email, create_html, from_html_to_jp
 from send_predictions.telegram_send import telegram_bot
 
 
-#utolities propias
+#utilities propias
 from utils import get_forex, setup_data
-
+from check_market import market_open
 #librerías para manejo de tiempo
 import datetime
 from datetime import datetime as dt
+from datetime import date
 import time
+
 
 # Setup logging
 logging.basicConfig(
@@ -313,14 +315,15 @@ for i in range(len(op_sell)):
         pass
 op_buy.drop(columns=['Profit 0.01'], inplace=True)
 op_sell.drop(columns=['Profit 0.01'], inplace=True)
-print(op_buy)
-print(op_sell)
 
 
 def main(argv):
     """
     Main
     """
+    if not market_open():
+        return 'Market Closed'
+    
     TOKEN = os.environ['telegram_token']
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
@@ -334,11 +337,12 @@ def main(argv):
     args = parser.parse_args()
     make_order = args.order or False
 
+    print(op_buy)
+    print(op_sell)
+
     if make_order:
         # Hacer decisón para la posición
-        op_buy_dec = op_buy.copy()
-        op_sell_dec = op_sell.copy()
-        decision = Decide(op_buy_dec, op_sell_dec, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+        decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
         decision.get_all_pips()
         units = 1000000 * decision.direction
         inv_instrument = 'USD_JPY'
@@ -348,18 +352,19 @@ def main(argv):
         print(f'\n{decision.decision}')
         
         # Pone orden a precio de mercado
-        print(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}')
+        print(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
         
         if units != 0:
             new_order = Order(inv_instrument, take_profit, stop_loss)
             new_order.make_market_order(units)
         op_buy, 
     
+    
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
     image_file, image_name = from_html_to_jpg(html_path)
 
     # send emails
-    send_email('Predicciones de USDJPY',
+    send_email('USDJPY predictions',
                 os.environ['email_from'],
                 os.environ['email_members'],
                 os.environ['email_pass'],
@@ -367,7 +372,7 @@ def main(argv):
 
     # send telegram
     bot = telegram_bot(TOKEN)
-    bot.send_message(CHAT_ID, f"Predicciones de la hora {hora_now}")
+    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
     bot.send_photo(CHAT_ID, f'{image_name}')
     if make_order:
         bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
