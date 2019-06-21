@@ -67,14 +67,15 @@ class Decide:
         buy_decision_tp_idx = 0
         buy_decision_tp = 0
         buy_gain = 0
-        print('\nSearching for best Buy strategy:')
+        print('\nSearching for best Buy strategy(TP):')
         while not greater_spread: # mientras que la ganancia no cubra el spread next            
             buy_decision_tp_idx = data_buy_tp_aux['utility_gain'].idxmax()
             buy_decision_tp = data_buy_tp_aux.loc[buy_decision_tp_idx]
             buy_gain = buy_decision_tp['portfolio_gain'] - self.portfolio
             probability = float(buy_decision_tp['Probability'])
-            if buy_gain > self.spread * 1.5 and probability < 1.0:
-                print(f'buy_gain winner: {buy_gain}')
+            if buy_gain > self.spread * 2 and probability < 1.0:
+                print(f'Buy Gain winner: {buy_gain}')
+                print(f"Buy Utility TP Winner:{buy_decision_tp['utility_gain']}")
                 greater_spread = True
             else:
                 print(f'buy_gain: {buy_gain}')
@@ -87,14 +88,15 @@ class Decide:
         buy_decision_sl = 0
         buy_loss = 0
         
-        print('\nSearching for best Sell strategy:')
+        print('\nSearching for best Buy strategy(SL):')
         while not greater_spread: # mientras que la perdida no cubra el spread next
             buy_decision_sl_idx = data_buy_sl_aux['utility_loss'].idxmax()
             buy_decision_sl = data_buy_sl_aux.loc[buy_decision_sl_idx]
             buy_loss = abs(self.portfolio - buy_decision_sl['portfolio_loss'])
             probability = float(buy_decision_sl['Probability'])
-            if buy_loss > self.spread * 1.5 and probability < 1.0:
-                print(f'buy_loss winner: {self.portfolio} - {buy_loss}')
+            if buy_loss > self.spread * 2 and probability < 1.0:
+                print(f'Buy Loss winner: {buy_loss}')
+                print(f'Buy Utility SL Winner:{buy_decision_sl["utility_loss"]}')
                 greater_spread = True
             else:
                 print(f'buy_loss: {buy_loss}')
@@ -110,13 +112,16 @@ class Decide:
         sell_decision_tp = data_sell_tp_aux.loc[sell_decision_tp_idx]
         sell_gain = self.portfolio - sell_decision_tp['portfolio_gain']
         probability = float(sell_decision_tp['Probability'])
+        
+        print('\nSearching for best Sell strategy(TP):')
         while not greater_spread and probability < 1.0:
             sell_decision_tp_idx = data_sell_tp_aux['utility_gain'].idxmax()
             sell_decision_tp = data_sell_tp_aux.loc[sell_decision_tp_idx]
             sell_gain = sell_decision_tp['portfolio_gain'] - self.portfolio
             probability = float(sell_decision_tp['Probability'])
-            if sell_gain > self.spread * 1.5 and probability < 1.0:
-                print(f'sell_gain winner: {sell_gain}')
+            if sell_gain > self.spread * 2 and probability < 1.0:
+                print(f'Sell Gain Winner: {sell_gain}')
+                print(f'Sell Utility TP Winner:{sell_decision_tp["utility_gain"]}')
                 greater_spread = True
             else:
                 print(f'sell_gain: {sell_gain}')
@@ -129,13 +134,15 @@ class Decide:
         sell_decision_sl = 0
         sell_loss = 0
         probability = float(buy_decision_sl['Probability'])
+        print('\nSearching for best Sell strategy(SL):')
         while not greater_spread:
             sell_decision_sl_idx = data_sell_sl_aux['utility_loss'].idxmax()
             sell_decision_sl = data_sell_sl_aux.loc[sell_decision_sl_idx]
             sell_loss = abs(self.portfolio - sell_decision_sl['portfolio_loss'])
             probability = float(sell_decision_sl['Probability'])
-            if sell_loss > self.spread * 1.5 and probability < 1.0:
-                print(f'sell_loss winner: {sell_loss}')
+            if sell_loss > self.spread * 2 and probability < 1.0:
+                print(f'Sell Loss winner: {sell_loss}')
+                print(f'Buy Utility SL Winner:{sell_decision_sl["utility_loss"]}')
                 greater_spread = True
             else:
                 print(f'sell_loss: {sell_loss}')
@@ -155,15 +162,15 @@ class Decide:
         win_loss_buy_ratio = round((buy_decision_tp['portfolio_gain'] - portfolio) / abs(portfolio - buy_decision_sl['portfolio_loss']),3)
         win_loss_sell_ratio = round((sell_decision_tp['portfolio_gain'] - portfolio) / abs(portfolio - sell_decision_sl['portfolio_loss']),3)
 
-        
+        # SE QUITAN RATIOS:  and win_loss_sell_ratio >= 1.0
 
-        if decision_buy > decision_sell and win_loss_buy_ratio >= 1.0: 
+        if decision_buy > decision_sell and buy_decision_tp['Probability'] >= buy_decision_sl['Probability']: 
             self.decision = self.decision + '\n Buy!\n' + str(buy_decision_tp) + str(buy_decision_sl) + f'\n Expected Utility: {decision_buy}'
             self.decision += f'\nWin/Loss ratio: {win_loss_buy_ratio}'
             self.direction = 1
             self.take_profit = round(buy_decision_tp['Take Profit'] - self.spread/13, 3) # adjusted for spread
             self.stop_loss = round(buy_decision_sl['Stop Loss'], 3)
-        elif decision_sell > decision_buy and win_loss_sell_ratio >= 1.0:
+        elif decision_sell > decision_buy and sell_decision_tp['Probability'] >= sell_decision_sl['Probability']:
             self.decision = self.decision +'\n Sell!\n' + str(sell_decision_tp) + str(sell_decision_sl) + f'\n Expected Utility: {decision_sell}'
             self.decision += f'\nWin/Loss ratio: {win_loss_sell_ratio}'
             self.direction = -1
@@ -174,10 +181,12 @@ class Decide:
             self.decision += f"\nBuy Gain: ${round(buy_decision_tp['portfolio_gain'] - portfolio,3)}"
             self.decision += f"\nBuy Loss: ${round(abs(portfolio - buy_decision_sl['portfolio_loss']),3)}"
             self.decision += f'\nWin/Loss ratio Buy: {win_loss_buy_ratio}'
+            self.decision += f"\nProbability TP:{buy_decision_tp['Probability']} Probability SL: {buy_decision_sl['Probability']}"
             self.decision += f"\n\nSell utility:{decision_sell}"
             self.decision += f"\nSell Gain ${round(sell_decision_tp['portfolio_gain'] - portfolio,3)}"
             self.decision += f"\nSell Loss: ${round(abs(portfolio - sell_decision_sl['portfolio_loss']), 3)}"
             self.decision += f'\nWin/Loss ratio Sell: {win_loss_sell_ratio}'
+            self.decision += f"\nProbability TP:{sell_decision_tp['Probability']} Probability SL: {sell_decision_sl['Probability']}"
 
 if __name__ == '__main__':
     data_buy = {'Open': [108.09, 108.09, 108.09, 108.09, 108.09],
