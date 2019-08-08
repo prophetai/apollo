@@ -37,12 +37,12 @@ class Order():
             "order" :{
             	"type": "MARKET",
             	"instrument": self.inv_instrument,
-            	"units": units,
+            	"units": str(units),
                 "takeProfitOnFill":{
-                    "price": self.take_profit
+                    "price": str(self.take_profit)
                 },
                 "stopLossOnFill":{
-                    "price": self.stop_loss
+                    "price": str(self.stop_loss)
                 }
             }
         }
@@ -51,9 +51,9 @@ class Order():
         url = os.environ['trading_url']
         #try:
         response = requests.post(url, json=data, headers=self.hed)
-        print(response)
+        print(f'Response code for Order sent:\n{response}')
         json_response = response.json()
-        print(json_response)
+        print(f'Content of response:\n{json_response}')
         self.tradeID = json_response['orderCreateTransaction']['id']
         #self.market_price = json_response['orderCreateTransaction']['price']
         #except requests.exceptions.RequestException as e:
@@ -68,3 +68,7 @@ class Order():
                   \nmarket_price: {self.market_price}\
                   \nstop_loss: {self.stop_loss}\
                   \ntake_profit: {self.take_profit}""")
+
+if __name__ == "__main__":
+    new_order = Order('USD_JPY', '107.981', '108.297')
+    new_order.make_market_order('-1')

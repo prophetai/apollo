@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import oandapy as opy
-import psycopg2
+import v20
 import logging
 import os
 from datetime import datetime as dt
@@ -95,6 +95,7 @@ def get_forex(instrument,
                        right_on=join_id, how='left')
 
     return dat
+
 
 def calculate_difference(dat, log=True, drop=False):
     """
@@ -217,13 +218,13 @@ def reduce_multicol_randomly(data, instrument, dontdrop=[]):
     while len(dropping) >= 2:
         vif = get_vif(dat)
         svif = vif.sort_values('vif').reset_index(drop=True)
-        display(svif)
+        print(svif)
         dropping = svif[svif['vif'] >= 100]
         try:
             vif_drops = list(dropping.sample(n=int(len(dropping)/2))['feature'].values)
             dat = dat.drop(vif_drops, axis=1)
         except:
-            display(svif)
+            print(svif)
 
     df['intercept'] = 1
     dfcols = list(dat.columns) + dontdrop
@@ -376,7 +377,7 @@ def model_precision(y, predictions, sc, disp=False):
     res.loc['MCC'] = mcc
 
     if disp != False:
-        display(res)
+        print(res)
 
     return accuracy, precision, recall, f1_score, mcc
 
@@ -514,7 +515,7 @@ def plot_roc(y, predictions):
         y (array): Vector de variable objetivo
         predictions (array): Vector de predicciones
     """
-    fpr, tpr, thresholds = roc_curve(y,
+    fpr, tpr, _ = roc_curve(y,
                                      predictions,
                                      pos_label=None,
                                      sample_weight=None,
@@ -538,7 +539,7 @@ def plot_prc(y, predictions):
         predictions (array): Vector de predicciones
     """
     average_precision = average_precision_score(y, predictions).round(5)
-    precision, recall, threshold = precision_recall_curve(y, predictions)
+    precision, recall, _ = precision_recall_curve(y, predictions)
     step_kwargs = ({'step': 'post'}
                    if 'step' in signature(plt.fill_between).parameters
                    else {})
@@ -570,13 +571,14 @@ def show_metrics(y, predictions, sc=0.5, disp=True, n=10):
     """
     yt = y.copy()
     predictionst = predictions.copy()
-    display(qcut_precision(yt, predictionst, n))
-    display(tenbin_cutscore(yt, predictionst))
+    print(qcut_precision(yt, predictionst, n))
+    print(tenbin_cutscore(yt, predictionst))
     metrics = model_precision(yt, predictionst, sc, disp)
     plot_roc(yt, predictionst)
     plot_prc(yt, predictionst)
     plt.subplots_adjust(left=3.1, right=5.1, bottom=2, top=3, hspace=0.2, wspace=0.5)
     plt.show()
+    print(metrics)
 
 def model_creation_hhll(dat, instrument, prints, scaling):
     """
@@ -616,8 +618,8 @@ def model_creation_hhll(dat, instrument, prints, scaling):
                 df[response] = np.exp(df[actual].shift(-1)).apply(lambda x: 1 if x>=(1 + k/10000) else 0)
             df = df.drop(Actuals, axis=1)
             df = df.dropna()
-            display(df.head())
-            display(df.corr()[[response]].sort_values(response))
+            print(df.head())
+            print(df.corr()[[response]].sort_values(response))
             X_train, X_test, y_train, y_test = train_test(df,
                                                           response,
                                                           train_size=0.75,
@@ -670,10 +672,8 @@ def model_creation_hcl(dat, instrument, prints, scaling):
     df = dat.copy()
     DF = df.copy()
 
-    Actuals = ['Diff High-Close'.format(instrument),
-               'Diff Close-Low'.format(instrument)]
-    Responses = ['future high-close',
-                 'future close-low']
+    Actuals = [f'Diff High-Close_{instrument}', f'Diff Close-Low_{instrument}']
+    Responses = ['future high-close', 'future close-low']
     models = {}
     variables = {}
     for k in [1.5, 2, 2.5]:
@@ -681,14 +681,14 @@ def model_creation_hcl(dat, instrument, prints, scaling):
             logging.info(k)
             df = DF.copy()
             df[response] = df[actual].shift(-1)
-            display(df[[actual,response]].head())
+            print(df[[actual,response]].head())
             df[response] = df[response].div(df[actual])
-            display(df[[actual,response]].head())
+            print(df[[actual,response]].head())
             df[response] = df[response].apply(lambda x: 1 if x>=k else 0)
             #df = df.drop(Actuals, axis=1)
             #df = get_bestvars(df, response, 0.05, dontdrop=None, fecha=None)
             df = df.dropna()
-            display(df.corr()[[response]].sort_values(response))
+            print(df.corr()[[response]].sort_values(response))
             X_train, X_test, y_train, y_test = train_test(df,
                                                           response,
                                                           train_size=0.75,
@@ -760,7 +760,7 @@ def model_creation_mc(dat, instrument, prints, scaling):
     #df = df.drop(Actuals, axis=1)
     #df = get_bestvars(df, response, 0.05, dontdrop=None, fecha=None)
     df = df.dropna()
-    display(df.corr()[[response]].sort_values(response))
+    print(df.corr()[[response]].sort_values(response))
     X_train, X_test, y_train, y_test = train_test(df,
                                                   response,
                                                   train_size=0.75,

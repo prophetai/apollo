@@ -1,7 +1,7 @@
-
 # coding: utf-8
 
 import argparse
+import pytz
 import os
 import sys, getopt
 import logging
@@ -9,21 +9,21 @@ import pandas as pd
 import numpy as np
 from statsmodels.regression.linear_model import OLSResults
 
-#utolities propias
-from utils import get_forex, setup_data
+from trade.logic import Decide
+from trade.order import Order
 
+from send_predictions.email_send import send_email, create_html, from_html_to_jpg
+from send_predictions.telegram_send import telegram_bot
+
+
+#utilities propias
+from utils import get_forex, setup_data
+from check_market import market_open
 #librerías para manejo de tiempo
 import datetime
 from datetime import datetime as dt
+from datetime import date
 import time
-import pytz
-
-#librerías para mandar correo
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from bs4 import BeautifulSoup
-from trade.order import Order
 
 
 # Setup logging
@@ -34,7 +34,6 @@ logging.basicConfig(
     #filename='log.txt'
 )
 
-COMMASPACE = ', '
 candleformat = 'midpoint'
 instrument = 'USD_JPY'
 instruments = ['USD_JPY',
@@ -66,11 +65,12 @@ instruments = ['USD_JPY',
 granularity = 'H1'
 start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
+print(f'Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
 #obtenemos los datos del instrumento principal y de los adicionales
-time.sleep(10) #damos oportunidad a OANDA de que tenga los datos que necesitamos
+time.sleep(5) #damos oportunidad a OANDA de que tenga los datos que necesitamos
 gf = get_forex(instrument, instruments, granularity, start, end, candleformat, freq, trading)
 
 sd = setup_data(gf,
@@ -155,7 +155,7 @@ classpredsm.columns = ['Prices']
 classpredsm = classpredsm.drop('USD_JPY_date')
 
 
-# In[3]:
+
 
 
 high = [i for i in classpredsm.index if 'high' in i and 'Future' in i]
@@ -315,59 +315,21 @@ for i in range(len(op_sell)):
         pass
 op_buy.drop(columns=['Profit 0.01'], inplace=True)
 op_sell.drop(columns=['Profit 0.01'], inplace=True)
-print(op_buy)
-print(op_sell)
 
-
-
-def send_email(subject,fromaddr, toaddr, password,body_text):
-    """
-    Manda email de tu correo a tu correo
-    Args:
-        subject (str): Asunto del correo
-        body_test (str): Cuerpo del correo
-    """
-
-    toaddr = toaddr.split(' ')
-    html_template = open("./src/email/email_template.html", 'r')
-    html_template = html_template.read()
-
-    # datetime object with timezone awareness:
-    dt.now(tz=pytz.utc)
-
-    # seconds from epoch:
-    dt.now(tz=pytz.utc).timestamp()
-
-    # ms from epoch:
-    hora_now = int(dt.now(tz=pytz.utc).timestamp() * 1000)
-    hora_now = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-
-    msg = MIMEMultipart()
-    msg.preamble = f'Predicciones de la hora {hora_now}'
-    msg['From'] = fromaddr
-    msg['To'] = COMMASPACE.join(toaddr)
-    msg['Subject'] = subject + ' '+str(hora_now)
-
-    soup = BeautifulSoup(html_template, features="lxml")
-    find_buy = soup.find("table", {"id": "buy_table"})
-    br = soup.new_tag('br')
-
-    for i, table in enumerate(soup.select('table.dataframe')):
-        table.replace_with(BeautifulSoup(body_text[i].to_html(), "html.parser"))
-
-
-    msg.attach(MIMEText(soup, 'html'))
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(fromaddr, password)
-    text = msg.as_string()
-    server.sendmail(fromaddr, toaddr, text)
-    server.quit()
 
 def main(argv):
     """
     Main
     """
+    if not market_open():
+        return 'Market Closed'
+    
+    TOKEN = os.environ['telegram_token']
+    CHAT_ID = os.environ['telegram_chat_id']
+    html_template_path ="./src/assets/email/email_template.html"
+
+    hora_now = f'{datetime.datetime.now() - datetime.timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
+
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
     parser.add_argument('-o','--order', action='store_true',
                         help='Determine if you want to make an order')
@@ -375,23 +337,45 @@ def main(argv):
     args = parser.parse_args()
     make_order = args.order or False
 
+    print(op_buy)
+    print(op_sell)
+
     if make_order:
         # Hacer decisón para la posición
+        decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+        decision.get_all_pips()
+        units = 1000000 * decision.direction
+        inv_instrument = 'USD_JPY'
+        stop_loss = decision.stop_loss
+        take_profit = decision.take_profit
 
+        print(f'\n{decision.decision}')
+        
         # Pone orden a precio de mercado
-        new_order = Order()
-        new_order.make_market_order(units, inv_instrument)
-        # Poner stop loss de orden
-        new_order.set_stop_loss(stop_loss)
-        # Poner Take profit
-        new_order.set_take_profit(take_profit)
+        print(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
+        
+        if units != 0:
+            new_order = Order(inv_instrument, take_profit, stop_loss)
+            new_order.make_market_order(units)
+        op_buy, 
+    
+    
+    html_file, html_path = create_html([op_buy, op_sell], html_template_path)
+    image_file, image_name = from_html_to_jpg(html_path)
 
-    #send emails
-    send_email('Predicciones de USDJPY',
+    # send emails
+    send_email('USDJPY predictions',
                 os.environ['email_from'],
                 os.environ['email_members'],
                 os.environ['email_pass'],
-                [op_buy, op_sell])
+                html_file)
+
+    # send telegram
+    bot = telegram_bot(TOKEN)
+    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
+    bot.send_photo(CHAT_ID, f'{image_name}')
+    if make_order:
+        bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
 
 if __name__ == '__main__':
     #load settings
