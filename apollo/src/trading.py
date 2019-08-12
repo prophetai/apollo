@@ -65,7 +65,7 @@ instruments = ['USD_JPY',
 granularity = 'H1'
 start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
-print(f'Data from start:{start}, end:{end}')
+logging.info(f'Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
@@ -320,10 +320,7 @@ op_sell.drop(columns=['Profit 0.01'], inplace=True)
 def main(argv):
     """
     Main
-    """
-    if not market_open():
-        return 'Market Closed'
-    
+    """    
     TOKEN = os.environ['telegram_token']
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
@@ -331,15 +328,24 @@ def main(argv):
     hora_now = f'{datetime.datetime.now() - datetime.timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
+    
     parser.add_argument('-o','--order', action='store_true',
                         help='Determine if you want to make an order')
+    parser.add_argument('-t','--time', action='store_true',
+                        help='Make order only if market is open')
 
     args = parser.parse_args()
     make_order = args.order or False
+    market_sensitive = args.time or False
+    
+    print(f'market sensitive: {market_sensitive}')
+    if market_sensitive and not market_open():
+        logging.info('Market Closed')
+        return
 
-    print(op_buy)
-    print(op_sell)
-
+    logging.info(op_buy)
+    logging.info(op_sell)
+    
     if make_order:
         # Hacer decisón para la posición
         decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
@@ -349,10 +355,10 @@ def main(argv):
         stop_loss = decision.stop_loss
         take_profit = decision.take_profit
 
-        print(f'\n{decision.decision}')
+        logging.info(f'\n{decision.decision}')
         
         # Pone orden a precio de mercado
-        print(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
+        logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
         
         if units != 0:
             new_order = Order(inv_instrument, take_profit, stop_loss)
