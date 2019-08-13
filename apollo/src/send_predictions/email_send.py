@@ -11,6 +11,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from bs4 import BeautifulSoup
 from trade.order import Order
+import matplotlib.pyplot as plt
+import pandas as pd
+from pandas.plotting import table 
+
+
 
 COMMASPACE = ', '
 
@@ -68,7 +73,21 @@ def create_html(body_text, html_template_path):
     return soup, html_path
 
 def from_html_to_jpg(html_path):
+    config = imgkit.config(wkhtmltoimage='/usr/local/bin/wkhtmltoimage')
     file_name = html_path.split('.html')[0] + '.jpg'
-    image = imgkit.from_file(html_path, file_name)
+    image = imgkit.from_file(html_path, file_name, config=config)
 
     return image, file_name
+
+
+def make_image(df, name):
+    ax = plt.subplot(111, frame_on=False) # no visible frame
+    #ax.xaxis.set_visible(False)  # hide the x axis
+    #ax.yaxis.set_visible(False)  # hide the y axis
+
+    table(ax, df)  # where df is your data frame
+
+    file_name = f'{name}_picture.png'
+    plt.savefig(file_name)
+
+    return file_name

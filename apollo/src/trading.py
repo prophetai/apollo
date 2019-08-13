@@ -12,7 +12,7 @@ from statsmodels.regression.linear_model import OLSResults
 from trade.logic import Decide
 from trade.order import Order
 
-from send_predictions.email_send import send_email, create_html, from_html_to_jpg
+from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
 from send_predictions.telegram_send import telegram_bot
 
 
@@ -366,7 +366,7 @@ def main(argv):
     
     
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
-    #image_file, image_name = from_html_to_jpg(html_path)
+    image_file, image_name = from_html_to_jpg(html_path)
 
 
     # send emails
@@ -379,7 +379,7 @@ def main(argv):
     # send telegram
     bot = telegram_bot(TOKEN)
     bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
-    bot.send_file(CHAT_ID, html_path)
+    bot.send_photo(CHAT_ID, image_name)
     if make_order:
         bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
 
