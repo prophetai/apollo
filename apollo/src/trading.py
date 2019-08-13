@@ -363,11 +363,11 @@ def main(argv):
         if units != 0:
             new_order = Order(inv_instrument, take_profit, stop_loss)
             new_order.make_market_order(units)
-        op_buy, 
     
     
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
-    image_file, image_name = from_html_to_jpg(html_path)
+    #image_file, image_name = from_html_to_jpg(html_path)
+
 
     # send emails
     send_email('USDJPY predictions',
@@ -379,7 +379,7 @@ def main(argv):
     # send telegram
     bot = telegram_bot(TOKEN)
     bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
-    bot.send_photo(CHAT_ID, f'{image_name}')
+    bot.send_file(CHAT_ID, html_path)
     if make_order:
         bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
 
