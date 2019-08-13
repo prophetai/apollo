@@ -17,3 +17,4 @@ telegram-send==0.20
 imgkit==1.0.1
 wkhtmltopdf==0.2
 pandas-market-calendars==1.1
+requests
