@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # coding: utf-8
 
 import argparse
@@ -20,26 +21,40 @@ from send_predictions.telegram_send import telegram_bot
 from utils import get_forex, setup_data
 from check_market import market_open
 #librerías para manejo de tiempo
-import datetime
+from datetime import timedelta
 from datetime import datetime as dt
 from datetime import date
 import time
 
+import warnings
+warnings.filterwarnings("ignore")
+import pickle
+from sklearn import preprocessing
+from keras.models import load_model
+sys.path.append('./src/assets/')
+sys.path.append('./src')
+from getData.extract import get_forex
+from processData.processing import setup_data, get_indicators
+
+
+pd.options.display.max_columns = None
 
 # Setup logging
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p',
-    level=logging.DEBUG,
-    #filename='log.txt'
+    level=logging.INFO,
+    filename='/tmp/log_test.txt'
 )
 
-candleformat = 'midpoint'
+# constantes para extraer datos
+logging.info('\n************* Inicio **************')
+candleformat = 'bidask'
 instrument = 'USD_JPY'
-instruments = ['USD_JPY',
+instruments = ['USD_JPY', 
                'USB02Y_USD',
                'USB05Y_USD',
-               'USB10Y_USD',
+               'USB10Y_USD', 
                'USB30Y_USD',
                'UK100_GBP',
                'UK10YB_GBP',
@@ -61,16 +76,58 @@ instruments = ['USD_JPY',
                'USD_CAD',
                'USD_CHF',
                'EUR_USD']
-
+               
 granularity = 'H1'
-start = str(datetime.datetime.now() + datetime.timedelta(days=-2))[:10]
+start = str(dt.now() + timedelta(days=-2))[:10]
 end = str(dt.now())[:10]
-logging.info(f'Data from start:{start}, end:{end}')
 freq = 'D'
 trading = True
 
-#obtenemos los datos del instrumento principal y de los adicionales
-time.sleep(5) #damos oportunidad a OANDA de que tenga los datos que necesitamos
+# variables para High
+logging.info('************* Cargando Variables **************')
+variablesh = pd.read_csv('./src/assets/variables/variablesHigh.csv')
+variablesh = list(variablesh['0'].values)
+
+# variables para Low
+variablesl = pd.read_csv('./src/assets/variables/variablesLow.csv')
+variablesl = list(variablesl['0'].values)
+
+
+# carga de modelos
+logging.info('************* Cargando Modelos  Gradient Boosting (High)**************')
+gbH_6 = pickle.load(open('./src/assets/models/gbHigh-6.h5', 'rb'))
+gbH_5 = pickle.load(open('./src/assets/models/gbHigh-5.h5', 'rb'))
+gbH_4 = pickle.load(open('./src/assets/models/gbHigh-4.h5', 'rb'))
+gbH_3 = pickle.load(open('./src/assets/models/gbHigh-3.h5', 'rb'))
+gbH_2 = pickle.load(open('./src/assets/models/gbHigh-2.h5', 'rb'))
+gbH_1 = pickle.load(open('./src/assets/models/gbHigh-1.h5', 'rb'))
+gbH0 = pickle.load(open('./src/assets/models/gbHigh0.h5', 'rb'))
+gbH1 = pickle.load(open('./src/assets/models/gbHigh1.h5', 'rb'))
+gbH2 = pickle.load(open('./src/assets/models/gbHigh2.h5', 'rb'))
+gbH3 = pickle.load(open('./src/assets/models/gbHigh3.h5', 'rb'))
+gbH4 = pickle.load(open('./src/assets/models/gbHigh4.h5', 'rb'))
+gbH5 = pickle.load(open('./src/assets/models/gbHigh5.h5', 'rb'))
+gbH6 = pickle.load(open('./src/assets/models/gbHigh6.h5', 'rb'))
+
+
+
+logging.info('************* Cargando Modelos  Gradient Boosting (Low)**************')
+gbL_6 = pickle.load(open('./src/assets/models/gbLow-6.h5', 'rb'))
+gbL_5 = pickle.load(open('./src/assets/models/gbLow-5.h5', 'rb'))
+gbL_4 = pickle.load(open('./src/assets/models/gbLow-4.h5', 'rb'))
+gbL_3 = pickle.load(open('./src/assets/models/gbLow-3.h5', 'rb'))
+gbL_2 = pickle.load(open('./src/assets/models/gbLow-2.h5', 'rb'))
+gbL_1 = pickle.load(open('./src/assets/models/gbLow-1.h5', 'rb'))
+gbL0 = pickle.load(open('./src/assets/models/gbLow0.h5', 'rb'))
+gbL1 = pickle.load(open('./src/assets/models/gbLow1.h5', 'rb'))
+gbL2 = pickle.load(open('./src/assets/models/gbLow2.h5', 'rb'))
+gbL3 = pickle.load(open('./src/assets/models/gbLow3.h5', 'rb'))
+gbL4 = pickle.load(open('./src/assets/models/gbLow4.h5', 'rb'))
+gbL5 = pickle.load(open('./src/assets/models/gbLow5.h5', 'rb'))
+gbL6 = pickle.load(open('./src/assets/models/gbLow6.h5', 'rb'))
+
+# descarga de datos
+logging.info('************* Descargando datos **************')
 gf = get_forex(instrument, instruments, granularity, start, end, candleformat, freq, trading)
 
 sd = setup_data(gf,
@@ -79,51 +136,132 @@ sd = setup_data(gf,
                 log=True,
                 trading=True)
 
-sd.head()
+# indicadores que se añaden al modelo
+logging.info('************* Creando Indicadores **************')
+processeddf = get_indicators(sd, 
+                             instrument, 
+                             column='{}_closeBid'.format(instrument), 
+                             wind=10, 
+                             bidask='Bid') 
+processeddf = get_indicators(processeddf, 
+                             instrument, 
+                             column='{}_closeAsk'.format(instrument), 
+                             wind=10, 
+                             bidask='Ask')
 
-sd['intercept'] = 1
+processeddf = processeddf.fillna(method='ffill')
+processeddf = processeddf.fillna(method='bfill')
+
+# carga de escaladores
+logging.info('************* Escalando Datos **************')
+Xh = processeddf[variablesh]
+scaler = pickle.load(open('./src/assets/models/scalerH', 'rb'))
+Xh = scaler.transform(Xh)
 
 
+Xl = processeddf[variablesl]
+scaler = pickle.load(open('./src/assets/models/scalerL', 'rb'))
+Xl = scaler.transform(Xl)
 
+# predicciones
+logging.info('************* Haciendo Predicciones **************')
 
 models = {}
+models['Xh_gbH-6'] = gbH_6.predict_proba(Xh)[:,1]
+models['Xh_gbH-5'] = gbH_5.predict_proba(Xh)[:,1]
+models['Xh_gbH-4'] = gbH_4.predict_proba(Xh)[:,1]
+models['Xh_gbH-3'] = gbH_3.predict_proba(Xh)[:,1]
+models['Xh_gbH-2'] = gbH_2.predict_proba(Xh)[:,1]
+models['Xh_gbH-1'] = gbH_1.predict_proba(Xh)[:,1]
+models['Xh_gbH0']= gbH0.predict_proba(Xh)[:,1]
+models['Xh_gbH1']= gbH1.predict_proba(Xh)[:,1]
+models['Xh_gbH2']= gbH2.predict_proba(Xh)[:,1]
+models['Xh_gbH3']= gbH3.predict_proba(Xh)[:,1]
+models['Xh_gbH4']= gbH4.predict_proba(Xh)[:,1]
+models['Xh_gbH5']= gbH5.predict_proba(Xh)[:,1]
+models['Xh_gbH6']= gbH6.predict_proba(Xh)[:,1]
 
-models['HHLL_LogDiff USD_JPY_highMid-1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-1.h5')
-models['HHLL_LogDiff USD_JPY_highMid-2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-2.h5')
-models['HHLL_LogDiff USD_JPY_highMid-3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-3.h5')
-models['HHLL_LogDiff USD_JPY_highMid-4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-4.h5')
-models['HHLL_LogDiff USD_JPY_highMid-5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-5.h5')
-models['HHLL_LogDiff USD_JPY_highMid-6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid-6.h5')
+models['Xl_gbl-6'] = gbL_6.predict_proba(Xl)[:,1]
+models['Xl_gbl-5'] = gbL_5.predict_proba(Xl)[:,1]
+models['Xl_gbl-4'] = gbL_4.predict_proba(Xl)[:,1]
+models['Xl_gbl-3'] = gbL_3.predict_proba(Xl)[:,1]
+models['Xl_gbl-2'] = gbL_2.predict_proba(Xl)[:,1]
+models['Xl_gbl-1'] = gbL_1.predict_proba(Xl)[:,1]
+models['Xl_gbl0']= gbL0.predict_proba(Xl)[:,1]
+models['Xl_gbl1']= gbL1.predict_proba(Xl)[:,1]
+models['Xl_gbl2']= gbL2.predict_proba(Xl)[:,1]
+models['Xl_gbl3']= gbL3.predict_proba(Xl)[:,1]
+models['Xl_gbl4']= gbL4.predict_proba(Xl)[:,1]
+models['Xl_gbl5']= gbL5.predict_proba(Xl)[:,1]
+models['Xl_gbl6']= gbL6.predict_proba(Xl)[:,1]
 
-models['HHLL_LogDiff USD_JPY_lowMid-1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-1.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-2.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-3.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-4.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-5.h5')
-models['HHLL_LogDiff USD_JPY_lowMid-6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid-6.h5')
+Xh_gbH_6 = gbH_6.predict_proba(Xh)[:,1]
+Xh_gbH_5 = gbH_5.predict_proba(Xh)[:,1]
+Xh_gbH_4 = gbH_4.predict_proba(Xh)[:,1]
+Xh_gbH_3 = gbH_3.predict_proba(Xh)[:,1]
+Xh_gbH_2 = gbH_2.predict_proba(Xh)[:,1]
+Xh_gbH_1 = gbH_1.predict_proba(Xh)[:,1]
+Xh_gbH0 = gbH0.predict_proba(Xh)[:,1]
+Xh_gbH1 = gbH1.predict_proba(Xh)[:,1]
+Xh_gbH2 = gbH2.predict_proba(Xh)[:,1]
+Xh_gbH3 = gbH3.predict_proba(Xh)[:,1]
+Xh_gbH4 = gbH4.predict_proba(Xh)[:,1]
+Xh_gbH5 = gbH5.predict_proba(Xh)[:,1]
+Xh_gbH6 = gbH6.predict_proba(Xh)[:,1]
 
-models['HHLL_LogDiff USD_JPY_highMid0'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid0.h5')
-models['HHLL_LogDiff USD_JPY_highMid1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid1.h5')
-models['HHLL_LogDiff USD_JPY_highMid2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid2.h5')
-models['HHLL_LogDiff USD_JPY_highMid3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid3.h5')
-models['HHLL_LogDiff USD_JPY_highMid4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid4.h5')
-models['HHLL_LogDiff USD_JPY_highMid5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid5.h5')
-models['HHLL_LogDiff USD_JPY_highMid6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_highMid6.h5')
+Xl_gbl_6 = gbL_6.predict_proba(Xl)[:,1]
+Xl_gbl_5 = gbL_5.predict_proba(Xl)[:,1]
+Xl_gbl_4 = gbL_4.predict_proba(Xl)[:,1]
+Xl_gbl_3 = gbL_3.predict_proba(Xl)[:,1]
+Xl_gbl_2 = gbL_2.predict_proba(Xl)[:,1]
+Xl_gbl_1 = gbL_1.predict_proba(Xl)[:,1]
+Xl_gbl0 = gbL0.predict_proba(Xl)[:,1]
+Xl_gbl1 = gbL1.predict_proba(Xl)[:,1]
+Xl_gbl2 = gbL2.predict_proba(Xl)[:,1]
+Xl_gbl3 = gbL3.predict_proba(Xl)[:,1]
+Xl_gbl4 = gbL4.predict_proba(Xl)[:,1]
+Xl_gbl5 = gbL5.predict_proba(Xl)[:,1]
+Xl_gbl6 = gbL6.predict_proba(Xl)[:,1]
 
-models['HHLL_LogDiff USD_JPY_lowMid0'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid0.h5')
-models['HHLL_LogDiff USD_JPY_lowMid1'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid1.h5')
-models['HHLL_LogDiff USD_JPY_lowMid2'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid2.h5')
-models['HHLL_LogDiff USD_JPY_lowMid3'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid3.h5')
-models['HHLL_LogDiff USD_JPY_lowMid4'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid4.h5')
-models['HHLL_LogDiff USD_JPY_lowMid5'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid5.h5')
-models['HHLL_LogDiff USD_JPY_lowMid6'] = OLSResults.load('./src/models/HHLL_LogDiff USD_JPY_lowMid6.h5')
+preds_buy = {
+'Xh_gbH_6':Xh_gbH_6[-2],
+'Xh_gbH_5':Xh_gbH_5[-2],
+'Xh_gbH_4':Xh_gbH_4[-2],
+'Xh_gbH_3':Xh_gbH_3[-2],
+'Xh_gbH_2':Xh_gbH_2[-2],
+'Xh_gbH_1':Xh_gbH_1[-2],
+'Xh_gbH0':Xh_gbH0[-2],
+'Xh_gbH1':Xh_gbH1[-2],
+'Xh_gbH2':Xh_gbH2[-2],
+'Xh_gbH3':Xh_gbH3[-2],
+'Xh_gbH4':Xh_gbH4[-2],
+'Xh_gbH5':Xh_gbH5[-2],
+'Xh_gbH6':Xh_gbH6[-2]
+}
 
+preds_sell= {
+'Xl_gbl_6': Xl_gbl_6[-2],
+'Xl_gbl_5': Xl_gbl_5[-2],
+'Xl_gbl_4': Xl_gbl_4[-2],
+'Xl_gbl_3': Xl_gbl_3[-2],
+'Xl_gbl_2': Xl_gbl_2[-2],
+'Xl_gbl_1': Xl_gbl_1[-2],
+'Xl_gbl0': Xl_gbl0[-2],
+'Xl_gbl1': Xl_gbl1[-2],
+'Xl_gbl2': Xl_gbl2[-2],
+'Xl_gbl3': Xl_gbl3[-2],
+'Xl_gbl4': Xl_gbl4[-2],
+'Xl_gbl5': Xl_gbl5[-2],
+'Xl_gbl6': Xl_gbl6[-2]
+}
 
 pricediff = True
 instrument = 'USD_JPY'
 
-Actuals = ['HHLL_LogDiff {}_highMid'.format(instrument),
-           'HHLL_LogDiff {}_lowMid'.format(instrument)]
+Actuals = ['HHLL_LogDiff {}_highAsk'.format(instrument),
+           'HHLL_LogDiff {}_highBid'.format(instrument),
+           'HHLL_LogDiff {}_lowAsk'.format(instrument),
+           'HHLL_LogDiff {}_lowBid'.format(instrument)]
 
 Responses = ['future diff high',
              'future diff low']
@@ -137,99 +275,31 @@ fxcm['{}_date'.format(instrument)] = fxcm['{}_date'.format(instrument)].str[:13]
 
 fxcm = fxcm.drop(0)
 
-variableshhll = pd.read_csv('./src/models/HHLL_variables.csv', index_col=0)
+variableshhll = pd.read_csv('./src/assets/variables/variablesHigh.csv', index_col=0)
 
-for i in Actuals:
-    for k in [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]:
-        i = i.replace('HHLL_', '')
-        var = variableshhll[i + str(k)].dropna().values.tolist()
-        x = sd[var].values
-        imod = 'HHLL_' + i + str(k)
-        mod = models[imod]
-        act = i.replace('HHLL_LogDiff ', '')
-        fxcm['Future ' + act + str(k)] = mod.predict(x)
-
-classpredsm = pd.DataFrame(fxcm.iloc[-2])
-classpredsm.columns = ['Prices']
-
-classpredsm = classpredsm.drop('USD_JPY_date')
+current_open_ask = gf['USD_JPY_openAsk'].iloc[-1].round(3)
+current_open_bid = gf['USD_JPY_openBid'].iloc[-1].round(3)
 
 
+previous_high_ask = gf['USD_JPY_highAsk'].iloc[-2].round(3)
+
+take_profit_buy = [((1+i/(10000.00))*previous_high_ask).round(3) for i in range(-6, 7)]
 
 
+previous_low_bid = gf['USD_JPY_lowBid'].iloc[-2].round(3)
+take_profit_sell = [((1-i/(10000.00))*previous_low_bid).round(3) for i in range(-6, 7)]
 
-high = [i for i in classpredsm.index if 'high' in i and 'Future' in i]
-high = classpredsm['Prices'].loc[high]
-low = [i for i in classpredsm.index if 'low' in i and 'Future' in i]
-low = classpredsm['Prices'].loc[low]
+op_buy = pd.DataFrame({'Open': current_open_ask,
+                       'Probability':list(preds_buy.values()),
+                       'Take Profit': take_profit_buy,
+                       'Utility Gain': np.zeros(13)},
+                  index=[f'Buy{i}' for i in range(-6, 7)])
 
-
-new_preds = classpredsm.iloc[:2]
-
-new_preds.columns = ['Prices']
-k = 0
-for i in [-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6]:
-    l = [j for j in classpredsm.index if str(i) in j]
-    new_preds['p(' + str(i) + ')'] = 0
-    new_preds['p(' + str(i) + ')'].iloc[0] = high.values[k]
-    new_preds['p(' + str(i) + ')'].iloc[1] = low.values[k]
-    new_preds[str(i/100) + '%'] = 0
-    new_preds[str(i/100) + '%'].iloc[0] = new_preds['Prices'].iloc[0] * (1+i/10000)
-    new_preds[str(i/100) + '%'].iloc[1] = new_preds['Prices'].iloc[1] * (1-i/10000)
-    k += 1
-
-new_preds = new_preds.round(3)
-
-new_preds = new_preds.drop('Prices', axis=1)
-
-
-probas = [i for i in new_preds.columns if 'p(' in i]
-prices = [i for i in new_preds.columns if '%' in i or 'P' in i]
-
-
-indx = 'Buy'
-current_open = gf['USD_JPY_openMid'].iloc[-1].round(3)
-
-op_buy = pd.DataFrame({'Take Profit': np.zeros(13)},
-                  index=[indx + '-6',
-                         indx + '-5',
-                         indx + '-4',
-                         indx + '-3',
-                         indx + '-2',
-                         indx + '-1',
-                         indx + '0',
-                         indx + '1',
-                         indx + '2',
-                         indx + '3',
-                         indx + '4',
-                         indx + '5',
-                         indx + '6'])
-
-op_buy['Take Profit'] = new_preds[prices].iloc[0].values
-op_buy['Probability'] = new_preds[probas].iloc[0].values
-
-indx = 'Sell'
-
-op_sell = pd.DataFrame({'Take Profit': np.zeros(13)},
-                  index=[indx + '-6',
-                         indx + '-5',
-                         indx + '-4',
-                         indx + '-3',
-                         indx + '-2',
-                         indx + '-1',
-                         indx + '0',
-                         indx + '1',
-                         indx + '2',
-                         indx + '3',
-                         indx + '4',
-                         indx + '5',
-                         indx + '6'])
-
-op_sell['Take Profit'] = new_preds[prices].iloc[1].values
-op_sell['Probability'] = new_preds[probas].iloc[1].values
-
-op_buy['Open'] = current_open
-op_sell['Open'] = current_open
+op_sell = pd.DataFrame({'Open': current_open_bid,
+                        'Probability':list(preds_sell.values()),
+                        'Take Profit': take_profit_sell,
+                       'Utility Gain': np.zeros(13)},
+                  index=[f'Sell{i}' for i in range(-6, 7)])
 
 op_buy.loc[op_buy['Open'] > op_buy['Take Profit'], ['Take Profit', 'Probability']] = np.nan
 op_sell.loc[op_sell['Open'] < op_sell['Take Profit'], ['Take Profit', 'Probability']]  = np.nan
@@ -258,64 +328,13 @@ ops = ops[ops.columns[new_order]]
 
 
 
-op_buy['Profit 0.01'] = 100*(op_buy['Take Profit'] - op_buy['Open'])
-op_sell['Profit 0.01'] = 100*(-op_sell['Take Profit'] + op_sell['Open'])
+op_buy['Profit 0.01'] = 10*(op_buy['Take Profit'] - op_buy['Open'])
+op_sell['Profit 0.01'] = 10*(-op_sell['Take Profit'] + op_sell['Open'])
 
 
-new = [2,0,1,3]
+new = [0,2,1,4,3]
 op_buy = op_buy[op_buy.columns[new]]
 op_sell = op_sell[op_sell.columns[new]]
-
-
-buckets = pd.read_csv('./src/models/HHLL_buckets.csv', index_col=0)
-highs = [c for c in buckets.columns if 'high' in c]
-lows = [c for c in buckets.columns if 'low' in c]
-
-op_buy['bucket'] = np.nan
-
-def mapper(x):
-    res = np.nan
-    if x < 0.1:
-        res = '0-10'
-    if x >= 0.1 and x < 0.2:
-        res = '10-20'
-    if x >= 0.2 and x < 0.3:
-        res = '20-30'
-    if x >= 0.3 and x < 0.4:
-        res = '30-40'
-    if x >= 0.4 and x < 0.5:
-        res = '40-50'
-    if x >= 0.5 and x < 0.6:
-        res = '50-60'
-    if x >= 0.6 and x < 0.7:
-        res = '60-70'
-    if x >= 0.7 and x < 0.8:
-        res = '70-80'
-    if x >= 0.8 and x < 0.9:
-        res = '80-90'
-    if x >= 0.9:
-        res = '90-100'
-    return res
-
-for i in range(len(op_buy)):
-    bucket_col = buckets[buckets[highs].columns[i]]
-    ind = mapper(op_buy.iloc[i]['Probability'])
-    try:
-        op_buy['bucket'].iloc[i] = bucket_col.loc[ind]
-    except:
-        pass
-
-op_sell['bucket'] = np.nan
-for i in range(len(op_sell)):
-    bucket_col = buckets[buckets[lows].columns[i]]
-    ind = mapper(op_sell.iloc[i]['Probability'])
-    try:
-        op_sell['bucket'].iloc[i] = bucket_col.loc[ind]
-    except:
-        pass
-op_buy.drop(columns=['Profit 0.01'], inplace=True)
-op_sell.drop(columns=['Profit 0.01'], inplace=True)
-
 
 def main(argv):
     """
@@ -325,7 +344,7 @@ def main(argv):
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
 
-    hora_now = f'{datetime.datetime.now() - datetime.timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
+    hora_now = f'{dt.now() - timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
     
@@ -343,9 +362,6 @@ def main(argv):
         logging.info('Market Closed')
         return
 
-    logging.info(op_buy)
-    logging.info(op_sell)
-    
     if make_order:
         # Hacer decisón para la posición
         decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
@@ -363,8 +379,10 @@ def main(argv):
         if units != 0:
             new_order = Order(inv_instrument, take_profit, stop_loss)
             new_order.make_market_order(units)
-    
-    
+
+    print(op_buy)
+    print(op_sell)
+
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
     image_file, image_name = from_html_to_jpg(html_path)
 

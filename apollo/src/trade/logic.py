@@ -34,27 +34,27 @@ class Decide:
         portfolio = self.portfolio
 
         # Saca la ganancia de la operación para TP y la perdida para SL para Buy
-        data_buy_tp['portfolio_gain'] = get_profit(data_buy_tp['Open'], data_buy_tp['Take Profit'], 1) + portfolio
+        data_buy_tp['Portfolio Gain'] = get_profit(data_buy_tp['Open'], data_buy_tp['Take Profit'], 1) + portfolio
         data_buy_sl['portfolio_loss'] = get_loss(data_sell_tp['Open'], data_sell_tp['Take Profit'], 1) + portfolio
         data_buy_sl['Stop Loss'] = data_sell_tp['Take Profit']
 
         # Saca la ganancia de la operación para TP y la perdida para SL para Sell
-        data_sell_tp['portfolio_gain'] = get_profit(data_sell_tp['Open'], data_sell_tp['Take Profit'], 1) + portfolio
+        data_sell_tp['Portfolio Gain'] = get_profit(data_sell_tp['Open'], data_sell_tp['Take Profit'], 1) + portfolio
         data_sell_sl['portfolio_loss'] = portfolio - get_loss(data_buy_tp['Open'], data_buy_tp['Take Profit'], 1) 
         data_sell_sl['Stop Loss'] = data_buy_tp['Take Profit']
         
         # Saca la utilidad de la posición proba * log(ganancia en el portafolio) Buy/Sell para TP
-        data_buy_tp['utility_gain'] = data_buy_tp['Probability'] * np.log(data_buy_tp['portfolio_gain'])
-        data_sell_tp['utility_gain'] = data_sell_tp['Probability'] * np.log(data_sell_tp['portfolio_gain'])
+        data_buy_tp['Utility Gain'] = data_buy_tp['Probability'] * np.log(data_buy_tp['Portfolio Gain'])
+        data_sell_tp['Utility Gain'] = data_sell_tp['Probability'] * np.log(data_sell_tp['Portfolio Gain'])
         
         # Saca la utilidad de la posición proba * log(ganancia en el portafolio) Buy/Sell para SL Sell
         buy_losses = portfolio - get_profit(data_sell_tp['Open'], data_sell_tp['Take Profit'], 1)
-        data_buy_sl['utility_loss'] = data_sell_tp['Probability'] * np.log(buy_losses)
+        data_buy_sl['Utility Loss'] = data_sell_tp['Probability'] * np.log(buy_losses)
         data_buy_sl['Probability'] = data_sell_tp['Probability']
         
         # Saca la utilidad de la posición proba * log(ganancia en el portafolio) Buy/Sell para SL Buy
         sell_losses = portfolio - get_profit(data_buy_tp['Open'], data_buy_tp['Take Profit'], 1)
-        data_sell_sl['utility_loss'] = data_buy_tp['Probability'] * np.log(sell_losses)
+        data_sell_sl['Utility Loss'] = data_buy_tp['Probability'] * np.log(sell_losses)
         data_sell_sl['Probability'] = data_buy_tp['Probability']
 
 
@@ -69,13 +69,13 @@ class Decide:
         buy_gain = 0
         print('\nSearching for best Buy strategy(TP):')
         while not greater_spread: # mientras que la ganancia no cubra el spread next            
-            buy_decision_tp_idx = data_buy_tp_aux['utility_gain'].idxmax()
+            buy_decision_tp_idx = data_buy_tp_aux['Utility Gain'].idxmax()
             buy_decision_tp = data_buy_tp_aux.loc[buy_decision_tp_idx]
-            buy_gain = buy_decision_tp['portfolio_gain'] - self.portfolio
+            buy_gain = buy_decision_tp['Portfolio Gain'] - self.portfolio
             probability = float(buy_decision_tp['Probability'])
             if buy_gain > self.spread * 2 and probability < 1.0:
                 print(f'Buy Gain winner: {buy_gain}')
-                print(f"Buy Utility TP Winner:{buy_decision_tp['utility_gain']}")
+                print(f"Buy Utility TP Winner:{buy_decision_tp['Utility Gain']}")
                 greater_spread = True
             else:
                 print(f'buy_gain: {buy_gain}')
@@ -90,13 +90,13 @@ class Decide:
         
         print('\nSearching for best Buy strategy(SL):')
         while not greater_spread: # mientras que la perdida no cubra el spread next
-            buy_decision_sl_idx = data_buy_sl_aux['utility_loss'].idxmax()
+            buy_decision_sl_idx = data_buy_sl_aux['Utility Loss'].idxmax()
             buy_decision_sl = data_buy_sl_aux.loc[buy_decision_sl_idx]
             buy_loss = abs(self.portfolio - buy_decision_sl['portfolio_loss'])
             probability = float(buy_decision_sl['Probability'])
             if buy_loss > self.spread * 2 and probability < 1.0:
                 print(f'Buy Loss winner: {buy_loss}')
-                print(f'Buy Utility SL Winner:{buy_decision_sl["utility_loss"]}')
+                print(f'Buy Utility SL Winner:{buy_decision_sl["Utility Loss"]}')
                 greater_spread = True
             else:
                 print(f'buy_loss: {buy_loss}')
@@ -108,20 +108,20 @@ class Decide:
         data_sell_sl_aux = data_sell_sl.copy()
         greater_spread = False
 
-        sell_decision_tp_idx = data_sell_tp_aux['utility_gain'].idxmax()
+        sell_decision_tp_idx = data_sell_tp_aux['Utility Gain'].idxmax()
         sell_decision_tp = data_sell_tp_aux.loc[sell_decision_tp_idx]
-        sell_gain = self.portfolio - sell_decision_tp['portfolio_gain']
+        sell_gain = self.portfolio - sell_decision_tp['Portfolio Gain']
         probability = float(sell_decision_tp['Probability'])
         
         print('\nSearching for best Sell strategy(TP):')
         while not greater_spread and probability < 1.0:
-            sell_decision_tp_idx = data_sell_tp_aux['utility_gain'].idxmax()
+            sell_decision_tp_idx = data_sell_tp_aux['Utility Gain'].idxmax()
             sell_decision_tp = data_sell_tp_aux.loc[sell_decision_tp_idx]
-            sell_gain = sell_decision_tp['portfolio_gain'] - self.portfolio
+            sell_gain = sell_decision_tp['Portfolio Gain'] - self.portfolio
             probability = float(sell_decision_tp['Probability'])
             if sell_gain > self.spread * 2 and probability < 1.0:
                 print(f'Sell Gain Winner: {sell_gain}')
-                print(f'Sell Utility TP Winner:{sell_decision_tp["utility_gain"]}')
+                print(f'Sell Utility TP Winner:{sell_decision_tp["Utility Gain"]}')
                 greater_spread = True
             else:
                 print(f'sell_gain: {sell_gain}')
@@ -136,31 +136,31 @@ class Decide:
         probability = float(buy_decision_sl['Probability'])
         print('\nSearching for best Sell strategy(SL):')
         while not greater_spread:
-            sell_decision_sl_idx = data_sell_sl_aux['utility_loss'].idxmax()
+            sell_decision_sl_idx = data_sell_sl_aux['Utility Loss'].idxmax()
             sell_decision_sl = data_sell_sl_aux.loc[sell_decision_sl_idx]
             sell_loss = abs(self.portfolio - sell_decision_sl['portfolio_loss'])
             probability = float(sell_decision_sl['Probability'])
             if sell_loss > self.spread * 2 and probability < 1.0:
                 print(f'Sell Loss winner: {sell_loss}')
-                print(f'Buy Utility SL Winner:{sell_decision_sl["utility_loss"]}')
+                print(f'Buy Utility SL Winner:{sell_decision_sl["Utility Loss"]}')
                 greater_spread = True
             else:
                 print(f'sell_loss: {sell_loss}')
                 print(f'To delete:{sell_decision_sl_idx}')
                 data_sell_sl_aux.drop(sell_decision_sl_idx, inplace=True)
 
-        decision_buy = buy_decision_tp['utility_gain'] + buy_decision_sl['utility_loss']
+        decision_buy = buy_decision_tp['Utility Gain'] + buy_decision_sl['Utility Loss']
         print(f'\nBest course of action for Buy: TP: \n{buy_decision_tp} \nSL: {buy_decision_sl}')
         print(f'Buy gain: {buy_gain}, Buy Loss: {buy_loss}')
         print(f'Expected utility: {decision_buy}')
         
-        decision_sell = sell_decision_tp['utility_gain'] + sell_decision_sl['utility_loss']
+        decision_sell = sell_decision_tp['Utility Gain'] + sell_decision_sl['Utility Loss']
         print(f'\nBest course of action for Sell: \n{sell_decision_tp} \nSL: {sell_decision_sl}')
         print(f'Sell gain: {sell_gain}, Sell Loss:{sell_loss}')
         print(f'Expected utility: {decision_sell}')
 
-        win_loss_buy_ratio = round((buy_decision_tp['portfolio_gain'] - portfolio) / abs(portfolio - buy_decision_sl['portfolio_loss']),3)
-        win_loss_sell_ratio = round((sell_decision_tp['portfolio_gain'] - portfolio) / abs(portfolio - sell_decision_sl['portfolio_loss']),3)
+        win_loss_buy_ratio = round((buy_decision_tp['Portfolio Gain'] - portfolio) / abs(portfolio - buy_decision_sl['portfolio_loss']),3)
+        win_loss_sell_ratio = round((sell_decision_tp['Portfolio Gain'] - portfolio) / abs(portfolio - sell_decision_sl['portfolio_loss']),3)
 
         # SE QUITAN RATIOS:  and win_loss_sell_ratio >= 1.0
 
@@ -178,16 +178,18 @@ class Decide:
             self.stop_loss = round(sell_decision_sl['Stop Loss'], 3)   
         else:
             self.decision = f'\nNeutral \nBuy utility:{decision_buy}'
-            self.decision += f"\nBuy Gain: ${round(buy_decision_tp['portfolio_gain'] - portfolio,3)}"
+            self.decision += f"\nBuy Gain: ${round(buy_decision_tp['Portfolio Gain'] - portfolio,3)}"
             self.decision += f"\nBuy Loss: ${round(abs(portfolio - buy_decision_sl['portfolio_loss']),3)}"
             self.decision += f'\nWin/Loss ratio Buy: {win_loss_buy_ratio}'
             self.decision += f"\nProbability TP:{buy_decision_tp['Probability']} Probability SL: {buy_decision_sl['Probability']}"
             self.decision += f"\n\nSell utility:{decision_sell}"
-            self.decision += f"\nSell Gain ${round(sell_decision_tp['portfolio_gain'] - portfolio,3)}"
+            self.decision += f"\nSell Gain ${round(sell_decision_tp['Portfolio Gain'] - portfolio,3)}"
             self.decision += f"\nSell Loss: ${round(abs(portfolio - sell_decision_sl['portfolio_loss']), 3)}"
             self.decision += f'\nWin/Loss ratio Sell: {win_loss_sell_ratio}'
             self.decision += f"\nProbability TP:{sell_decision_tp['Probability']} Probability SL: {sell_decision_sl['Probability']}"
-
+        
+        data_buy_tp.drop(['Portfolio Gain'], axis=1, inplace=True)
+        data_sell_tp.drop(['Portfolio Gain'], axis=1, inplace=True) 
 if __name__ == '__main__':
     data_buy = {'Open': [108.09, 108.09, 108.09, 108.09, 108.09],
                 'Take Profit': [108.097, 108.107, 108.118, 108.129, 108.140],
