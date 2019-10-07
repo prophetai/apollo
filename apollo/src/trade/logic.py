@@ -164,13 +164,13 @@ class Decide:
 
         # SE QUITAN RATIOS:  and win_loss_sell_ratio >= 1.0
 
-        if decision_buy < decision_sell and buy_decision_tp['Probability'] >= buy_decision_sl['Probability']: 
+        if decision_buy > decision_sell and buy_decision_tp['Probability'] >= buy_decision_sl['Probability']: 
             self.decision = self.decision + '\n Buy!\n' + str(buy_decision_tp) + str(buy_decision_sl) + f'\n Expected Utility: {decision_buy}'
             self.decision += f'\nWin/Loss ratio: {win_loss_buy_ratio}'
             self.direction = 1
             self.take_profit = round(buy_decision_tp['Take Profit'] - self.spread/13, 3) # adjusted for spread
             self.stop_loss = round(buy_decision_sl['Stop Loss'], 3)
-        elif decision_sell < decision_buy and sell_decision_tp['Probability'] >= sell_decision_sl['Probability']:
+        elif decision_sell > decision_buy and sell_decision_tp['Probability'] >= sell_decision_sl['Probability']:
             self.decision = self.decision +'\n Sell!\n' + str(sell_decision_tp) + str(sell_decision_sl) + f'\n Expected Utility: {decision_sell}'
             self.decision += f'\nWin/Loss ratio: {win_loss_sell_ratio}'
             self.direction = -1

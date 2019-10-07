@@ -281,12 +281,12 @@ current_open_ask = gf['USD_JPY_openAsk'].iloc[-1].round(3)
 current_open_bid = gf['USD_JPY_openBid'].iloc[-1].round(3)
 
 
-previous_high_ask = gf['USD_JPY_highAsk'].iloc[-2].round(3)
+previous_high_ask = gf['USD_JPY_highAsk'].iloc[-1].round(3)
 
 take_profit_buy = [((1+i/(10000.00))*previous_high_ask).round(3) for i in range(-6, 7)]
 
 
-previous_low_bid = gf['USD_JPY_lowBid'].iloc[-2].round(3)
+previous_low_bid = gf['USD_JPY_lowBid'].iloc[-1].round(3)
 take_profit_sell = [((1-i/(10000.00))*previous_low_bid).round(3) for i in range(-6, 7)]
 
 op_buy = pd.DataFrame({'Open': current_open_ask,
@@ -386,20 +386,23 @@ def main(argv):
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
     image_file, image_name = from_html_to_jpg(html_path)
 
+    # send telegram
+    logging.info('Se mandan predicciones a Telegram')
+    bot = telegram_bot(TOKEN)
+    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
+    bot.send_photo(CHAT_ID, image_name)
+    if make_order:
+        bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
 
     # send emails
+    logging.info('Se mandan predicciones a correo')
     send_email('USDJPY predictions',
                 os.environ['email_from'],
                 os.environ['email_members'],
                 os.environ['email_pass'],
                 html_file)
 
-    # send telegram
-    bot = telegram_bot(TOKEN)
-    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
-    bot.send_photo(CHAT_ID, image_name)
-    if make_order:
-        bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
+    
 
 if __name__ == '__main__':
     #load settings
