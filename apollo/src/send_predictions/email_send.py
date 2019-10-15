@@ -59,12 +59,20 @@ def create_html(body_text, html_template_path):
     """
     html_template = open(html_template_path, 'r')
     html_template = html_template.read()
-    soup = BeautifulSoup(html_template, features="lxml")
+    soup = BeautifulSoup(html_template, features="lxml")    
+    
+    find_buy_price = soup.find("p", {"id": "previous_price"})
+    br = soup.new_tag('br')
+    prices = [body_text[-2], body_text[-1]]
+    tables = [body_text[0], body_text[1]]
+
+    for i, price in enumerate(soup.select('p.content')):
+        price.replace_with(str(prices[i]))
+    
     find_buy = soup.find("table", {"id": "buy_table"})
     br = soup.new_tag('br')
-
     for i, table in enumerate(soup.select('table.dataframe')):
-        table.replace_with(BeautifulSoup(body_text[i].to_html(), "html.parser"))
+        table.replace_with(BeautifulSoup(tables[i].to_html(), "html.parser"))
 
     html_path = f"USDJPY_predictions.html"
     with open(html_path, "w") as file:

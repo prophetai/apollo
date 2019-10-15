@@ -18,7 +18,6 @@ from send_predictions.telegram_send import telegram_bot
 
 
 #utilities propias
-from utils import get_forex, setup_data
 from check_market import market_open
 #librerías para manejo de tiempo
 from datetime import timedelta
@@ -48,7 +47,7 @@ logging.basicConfig(
 )
 
 # constantes para extraer datos
-logging.info('\n************* Inicio **************')
+logging.info('\n\n************* Inicio **************')
 candleformat = 'bidask'
 instrument = 'USD_JPY'
 instruments = ['USD_JPY', 
@@ -280,13 +279,12 @@ variableshhll = pd.read_csv('./src/assets/variables/variablesHigh.csv', index_co
 current_open_ask = gf['USD_JPY_openAsk'].iloc[-1].round(3)
 current_open_bid = gf['USD_JPY_openBid'].iloc[-1].round(3)
 
-
+# aquí se toma el precio más caro a la venta de la hora previa (investigar por qué aquí es el último dato)
 previous_high_ask = gf['USD_JPY_highAsk'].iloc[-1].round(3)
-
 take_profit_buy = [((1+i/(10000.00))*previous_high_ask).round(3) for i in range(-6, 7)]
 
-
-previous_low_bid = gf['USD_JPY_lowBid'].iloc[-1].round(3)
+# aquí se toma el precio más barato a la compra de la hora previa (investigar por qué aquí es el penúltimo dato)
+previous_low_bid = gf['USD_JPY_lowBid'].iloc[-2].round(3)
 take_profit_sell = [((1-i/(10000.00))*previous_low_bid).round(3) for i in range(-6, 7)]
 
 op_buy = pd.DataFrame({'Open': current_open_ask,
@@ -327,8 +325,8 @@ opb = opb[opb.columns[new_order]]
 ops = ops[ops.columns[new_order]]
 
 
-
-op_buy['Profit 0.01'] = 10*(op_buy['Take Profit'] - op_buy['Open'])
+# el '10' sale de cada pip de JPY a USD
+op_buy['Profit 0.01'] = 10*(op_buy['Take Profit'] - op_buy['Open']) 
 op_sell['Profit 0.01'] = 10*(-op_sell['Take Profit'] + op_sell['Open'])
 
 
@@ -352,57 +350,57 @@ def main(argv):
                         help='Determine if you want to make an order')
     parser.add_argument('-t','--time', action='store_true',
                         help='Make order only if market is open')
+    parser.add_argument('-d','--debug', action='store_true',
+                        help='Debug mode on')
 
     args = parser.parse_args()
     make_order = args.order or False
     market_sensitive = args.time or False
+    debug_mode = args.debug or False
     
-    print(f'market sensitive: {market_sensitive}')
+    logging.info(f'\nMarket sensitive: {market_sensitive}')
     if market_sensitive and not market_open():
         logging.info('Market Closed')
         return
 
-    if make_order:
-        # Hacer decisón para la posición
-        decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
-        decision.get_all_pips()
-        units = 1000000 * decision.direction
-        inv_instrument = 'USD_JPY'
-        stop_loss = decision.stop_loss
-        take_profit = decision.take_profit
+# Hacer decisón para la posición
+    decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+    decision.get_all_pips()
+    units = 1000000 * decision.direction
+    inv_instrument = 'USD_JPY'
+    stop_loss = decision.stop_loss
+    take_profit = decision.take_profit
 
-        logging.info(f'\n{decision.decision}')
+    logging.info(f'\n{decision.decision}')        
+    # Pone orden a precio de mercado
+    logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
         
-        # Pone orden a precio de mercado
-        logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
-        
-        if units != 0:
-            new_order = Order(inv_instrument, take_profit, stop_loss)
-            new_order.make_market_order(units)
+    if make_order and units != 0:
+        new_order = Order(inv_instrument, take_profit, stop_loss)
+        new_order.make_market_order(units)
 
+    print(f'\nPrevious High Ask:{previous_high_ask}')
     print(op_buy)
+    print(f'\nPrevious Low Bid: {previous_low_bid}')
     print(op_sell)
 
-    html_file, html_path = create_html([op_buy, op_sell], html_template_path)
-    image_file, image_name = from_html_to_jpg(html_path)
-
     # send telegram
-    logging.info('Se mandan predicciones a Telegram')
-    bot = telegram_bot(TOKEN)
-    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
-    bot.send_photo(CHAT_ID, image_name)
-    if make_order:
-        bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
-
-    # send emails
-    logging.info('Se mandan predicciones a correo')
-    send_email('USDJPY predictions',
-                os.environ['email_from'],
-                os.environ['email_members'],
-                os.environ['email_pass'],
-                html_file)
-
-    
+    if not debug_mode:
+        html_file, html_path = create_html([op_buy, op_sell, previous_high_ask, previous_low_bid], html_template_path)
+        image_file, image_name = from_html_to_jpg(html_path)
+        logging.info('Se mandan predicciones a Telegram')
+        bot = telegram_bot(TOKEN)
+        bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
+        bot.send_photo(CHAT_ID, image_name)
+        if make_order:
+            bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
+        # send emails
+        logging.info('Se mandan predicciones a correo')
+        send_email('USDJPY predictions',
+                    os.environ['email_from'],
+                    os.environ['email_members'],
+                    os.environ['email_pass'],
+                    html_file)
 
 if __name__ == '__main__':
     #load settings
