@@ -368,15 +368,15 @@ def main(argv):
     decision.get_all_pips()
     units = 1000000 * decision.direction
     inv_instrument = 'USD_JPY'
-    stop_loss = decision.stop_loss
     take_profit = decision.take_profit
 
     logging.info(f'\n{decision.decision}')        
     # Pone orden a precio de mercado
-    logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}, stop_loss: {stop_loss}\n')
+    logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
         
     if make_order and units != 0:
-        new_order = Order(inv_instrument, take_profit, stop_loss)
+        print(units)
+        new_order = Order(inv_instrument, take_profit)
         new_order.make_market_order(units)
 
     print(f'\nPrevious High Ask:{previous_high_ask}')

@@ -20,41 +20,39 @@ class Decide:
         self.magnitude = magnitude
         self.take_profit = take_profit
         self.decision = ''
-        self.spread = 0.15
+        self.spread = 0.002
     
     def get_best_action(self, buy_sell):
-        if buy_sell = 'Buy':
+        if buy_sell == 'Buy':
             data = self.data_buy
-        elif buy_sell = 'Sell':
+        elif buy_sell == 'Sell':
             data = self.data_sell
-        greater_spread = False
 
-        last_idx = len(data) - 1
-        probability = 0
-        profit = 0
         spread = self.spread
 
         print(f'\nSearching for best {buy_sell} strategy(TP):')
         # Mientras la proba no sea >0.5, no se nos acabe la tabla y la ganancia sea mayor que el spread sigue buscando 
-        while probability <= 0.5 or last_idx > -1 or profit-spread < 0:
-            best_action = data.loc[last_idx]
+        
+        for i in reversed(range(len(data)-1)):
+            best_action = data.iloc[i]
             probability = best_action['Probability']
             profit = abs(best_action['Open'] - best_action['Take Profit'])
-            last_idx -= 1
+
+            print(f'\nProbability: {probability}, {probability <= 0.5}')
+            print(f'Open: {best_action["Open"]}')
+            print(f'Take Profit: {best_action["Take Profit"]}')
+            print(f'Profit: {profit}, {profit-spread < 0}')
+            
+            if probability > 0.5 and profit-spread > 0:
+                return best_action, profit            
         
-        if last_idx > -1: # si logra encontrar un ganador
-            return best_action, profit
-        else:
-            return data.loc[0], 0 
+        return data.iloc[0], 0 
 
 
     
     def get_all_pips(self):
-        data_buy_tp = self.data_buy_tp
-        data_sell_tp = self.data_sell_tp
-        data_buy_sl = self.data_buy_sl
-        data_sell_sl = self.data_sell_sl
-        portfolio = self.portfolio
+        data_buy_tp = self.data_buy
+        data_sell_tp = self.data_sell
 
 
         # Se toman los TP y SL para Buy y Sell que tengan la mayor utilidad y cubran el spread
@@ -63,23 +61,24 @@ class Decide:
         greater_spread = False
 
         # Se calcula decisión
-        best_action_buy, profit_buy = get_best_action('Buy')
-        best_action_sell, profit_sell = get_best_action('Sell')
+        best_action_buy, profit_buy = self.get_best_action('Buy')
+        best_action_sell, profit_sell = self.get_best_action('Sell')
 
+        print(f'profit_buy: {profit_buy}, profit_sell: {profit_sell}')
         if profit_buy > profit_sell:
-            self.decision = self.decision + '\n Buy!\n' + str(buy_decision_tp) + str(buy_decision_sl) + f'\n Expected Utility: {decision_buy}'
+            self.decision = self.decision + '\n Buy!\n' + str(best_action_buy['Take Profit'])
             self.direction = 1
             self.take_profit = round(profit_buy, 3)
         elif profit_sell > profit_buy:
-            self.decision = self.decision +'\n Sell!\n' + str(sell_decision_tp) + str(sell_decision_sl) + f'\n Expected Utility: {decision_sell}'
+            self.decision = self.decision + '\n Sell!\n' + str(best_action_sell['Take Profit'])
             self.direction = -1
             self.take_profit = round(profit_sell, 3) # adjusted for spread
         else:
             self.decision = '\nNeutral \nBuy '
             self.decision += f"\nBuy Gain: ${round(profit_buy,3)}"
             self.decision += f"\nProbability TP:{best_action_buy['Probability']}"
-            self.decision += f"\nSell Gain ${round(profit_buy,3)}"
-            self.decision += f"\nProbability TP:{sell_decision_tp['Probability']}"
+            self.decision += f"\nSell Gain ${round(profit_sell,3)}"
+            self.decision += f"\nProbability TP:{best_action_sell['Probability']}"
         
         #data_buy_tp.drop(['Portfolio Gain'], axis=1, inplace=True)
         #data_sell_tp.drop(['Portfolio Gain'], axis=1, inplace=True) 
