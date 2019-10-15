@@ -11,7 +11,7 @@ logging.basicConfig(
 
 class Order():
 
-    def __init__(self, inv_instrument, take_profit, stop_loss):
+    def __init__(self, inv_instrument, take_profit):
         """Inicializa nuestra red.
 
         Args:
@@ -28,7 +28,7 @@ class Order():
         self.url = os.environ['trading_url'] # URL de broker
         self.tradeID = 0
         self.take_profit = take_profit
-        self.stop_loss = stop_loss
+        #self.stop_loss = stop_loss
         self.market_price = 0
         self.inv_instrument = inv_instrument
 
@@ -41,9 +41,9 @@ class Order():
                 "takeProfitOnFill":{
                     "price": str(self.take_profit)
                 },
-                "stopLossOnFill":{
-                    "price": str(self.stop_loss)
-                }
+                #"stopLossOnFill":{
+                    #"price": str(self.stop_loss)
+                #}
             }
         }
 
