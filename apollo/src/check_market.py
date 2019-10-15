@@ -26,13 +26,9 @@ def market_open():
 
     print(f'\nChecking Market hours On: {dt_string} \nMarkets Open:')
     print(f'Japan: {open_jpx}, London: {open_lse}, NY: {open_nyse}')
+    print(f'Trading time:{open_jpx or open_lse or open_nyse}')
 
-    if open_jpx or open_lse or open_nyse:
-        print(f'Trading time:{True}')
-        return True
-    else:
-        print(f'Trading time:{False}')
-        return False
+    return (open_jpx or open_lse or open_nyse)
 
 if __name__ == "__main__":
     market_open()
