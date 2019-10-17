@@ -289,14 +289,12 @@ take_profit_sell = [((1-i/(10000.00))*previous_low_bid).round(3) for i in range(
 
 op_buy = pd.DataFrame({'Open': current_open_ask,
                        'Probability':list(preds_buy.values()),
-                       'Take Profit': take_profit_buy,
-                       'Utility Gain': np.zeros(13)},
+                       'Take Profit': take_profit_buy},
                   index=[f'Buy{i}' for i in range(-6, 7)])
 
 op_sell = pd.DataFrame({'Open': current_open_bid,
                         'Probability':list(preds_sell.values()),
-                        'Take Profit': take_profit_sell,
-                       'Utility Gain': np.zeros(13)},
+                        'Take Profit': take_profit_sell},
                   index=[f'Sell{i}' for i in range(-6, 7)])
 
 op_buy.loc[op_buy['Open'] > op_buy['Take Profit'], ['Take Profit', 'Probability']] = np.nan
@@ -320,17 +318,14 @@ ops['Buy Limit Probability'] = ops2['Probability'].values
 
 ops.index = ops2.index
 
-new_order = [2,0,1,3,4]
+new_order = [2,0,1]
 opb = opb[opb.columns[new_order]]
 ops = ops[ops.columns[new_order]]
 
 
-# el '10' sale de cada pip de JPY a USD
-op_buy['Profit 0.01'] = 10*(op_buy['Take Profit'] - op_buy['Open']) 
-op_sell['Profit 0.01'] = 10*(-op_sell['Take Profit'] + op_sell['Open'])
 
 
-new = [0,2,1,4,3]
+new = [0,2,1]
 op_buy = op_buy[op_buy.columns[new]]
 op_sell = op_sell[op_sell.columns[new]]
 
@@ -342,7 +337,7 @@ def main(argv):
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
 
-    hora_now = f'{dt.now() - timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
+    hora_now = f'{dt.now() - timedelta(hours=5):%Y-%m-%d %H:%M:%S}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
     
@@ -364,25 +359,26 @@ def main(argv):
         return
 
 # Hacer decisón para la posición
-    decision = Decide(op_buy, op_sell, 100000, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=1000, take_profit=0 , stop_loss=0)
     decision.get_all_pips()
-    units = 1000000 * decision.direction
+    units = decision.pips * decision.direction * 1000
     inv_instrument = 'USD_JPY'
     take_profit = decision.take_profit
+    op_buy_new = decision.data_buy
+    op_sell_new = decision.data_sell
 
     logging.info(f'\n{decision.decision}')        
     # Pone orden a precio de mercado
     logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
         
     if make_order and units != 0:
-        print(units)
         new_order = Order(inv_instrument, take_profit)
         new_order.make_market_order(units)
 
     print(f'\nPrevious High Ask:{previous_high_ask}')
-    print(op_buy)
+    print(op_buy_new)
     print(f'\nPrevious Low Bid: {previous_low_bid}')
-    print(op_sell)
+    print(op_sell_new)
 
     # send telegram
     if not debug_mode:
@@ -392,8 +388,7 @@ def main(argv):
         bot = telegram_bot(TOKEN)
         bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
         bot.send_photo(CHAT_ID, image_name)
-        if make_order:
-            bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
+        bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
         # send emails
         logging.info('Se mandan predicciones a correo')
         send_email('USDJPY predictions',
