@@ -68,8 +68,8 @@ class Decide:
         if profit_buy > profit_sell:
             self.decision = '\nBuy!\n' + f"Take Profit: ${best_action_buy['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
-            self.decision += f"\nProfit: ${round(profit_buy,2)}"
-            self.decision += f'\nSpread: {round(self.spread * self.pips * 10,2)}'
+            self.decision += f"\nProfit[{self.pips}]: ${round(profit_buy,2)}"
+            self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
         elif profit_sell > profit_buy:
@@ -83,9 +83,11 @@ class Decide:
             self.decision = '\nNeutral \nBuy '
             self.decision += f"\nBuy Gain: ${round(get_profit(best_action_buy['Open'], best_action_buy['Take Profit'], pips),3)}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
-            self.decision += f"\nSell\nSell Gain: ${round(get_profit(best_action_buy['Open'], best_action_sell['Take Profit'], pips),3)}"
+            self.decision += f"\nLast Best Buy Price{best_action_buy['Take Profit']}"
+            self.decision += f"\nSell\nSell Gain: ${round(get_profit(best_action_sell['Open'], best_action_sell['Take Profit'], pips),3)}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
-            self.decision += f'\nSpread: {round(self.spread * self.pips * 10,2)}'
+            self.decision += f"\nLast Best Sell Price{best_action_sell['Take Profit']}"
+            self.decision += f'\nSpread: ${round(self.spread * self.pips * 10,2)}'
 
         
 
