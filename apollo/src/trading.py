@@ -361,7 +361,7 @@ def main(argv):
     
     
     html_file, html_path = create_html([op_buy, op_sell], html_template_path)
-    image_file, image_name = from_html_to_jpg(html_path)
+    _, image_name = from_html_to_jpg(html_path)
 
     # send emails
     send_email('USDJPY predictions',
