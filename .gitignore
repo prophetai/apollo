@@ -8,6 +8,7 @@ __pycache__/
 *.csv
 creds.sh
 init.sh
+*scaler
 
 # C extensions
 *.so
@@ -116,3 +117,4 @@ apollo/USDJPY_predictions.jpg
 apollo/USDJPY_predictions.html
 *config.yaml
 *cronjob.yaml
+*.png

@@ -324,7 +324,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.metrics import average_precision_score
 from sklearn.metrics import precision_recall_curve
-from sklearn.utils.fixes import signature
+#from sklearn.utils.fixes import signature
 
 
 def model_precision(y, predictions, sc, disp=False):
