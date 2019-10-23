@@ -55,8 +55,6 @@ class Decide:
         data_sell_tp = self.data_sell
 
         # Se toman los TP y SL para Buy y Sell que tengan la mayor utilidad y cubran el spread
-        data_buy_tp_aux = data_buy_tp.copy()
-        data_buy_sl_aux = data_sell_tp.copy()
         pips = self.pips
 
         # Se calcula decisión
@@ -105,8 +103,8 @@ if __name__ == '__main__':
     df_buy = pd.DataFrame(data_buy)
     df_sell = pd.DataFrame(data_sell)  
     portfolio = 100
-    decision = Decide(df_buy, df_sell, portfolio, direction=0, magnitude=0, take_profit=0 , stop_loss=0)
+    decision = Decide(df_buy, df_sell, portfolio, direction=0, pips=0, take_profit=0 , stop_loss=0)
     decision.get_all_pips()
-    print(f'Buy Take Profit:\n{decision.data_buy_tp}\n\nBuy Stop Loss:\n{decision.data_buy_sl}')
-    print(f'Sell Take Profit:\n{decision.data_sell_tp}\n\nSell Stop Loss:\n{decision.data_sell_sl}')
+    print(f'Buy Take Profit:\n{decision.data_buy}\n')
+    print(f'Sell Take Profit:\n{decision.data_sell}\n')
     print(f'\nDecision: {decision.decision}')
