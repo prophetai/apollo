@@ -300,30 +300,6 @@ op_sell = pd.DataFrame({'Open': current_open_bid,
 op_buy.loc[op_buy['Open'] > op_buy['Take Profit'], ['Take Profit', 'Probability']] = np.nan
 op_sell.loc[op_sell['Open'] < op_sell['Take Profit'], ['Take Profit', 'Probability']]  = np.nan
 
-opb = op_buy[:6]
-opb2 = op_buy[6:]
-opb.loc['Buy_'] = np.nan
-
-opb['Sell Limit'] = opb2['Take Profit'].values
-opb['Sell Limit Probability'] = opb2['Probability'].values
-
-opb.index = opb2.index
-
-ops = op_sell[:6]
-ops2 = op_sell[6:]
-ops.loc['Buy_'] = np.nan
-
-ops['Buy Limit'] = ops2['Take Profit'].values
-ops['Buy Limit Probability'] = ops2['Probability'].values
-
-ops.index = ops2.index
-
-new_order = [2,0,1]
-opb = opb[opb.columns[new_order]]
-ops = ops[ops.columns[new_order]]
-
-
-
 
 new = [0,2,1]
 op_buy = op_buy[op_buy.columns[new]]
