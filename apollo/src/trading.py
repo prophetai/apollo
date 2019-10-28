@@ -308,7 +308,7 @@ op_sell = op_sell[op_sell.columns[new]]
 def main(argv):
     """
     Main
-    """    
+    """  
     TOKEN = os.environ['telegram_token']
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
@@ -335,7 +335,7 @@ def main(argv):
         return
 
 # Hacer decisón para la posición
-    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=1000, take_profit=0 , stop_loss=0)
+    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=1, take_profit=0 , stop_loss=0)
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     inv_instrument = 'USD_JPY'
@@ -362,6 +362,8 @@ def main(argv):
         image_file, image_name = from_html_to_jpg(html_path)
         logging.info('Se mandan predicciones a Telegram')
         bot = telegram_bot(TOKEN)
+        if not make_order:
+            bot.send_message(CHAT_ID, f"TEST!!!!!")
         bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
         bot.send_photo(CHAT_ID, image_name)
         bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
