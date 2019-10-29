@@ -49,9 +49,6 @@ class Order():
 
         url = os.environ['trading_url']
         #try:
-        print(f'URL: {url}')
-        print(f'Data: {data}')
-        print(f'Header: {self.head}\n\n\n\n')
         response = requests.post(url, json=data, headers=self.head)
         print(f'Response code for Order sent:\n{response}')
         json_response = response.json()
