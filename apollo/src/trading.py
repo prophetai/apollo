@@ -127,6 +127,7 @@ gbL6 = pickle.load(open('./src/assets/models/gbLow6.h5', 'rb'))
 
 # descarga de datos
 logging.info('************* Descargando datos **************')
+time.sleep(3)
 gf = get_forex(instrument, instruments, granularity, start, end, candleformat, freq, trading)
 
 sd = setup_data(gf,
