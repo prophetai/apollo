@@ -281,7 +281,7 @@ current_open_ask = gf['USD_JPY_openAsk'].iloc[-1].round(3)
 current_open_bid = gf['USD_JPY_openBid'].iloc[-1].round(3)
 
 # aquí se toma el precio más caro a la venta de la hora previa (investigar por qué aquí es el último dato)
-previous_high_ask = gf['USD_JPY_highAsk'].iloc[-1].round(3)
+previous_high_ask = gf['USD_JPY_highAsk'].iloc[-2].round(3)
 take_profit_buy = [((1+i/(10000.00))*previous_high_ask).round(3) for i in range(-6, 7)]
 
 # aquí se toma el precio más barato a la compra de la hora previa (investigar por qué aquí es el penúltimo dato)
