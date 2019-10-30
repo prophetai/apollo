@@ -314,7 +314,7 @@ def main(argv):
     CHAT_ID = os.environ['telegram_chat_id']
     html_template_path ="./src/assets/email/email_template.html"
 
-    hora_now = f'{dt.now() - timedelta(hours=5):%Y-%m-%d %H:%M:%S}'
+    hora_now = f'{dt.now() - timedelta(hours=6):%Y-%m-%d %H:%M:%S}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
     
