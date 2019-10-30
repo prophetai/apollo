@@ -22,9 +22,8 @@ class Order():
                 activacion (list): ['relu', 'elu']
                 optimizador (list): ['rmsprop', 'adam']
         """
-
         self.auth_token = os.environ['token'] #token de autenticación
-        self.hed = {'Authorization': 'Bearer ' + self.auth_token} # header
+        self.head = {'Authorization': 'Bearer ' + self.auth_token} # header
         self.url = os.environ['trading_url'] # URL de broker
         self.tradeID = 0
         self.take_profit = take_profit
@@ -50,7 +49,7 @@ class Order():
 
         url = os.environ['trading_url']
         #try:
-        response = requests.post(url, json=data, headers=self.hed)
+        response = requests.post(url, json=data, headers=self.head)
         print(f'Response code for Order sent:\n{response}')
         json_response = response.json()
         print(f'Content of response:\n{json_response}')
@@ -70,5 +69,5 @@ class Order():
                   \ntake_profit: {self.take_profit}""")
 
 if __name__ == "__main__":
-    new_order = Order('USD_JPY', '107.981', '108.297')
+    new_order = Order('USD_JPY', '107.981')
     new_order.make_market_order('-1')
