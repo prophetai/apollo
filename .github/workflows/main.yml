@@ -4,14 +4,19 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-19.04
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        python-version: [ '2.x', '3.x', 'pypy3' ]
+    name: Python ${{ matrix.python-version }} sample
     steps:
       - uses: actions/checkout@master
-      - uses: actions/setup-python@v1
+      - name: Setup python
+        uses: actions/setup-python@v1
         with:
-          python-version: '3.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
-          architecture: 'x64' # (x64 or x86)
-      - run: python apollo/apollo/src/trading.py -o
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: python my_script.py
 
 
 #jobs:
