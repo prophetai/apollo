@@ -363,7 +363,7 @@ def main(argv):
     # send telegram
     if not debug_mode:
         html_file, html_path = create_html([op_buy, op_sell, previous_high_ask, previous_low_bid], html_template_path)
-        image_file, image_name = from_html_to_jpg(html_path)
+        _, image_name = from_html_to_jpg(html_path)
         logging.info('Se mandan predicciones a Telegram')
         bot = telegram_bot(TOKEN)
         if not make_order:
