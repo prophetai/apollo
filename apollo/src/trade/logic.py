@@ -46,7 +46,7 @@ class Decide:
 
         print(f'\nSearching for best {buy_sell} strategy(TP):')
         
-        for i in reversed(range(len(data)-1)): #vamos checando del valor de TP más alejado al más cercano
+        for i in range(len(data)-1): #vamos checando del valor de TP más alejado al más cercano
             best_action = data.iloc[i]
             probability = best_action['Probability']
             profit = get_profit(best_action['Open'], best_action["Take Profit"], pips)
