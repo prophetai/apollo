@@ -5,14 +5,33 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-19.04
+    env:
+      email_from: prophetsfai@gmail.com
+      email_pass: {{ secrets.prophets_email_pass}}
+      email_members: deds15@gmail.com
+      token: {{ secrets.oanda_test_token}}
+      trading_url: {{ secrets.oanda_test_url}}
+      telegram_token: {{ secrets.telegram_test_token}}
+      telegram_chat_id: {{ secrets.telegram_test_chat_id}}
     steps:
     - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
+    - name: Set up Python 3.7.3
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7.3
+    - name: Install dependencies
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
-        echo ${{ secrets.oanda_test_url }} esto
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    #- name: Test with pytest
+      #run: |
+        #pip install pytest
+        #pytest
