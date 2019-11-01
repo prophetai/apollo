@@ -11,9 +11,7 @@ jobs:
       with:
         python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # (x64 or x86)
-      env:
-        json_google_account: ${{ secrets.json_google_account}}
-        
+
     - name: Google Cloud Platform (GCP) CLI - gcloud
       uses: actions-hub/gcloud@master
       env:
@@ -37,6 +35,7 @@ jobs:
         trading_url: ${{ secrets.oanda_test_url}}
         telegram_token: ${{ secrets.telegram_test_token}}
         telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
+        json_google_account: ${{ secrets.json_google_account}}
       run: |
         cd apollo/
         python src/trading.py
