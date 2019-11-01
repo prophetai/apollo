@@ -25,7 +25,7 @@ jobs:
          pip install -r requirements.txt
      - name: Run code
        run: |
-         cd apollo/apollo/
+         cd apollo/
          python src/trading.py
 
 
