@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-     - uses: actions/checkout@master
+     - uses: actions/checkout@testing_pipeline
      - uses: actions/setup-python@v1
        with:
          python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
@@ -25,8 +25,9 @@ jobs:
          pip install -r requirements.txt
      - name: Run code
        run: |
-         cd ~/apollo/apollo/
-         python src/trading.py
+         ls
+         #cd ~/apollo/apollo/
+         #python src/trading.py
 
 
 #jobs:
