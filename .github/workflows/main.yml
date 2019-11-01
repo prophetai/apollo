@@ -4,15 +4,45 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
+    - uses: actions/checkout@master
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
+        architecture: 'x64' # (x64 or x86)
+  
+    - name: Google Cloud Platform (GCP) CLI - gcloud
+      uses: actions-hub/gcloud@master
+      env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      with:
+        args: |
+          info
+          gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models/
+          gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/
+    - name: Install htmltopdf
       run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
-        echo ${{ secrets.oanda_test_url }} esto
+        wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+        sudo apt-get -y install xfonts-75dpi && \
+        sudo apt-get -y install xfonts-base && \
+        sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+        sudo apt-get install -f
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt   
+    - name: Run code
+      env:
+        email_from: prophetsfai@gmail.com
+        email_pass: ${{ secrets.prophets_email_pass}}
+        email_members: deds15@gmail.com
+        token: ${{ secrets.oanda_test_token}}
+        trading_url: ${{ secrets.oanda_test_url}}
+        telegram_token: ${{ secrets.telegram_test_token}}
+        telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
+        json_google_account: ${{ secrets.json_google_account}}
+      run: |
+        cd apollo/
+        python src/trading.py -o

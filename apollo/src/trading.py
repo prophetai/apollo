@@ -371,14 +371,7 @@ def main(argv):
         bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
         bot.send_photo(CHAT_ID, image_name)
         bot.send_message(CHAT_ID, f"Best course of action: {decision.decision}")
-        # send emails
-        logging.info('Se mandan predicciones a correo')
-        send_email('USDJPY predictions',
-                    os.environ['email_from'],
-                    os.environ['email_members'],
-                    os.environ['email_pass'],
-                    html_file)
-
+        
 if __name__ == '__main__':
     #load settings
     with open ("src/settings.py", "r") as file:
