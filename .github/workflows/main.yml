@@ -45,4 +45,4 @@ jobs:
         json_google_account: ${{ secrets.json_google_account}}
       run: |
         cd apollo/
-        python src/trading.py
+        python src/trading.py -o
