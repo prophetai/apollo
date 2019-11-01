@@ -29,15 +29,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt   
     - name: Run code
-      with:
-          env:
-            email_from: prophetsfai@gmail.com
-            email_pass: ${{ secrets.prophets_email_pass}}
-            email_members: deds15@gmail.com
-            token: ${{ secrets.oanda_test_token}}
-            trading_url: ${{ secrets.oanda_test_url}}
-            telegram_token: ${{ secrets.telegram_test_token}}
-            telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
+      env:
+        email_from: prophetsfai@gmail.com
+        email_pass: ${{ secrets.prophets_email_pass}}
+        email_members: deds15@gmail.com
+        token: ${{ secrets.oanda_test_token}}
+        trading_url: ${{ secrets.oanda_test_url}}
+        telegram_token: ${{ secrets.telegram_test_token}}
+        telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
       run: |
         cd apollo/
         python src/trading.py
