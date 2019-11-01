@@ -15,15 +15,15 @@ jobs:
     with:
       python-version: '3.7.3' # Version range or exact version of a Python version to use, using semvers version range syntax.
       architecture: 'x64' # (x64 or x86)
-        env:
-          email_from: prophetsfai@gmail.com
-          email_pass: ${{ secrets.prophets_email_pass}}
-          email_members: deds15@gmail.com
-          token: ${{ secrets.oanda_test_token}}
-          trading_url: ${{ secrets.oanda_test_url}}
-          telegram_token: ${{ secrets.telegram_test_token}}
-          telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
-      - run: cd ~/apollo/apollo && python3 src/trading.py -o -t
+    env:
+      email_from: prophetsfai@gmail.com
+      email_pass: ${{ secrets.prophets_email_pass}}
+      email_members: deds15@gmail.com
+      token: ${{ secrets.oanda_test_token}}
+      trading_url: ${{ secrets.oanda_test_url}}
+      telegram_token: ${{ secrets.telegram_test_token}}
+      telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
+    - run: cd ~/apollo/apollo && python3 src/trading.py -o -t
 
 
 #jobs:
