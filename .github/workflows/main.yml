@@ -24,7 +24,7 @@ jobs:
           trading_url: ${{ secrets.oanda_test_url}}
           telegram_token: ${{ secrets.telegram_test_token}}
           telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
-      - run: python apollo/apollo/src/trading.py
+      #- run: python apollo/apollo/src/trading.py
 
 
 #jobs:
