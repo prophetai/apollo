@@ -19,10 +19,18 @@ jobs:
         trading_url: ${{ secrets.oanda_test_url}}
         telegram_token: ${{ secrets.telegram_test_token}}
         telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
+        json_google_account: ${{ secrets.json_google_account}}
      - name: Install dependencies
        run: |
          python -m pip install --upgrade pip
          pip install -r requirements.txt
+     - name: Google Cloud Platform (GCP) CLI - gcloud
+     - uses: actions-hub/gcloud@master
+       env:
+        PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        with:
+          args: info
      - name: Run code
        run: |
          cd apollo/
