@@ -11,7 +11,7 @@ steps:
   with:
     python-version: '3.7.3' # Version range or exact version of a Python version to use, using semvers version range syntax.
     architecture: 'x64' # (x64 or x86)
-- run: cd ~/apollo/apollo && python3 src/trading.py
+- run: python /apollo/apollo/src/trading.py
 
 
 #jobs:
