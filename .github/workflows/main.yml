@@ -33,6 +33,7 @@ jobs:
         APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
       with:
         args: |
+          info
           gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models/
           gsutil cp 'gs://forex_models/models/variables'  apollo/src/assets/
        
