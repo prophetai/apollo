@@ -53,6 +53,7 @@ class Decide:
             # Si la proba es > 0.6, y la ganancia cubre al menos el spread, entonces ese utilizamos
             if profit/spread >= 1.6:
                 if probability >= 0.7:
+                    self.pips *= 2
                     return best_action, profit * 2            
                 if probability >= 0.6: # Si es muy buena oportunidad metemos el doble de unidades
                     return best_action, profit            
