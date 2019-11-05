@@ -51,10 +51,11 @@ class Decide:
             probability = best_action['Probability']
             profit = get_profit(best_action['Open'], best_action["Take Profit"], pips)
             # Si la proba es > 0.6, y la ganancia cubre al menos el spread, entonces ese utilizamos
-            if probability >= 0.6 and profit/spread >= 1.6:
-                if probability >= 0.7: # Si es muy buena oportunidad metemos el doble de unidades
-                    self.pips *= 2
-                return best_action, profit            
+            if profit/spread >= 1.6:
+                if probability >= 0.7:
+                    return best_action, profit * 2            
+                if probability >= 0.6: # Si es muy buena oportunidad metemos el doble de unidades
+                    return best_action, profit            
         # Si no encontramos entonces tomamos el que tenga la mayor proba y calculamos su TP
         best_action = data.loc[data['Probability'].idxmax()]
         
