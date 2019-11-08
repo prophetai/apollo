@@ -54,9 +54,9 @@ class Decide:
             if profit/spread >= 1.6:
                 if probability >= 0.7:
                     self.pips *= 2
-                    return best_action, profit * 2            
+                    return best_action, probability            
                 if probability >= 0.6: # Si es muy buena oportunidad metemos el doble de unidades
-                    return best_action, profit            
+                    return best_action, probability            
         # Si no encontramos entonces tomamos el que tenga la mayor proba y calculamos su TP
         best_action = data.loc[data['Probability'].idxmax()]
         
@@ -73,22 +73,22 @@ class Decide:
         pips = self.pips
 
         # Se calcula decisión
-        best_action_buy, profit_buy = self.get_best_action('Buy')
-        best_action_sell, profit_sell = self.get_best_action('Sell')
+        best_action_buy, probability_buy = self.get_best_action('Buy')
+        best_action_sell, probability_sell = self.get_best_action('Sell')
 
 
         print(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
-        if profit_buy > profit_sell:
+        if probability_buy > probability_sell:
             self.decision = '\nBuy!\n' + f"Take Profit: ${best_action_buy['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
-            self.decision += f"\nProfit[{self.pips}]: ${round(profit_buy,2)}"
+            self.decision += f"\nProfit[{self.pips}]: ${round(best_action_buy.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
-        elif profit_sell > profit_buy:
+        elif probability_sell > probability_buy:
             self.decision = '\nSell!\n' + f"Take Profit: ${best_action_sell['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
-            self.decision += f"\nProfit[{self.pips}]: ${round(profit_sell,2)}"
+            self.decision += f"\nProfit[{self.pips}]: ${round(best_action_sell.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
