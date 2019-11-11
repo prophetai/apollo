@@ -17,4 +17,5 @@ jobs:
         HOST: ${{ secrets.APOLLO_HOST }}
         USER: ${{ secrets.APOLLO_USER }}
       with:
+        secrets: "[PRIVATE_KEY,HOST,USER]"
         args: git pull
