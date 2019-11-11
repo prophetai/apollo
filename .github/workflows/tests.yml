@@ -46,9 +46,3 @@ jobs:
       run: |
         cd apollo/
         python src/trading.py -o
-    - name: Update code on server
-      uses: maddox/actions/ssh@master
-      with:
-        args: |
-          cd apollo && git pull
-          secrets: [${{ secrets.APOLLO_KEY}}, ${{ secrets.APOLLO_HOST}},${{ secrets.APOLLO_USER}}]
