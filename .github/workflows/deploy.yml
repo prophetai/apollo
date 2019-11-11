@@ -2,7 +2,7 @@ name: deploy
 
 on: 
   pull_request:
-    types: [closed]
+    #types: [closed]
     branches:
       - master
 
@@ -10,9 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Update code on server
+    - name: Update Server Repo
       uses: maddox/actions/ssh@master
+      env:
+        PRIVATE_KEY: ${{ secrets.APOLLO_KEY }}
+        HOST: ${{ secrets.APOLLO_HOST }}
+        USER: ${{ secrets.APOLLO_USER }}
       with:
-        args: |
-          cd apollo && git pull
-          secrets: [${{ secrets.APOLLO_KEY}}, ${{ secrets.APOLLO_HOST}},${{ secrets.APOLLO_USER}}]
+        args: git pull
