@@ -14,8 +14,7 @@ jobs:
       uses: maddox/actions/ssh@master
       env:
         PRIVATE_KEY: ${{ secrets.APOLLO_KEY }}
-        HOST: ${{ secrets.APOLLO_HOST }}
+        HOST: 35.188.203.73
         USER: ${{ secrets.APOLLO_USER }}
       with:
-        secrets: "[PRIVATE_KEY,HOST,USER]"
         args: git pull
