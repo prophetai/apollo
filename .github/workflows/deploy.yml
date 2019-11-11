@@ -17,4 +17,6 @@ jobs:
         HOST: 35.188.203.73
         USER: ${{ secrets.APOLLO_USER }}
       with:
-        args: git pull
+        args: |
+          cd apollo
+          git pull
