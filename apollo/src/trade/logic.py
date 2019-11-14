@@ -50,6 +50,7 @@ class Decide:
         probability = 0
         best_action = None
         for i in range(len(data)-1): #vamos checando del valor de TP más alejado al más cercano
+            spread = self.spread * pips * 10  #checar la lógica/razón de esto
             probability_cand = data.iloc[i]['Probability']
             profit_cand = get_profit(data.iloc[i]['Open'], data.iloc[i]["Take Profit"], pips)
             # Si la proba es > 0.6, y la ganancia cubre al menos el spread, entonces ese utilizamos
@@ -57,6 +58,7 @@ class Decide:
                 best_action = data.iloc[i]
                 if probability_cand >= 0.7:
                     profit_cand *= 2
+                    spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
                     probability = probability_cand 
                     max_profit = profit_cand
@@ -83,23 +85,25 @@ class Decide:
 
         print(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
         if probability_buy > probability_sell:
+            if best_action_buy['Probability'] >= 0.7:
+                self.pips *= 2
             self.decision = '\nBuy!\n' + f"Take Profit: ${best_action_buy['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
             self.decision += f"\nProfit[{self.pips}]: ${round(best_action_buy.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
-            if best_action_buy['Probability'] >= 0.7:
-                self.pips *= 2
+            
         elif probability_sell > probability_buy:
+            if best_action_sell['Probability'] >= 0.7:
+                self.pips *= 2
             self.decision = '\nSell!\n' + f"Take Profit: ${best_action_sell['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
             self.decision += f"\nProfit[{self.pips}]: ${round(best_action_sell.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
-            if best_action_sell['Probability'] >= 0.7:
-                self.pips *= 2
+            
         else:
             self.decision = '\nNeutral \nBuy '
             self.decision += f"\nBuy Gain: ${round(get_profit(best_action_buy['Open'], best_action_buy['Take Profit'], pips),2)}"
