@@ -37,7 +37,7 @@ class Positions():
                 self.short_units += abs(float(positions['short']['units']))
 
 if __name__ == "__main__":
-    positions = positions('USD_JPY')
+    positions = Positions('USD_JPY')
     positions.get_status()
 
     print(f'Long:{positions.long_units} units, Short:{positions.short_units} units')

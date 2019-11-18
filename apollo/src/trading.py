@@ -353,7 +353,11 @@ def main(argv):
         # escogemos lo que podamos operar sin pasarnos del límite.
         units = min(abs(units), max_units - current_units) * decision.direction
         if units == 0:
-            decision.decision += '\n*Unit limit exceeded. Order not placed.'
+            decision.decision += '\n*Units limit exceeded. Order not placed.'
+    elif current_units > max_units:
+        units = 0
+        decision.decision += '\n*Units limit exceeded. Order not placed.'
+
     
     inv_instrument = 'USD_JPY'
     take_profit = decision.take_profit
