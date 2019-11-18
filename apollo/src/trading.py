@@ -12,6 +12,7 @@ from statsmodels.regression.linear_model import OLSResults
 
 from trade.logic import Decide
 from trade.order import Order
+from trade.orders_status import Positions
 
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
 from send_predictions.telegram_send import telegram_bot
@@ -342,6 +343,18 @@ def main(argv):
     decision = Decide(op_buy, op_sell, 100000, direction=0, pips=1, take_profit=0 , stop_loss=0)
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
+    
+    max_units = 3000 #máximo de unidades en riesgo al mismo tiempo
+    positions = Positions('USD_JPY')
+    positions.get_status()
+    current_units = positions.long_units + positions.short_units
+
+    if units > 0 and current_units <= max_units: # si queremos hacer una operación y aún podemos hacer operaciones
+        # escogemos lo que podamos operar sin pasarnos del límite.
+        units = min(abs(units), max_units - current_units) * decision.direction
+        if units == 0:
+            decision.decision += '\n*Unit limit exceeded. Order not placed.'
+    
     inv_instrument = 'USD_JPY'
     take_profit = decision.take_profit
     op_buy_new = decision.data_buy

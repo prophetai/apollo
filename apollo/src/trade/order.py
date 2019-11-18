@@ -15,12 +15,8 @@ class Order():
         """Inicializa nuestra red.
 
         Args:
-            nn_param_candidatos (dict): parámetros que puede incluir la red.
-            Por ejemplo:
-                num_neurons (list): [64, 128, 256]
-                num_capas (list): [1, 2, 3, 4]
-                activacion (list): ['relu', 'elu']
-                optimizador (list): ['rmsprop', 'adam']
+            inv_instrument (str): instrument's name
+            take_profit (float): take profit price
         """
         self.auth_token = os.environ['token'] #token de autenticación
         self.head = {'Authorization': 'Bearer ' + self.auth_token} # header
@@ -47,7 +43,7 @@ class Order():
         }
 
 
-        url = os.environ['trading_url']
+        url = self.url + 'orders'
         #try:
         response = requests.post(url, json=data, headers=self.head)
         print(f'Response code for Order sent:\n{response}')
@@ -65,7 +61,6 @@ class Order():
     def show_order(self):
         print(f"""\ntradeID: {self.tradeID}\
                   \nmarket_price: {self.market_price}\
-                  \nstop_loss: {self.stop_loss}\
                   \ntake_profit: {self.take_profit}""")
 
 if __name__ == "__main__":
