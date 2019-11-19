@@ -49,7 +49,7 @@ class Decide:
         max_profit = 0
         probability = 0
         best_action = None
-        for i in range(len(data)-1): #vamos checando del valor de TP más alejado al más cercano
+        for i in range(len(data)-1):
             spread = self.spread * pips * 10  #checar la lógica/razón de esto
             probability_cand = data.iloc[i]['Probability']
             profit_cand = get_profit(data.iloc[i]['Open'], data.iloc[i]["Take Profit"], pips)
@@ -60,6 +60,10 @@ class Decide:
                     profit_cand *= 2
                     spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
+                    print('\nNuevo candidato:')
+                    print(f'Probabilidad:{probability_cand}')
+                    print(f'Profit: ${profit_cand}')
+                    print(f'Best_action:\n{data.iloc[i]}')
                     probability = probability_cand 
                     max_profit = profit_cand
                     best_action = data.iloc[i]
