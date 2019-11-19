@@ -344,23 +344,26 @@ def main(argv):
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     
-    max_units = 3000 #máximo de unidades en riesgo al mismo tiempo
+    max_units = 3000.0 #máximo de unidades en riesgo al mismo tiempo
     positions = Positions('USD_JPY')
     positions.get_status()
     current_units = positions.long_units + positions.short_units
 
     print(f'Current units: {current_units}')
     print(f'Max units: {max_units}')
+    print(f'Units: {units}')
 
 
-    if units > 0 and current_units <= max_units: # si queremos hacer una operación y aún podemos hacer operaciones
-        # escogemos lo que podamos operar sin pasarnos del límite.
-        units = min(abs(units), max_units - current_units) * decision.direction
-        if units == 0:
+    if units > 0.0: # si queremos hacer una operación
+        if current_units < max_units:  # vemos si aún podemos hacer operaciones
+            # escogemos lo que podamos operar sin pasarnos del límite.
+            # el mínimo entre la unidades solicitadas o las disponibles
+            units = min(abs(units), max_units - current_units) * decision.direction
+            if units == 0.0: # si encontramos que ya no hay
+                decision.decision += '\n*Units limit exceeded. Order not placed.'
+        else: # si ya hemos excedido operaciones
+            units = 0.0
             decision.decision += '\n*Units limit exceeded. Order not placed.'
-    elif current_units > max_units:
-        units = 0
-        decision.decision += '\n*Units limit exceeded. Order not placed.'
 
     
     inv_instrument = 'USD_JPY'
