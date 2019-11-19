@@ -349,6 +349,10 @@ def main(argv):
     positions.get_status()
     current_units = positions.long_units + positions.short_units
 
+    print(f'Current units: {current_units}')
+    print(f'Max units: {max_units}')
+
+
     if units > 0 and current_units <= max_units: # si queremos hacer una operación y aún podemos hacer operaciones
         # escogemos lo que podamos operar sin pasarnos del límite.
         units = min(abs(units), max_units - current_units) * decision.direction
