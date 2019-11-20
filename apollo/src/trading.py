@@ -354,7 +354,7 @@ def main(argv):
     print(f'Units: {units}')
 
 
-    if units > 0.0: # si queremos hacer una operación
+    if units != 0: # si queremos hacer una operación (units puede ser positivo o negativo)
         if current_units < max_units:  # vemos si aún podemos hacer operaciones
             # escogemos lo que podamos operar sin pasarnos del límite.
             # el mínimo entre la unidades solicitadas o las disponibles
