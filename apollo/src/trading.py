@@ -344,7 +344,7 @@ def main(argv):
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     
-    max_units = 3000.0 #máximo de unidades en riesgo al mismo tiempo
+    max_units = 6000.0 #máximo de unidades en riesgo al mismo tiempo
     positions = Positions('USD_JPY')
     positions.get_status()
     current_units = positions.long_units + positions.short_units
@@ -354,7 +354,7 @@ def main(argv):
     print(f'Units: {units}')
 
 
-    if units != 0: # si queremos hacer una operación
+    if units != 0: # si queremos hacer una operación (units puede ser positivo o negativo)
         if current_units < max_units:  # vemos si aún podemos hacer operaciones
             # escogemos lo que podamos operar sin pasarnos del límite.
             # el mínimo entre la unidades solicitadas o las disponibles
