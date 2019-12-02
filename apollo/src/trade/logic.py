@@ -55,14 +55,15 @@ class Decide:
             profit_cand = get_profit(data.iloc[i]['Open'], data.iloc[i]["Take Profit"], pips)
             # Si la proba es > 0.6, y la ganancia cubre al menos el spread, entonces ese utilizamos
             if probability_cand >= 0.6:
+                print('\nNuevo candidato:')
+                print(f'Best_action:\n{data.iloc[i]}')
                 if probability_cand >= 0.7:
                     profit_cand *= 2
                     spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
-                    print('\nNuevo candidato:')
+                    print('\nNuevo ganador:')
                     print(f'Probabilidad:{probability_cand}')
                     print(f'Profit: ${profit_cand}')
-                    print(f'Best_action:\n{data.iloc[i]}')
                     probability = probability_cand 
                     max_profit = profit_cand
                     best_action = data.iloc[i]
