@@ -313,6 +313,7 @@ def main(argv):
     """  
     TOKEN = os.environ['telegram_token']
     CHAT_ID = os.environ['telegram_chat_id']
+    initial_pip = float(os.environ['initial_pip'])
     html_template_path ="./src/assets/email/email_template.html"
 
     tz_MX = pytz.timezone('America/Mexico_City') 
@@ -340,25 +341,25 @@ def main(argv):
         return
 
 # Hacer decisón para la posición
-    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=2, take_profit=0 , stop_loss=0)
+    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=initial_pip, take_profit=0 , stop_loss=0)
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     
-    max_units = 7000.0 #máximo de unidades en riesgo al mismo tiempo
+    pip_limit = os.environ['pip_limit'] #máximo de unidades en riesgo al mismo tiempo
     positions = Positions('USD_JPY')
     positions.get_status()
-    current_units = positions.long_units + positions.short_units
+    current_pips = positions.long_units + positions.short_units
 
-    print(f'Current units: {current_units}')
-    print(f'Max units: {max_units}')
+    print(f'Current units: {current_pips}')
+    print(f'Max units: {pip_limit}')
     print(f'Units: {units}')
 
 
     if units != 0: # si queremos hacer una operación (units puede ser positivo o negativo)
-        if current_units < max_units:  # vemos si aún podemos hacer operaciones
+        if current_pips < pip_limit:  # vemos si aún podemos hacer operaciones
             # escogemos lo que podamos operar sin pasarnos del límite.
             # el mínimo entre la unidades solicitadas o las disponibles
-            units = min(abs(units), max_units - current_units) * decision.direction
+            units = min(abs(units), pip_limit - current_pips) * decision.direction
             if units == 0.0: # si encontramos que ya no hay
                 decision.decision += '\n*Units limit exceeded. Order not placed.'
         else: # si ya hemos excedido operaciones
