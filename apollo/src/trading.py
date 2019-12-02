@@ -340,7 +340,7 @@ def main(argv):
         return
 
 # Hacer decisón para la posición
-    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=1, take_profit=0 , stop_loss=0)
+    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=2, take_profit=0 , stop_loss=0)
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     
