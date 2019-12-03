@@ -345,7 +345,7 @@ def main(argv):
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     
-    pip_limit = os.environ['pip_limit'] #máximo de unidades en riesgo al mismo tiempo
+    pip_limit = float(os.environ['pip_limit']) #máximo de unidades en riesgo al mismo tiempo
     positions = Positions('USD_JPY')
     positions.get_status()
     current_pips = positions.long_units + positions.short_units
