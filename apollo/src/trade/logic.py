@@ -53,11 +53,11 @@ class Decide:
             spread = self.spread * pips * 10  #checar la lógica/razón de esto
             probability_cand = data.iloc[i]['Probability']
             profit_cand = get_profit(data.iloc[i]['Open'], data.iloc[i]["Take Profit"], pips)
-            # Si la proba es > 0.6, y la ganancia cubre al menos el spread, entonces ese utilizamos
-            if probability_cand >= 0.6:
+            # Si la proba es > 0.7, y la ganancia cubre al menos el spread, entonces ese utilizamos
+            if probability_cand >= 0.7:
                 print('\nNuevo candidato:')
                 print(f'Best_action:\n{data.iloc[i]}')
-                if probability_cand >= 0.7:
+                if probability_cand >= 0.8:
                     profit_cand *= 2
                     spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
@@ -89,7 +89,7 @@ class Decide:
 
         print(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
         if probability_buy > probability_sell:
-            if best_action_buy['Probability'] >= 0.7:
+            if best_action_buy['Probability'] >= 0.8:
                 self.pips *= 2
             self.decision = '\nBuy!\n' + f"Take Profit: ${best_action_buy['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
@@ -99,7 +99,7 @@ class Decide:
             self.take_profit = str(best_action_buy['Take Profit'])
             
         elif probability_sell > probability_buy:
-            if best_action_sell['Probability'] >= 0.7:
+            if best_action_sell['Probability'] >= 0.8:
                 self.pips *= 2
             self.decision = '\nSell!\n' + f"Take Profit: ${best_action_sell['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
