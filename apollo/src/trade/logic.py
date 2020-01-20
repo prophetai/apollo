@@ -57,7 +57,7 @@ class Decide:
             if probability_cand >= 0.65:
                 print('\nNuevo candidato:')
                 print(f'Best_action:\n{data.iloc[i]}')
-                if probability_cand >= 0.7
+                if probability_cand >= 0.7:
                     profit_cand *= 2
                     spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
