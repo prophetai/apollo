@@ -1,5 +1,6 @@
+![tests](https://github.com/prophetai/apollo/workflows/tests/badge.svg)
 # Apollo
-Apollo is a service that delivers predictions on forex markets to its user basis
+Apollo is a service that delivers predictions on forex markets to its user basis.
 
 It's designed to work as a cronjob in a Kubernetes cluster in [Google Cloud Platform ](http://cloud.google.com)(but it should work anywhere else too).
 
