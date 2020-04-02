@@ -3,7 +3,7 @@
 def get_profit(open_price, tp_price, lots):
         pip_dif = abs(tp_price - open_price)
         profit_yen = pip_dif * lots * 1000
-        profit_dlls = profit_yen / tp_price
+        profit_dlls = round(profit_yen / tp_price,3)
 
         return profit_dlls
 

@@ -329,12 +329,15 @@ def main(argv):
                         help='Make order only if market is open')
     parser.add_argument('-d','--debug', action='store_true',
                         help='Debug mode on')
+    parser.add_argument('-p','--practice', action='store_true',
+                        help='Use practice account too')
 
     args = parser.parse_args()
     make_order = args.order or False
     market_sensitive = args.time or False
     debug_mode = args.debug or False
-    
+    practice_on = args.practice or False
+
     logging.info(f'\nMarket sensitive: {market_sensitive}')
     if market_sensitive and not market_open():
         logging.info('Market Closed')
@@ -379,6 +382,13 @@ def main(argv):
     if make_order and units != 0:
         new_order = Order(inv_instrument, take_profit)
         new_order.make_market_order(units)
+    
+    if practice_on and units != 0:
+        os.environ['token'] = os.environ['token_demo']  #token de autenticación
+        os.environ['trading_url'] = os.environ['trading_url_demo']# URL de broker
+        new_order = Order(inv_instrument, take_profit)
+        new_order.make_market_order(units)
+
 
     print(f'\nPrevious High Ask:{previous_high_ask}')
     print(op_buy_new)
