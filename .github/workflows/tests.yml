@@ -50,4 +50,4 @@ jobs:
         pip_limit: 7000
       run: |
         cd apollo/
-        python src/trading.py -o
+        python src/trading.py -o -p
