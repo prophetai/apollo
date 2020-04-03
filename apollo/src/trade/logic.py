@@ -98,7 +98,7 @@ class Decide:
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
-            self.stop_loss =  round(2.5 * best_action_buy['Open'][0].values() - 1.5 * self.take_profit,3)
+            self.stop_loss =  round(2.5 * best_action_buy['Open'][0] - 1.5 * self.take_profit,3)
             
         elif probability_sell > probability_buy:
             if best_action_sell['Probability'] >= 0.8:
@@ -109,7 +109,7 @@ class Decide:
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
-            self.stop_loss =  round(2.5 * best_action_sell['Open'][0].values() - 1.5 * self.take_profit,3)
+            self.stop_loss =  round(2.5 * best_action_sell['Open'][0] - 1.5 * self.take_profit,3)
             
         else:
             self.decision = '\nNeutral \n\nBuy:'
