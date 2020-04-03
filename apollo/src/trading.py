@@ -374,6 +374,7 @@ def main(argv):
     take_profit = decision.take_profit
     op_buy_new = decision.data_buy
     op_sell_new = decision.data_sell
+    stop_loss = decision.stop_loss
 
     logging.info(f'\n{decision.decision}')        
     # Pone orden a precio de mercado
@@ -386,7 +387,7 @@ def main(argv):
     if practice_on and units != 0:
         os.environ['token'] = os.environ['token_demo']  #token de autenticación
         os.environ['trading_url'] = os.environ['trading_url_demo']# URL de broker
-        new_order = Order(inv_instrument, take_profit)
+        new_order = Order(inv_instrument, take_profit, stop_loss=stop_loss)
         new_order.make_market_order(units)
 
 
