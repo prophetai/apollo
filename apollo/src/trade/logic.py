@@ -90,40 +90,45 @@ class Decide:
 
         print(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
         if probability_buy > probability_sell:
+            self.stop_loss =  round(2.5 * best_action_buy['Open'] - 1.5 * best_action_buy['Take Profit'],3)
             if best_action_buy['Probability'] >= 0.8:
                 self.pips *= 2
             self.decision = '\nBuy!\n' + f"Take Profit: ${best_action_buy['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
             self.decision += f"\nProfit[{self.pips}]: ${round(best_action_buy.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
+            self.decision += f"\nStop Loss: ${self.stop_loss}"
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
-            self.stop_loss =  round(2.5 * best_action_buy['Open'] - 1.5 * self.take_profit,3)
+            self.stop_loss =  round(2.5 * best_action_buy['Open'] - 1.5 * best_action_buy['Take Profit'],3)
             
         elif probability_sell > probability_buy:
+            self.stop_loss =  round(2.5 * best_action_sell['Open'] - 1.5 * best_action_sell['Take Profit'],3)
             if best_action_sell['Probability'] >= 0.8:
                 self.pips *= 2
             self.decision = '\nSell!\n' + f"Take Profit: ${best_action_sell['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
             self.decision += f"\nProfit[{self.pips}]: ${round(best_action_sell.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
+            self.decision += f"\nStop Loss: ${self.stop_loss}"
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
-            self.stop_loss =  round(2.5 * best_action_sell['Open'] - 1.5 * self.take_profit,3)
+            
             
         else:
-            stop_loss = round(2.5 * best_action_buy['Open'] - 1.5 * self.take_profit,3)
+            stop_loss = round(2.5 * best_action_buy['Open'] - 1.5 * best_action_buy['Take Profit'],3)
             self.decision = '\nNeutral \n\nBuy:'
             self.decision += f"\nBuy Gain: ${round(get_profit(best_action_buy['Open'], best_action_buy['Take Profit'], pips),2)}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
             self.decision += f"\nLast Best Buy Price: ${best_action_buy['Take Profit']}"
             self.decision += f"\nStop Loss Buy: ${stop_loss}"
     
-            stop_loss = round(2.5 * best_action_sell['Open'] - 1.5 * self.take_profit,3)
+            stop_loss = round(2.5 * best_action_sell['Open'] - 1.5 * best_action_sell['Take Profit'],3)
             self.decision += f"\n\nSell:\nSell Gain: ${round(get_profit(best_action_sell['Open'], best_action_sell['Take Profit'], pips),2)}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
             self.decision += f"\nLast Best Sell Price: ${best_action_sell['Take Profit']}"
             self.decision += f"\nStop Loss Sell: ${stop_loss}"
+            
             self.decision += f'\n\nSpread: ${round(self.spread * self.pips * 10,2)}'
 
         
