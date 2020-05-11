@@ -6,7 +6,7 @@ import time
 
 class Decide:
     
-    def __init__(self, data_buy, data_sell, portfolio, direction=0, pips=0, take_profit=0 , stop_loss=0):
+    def __init__(self, data_buy, data_sell, portfolio, direction=0, pips=0, take_profit=0):
         """
         Makes a decision about the next operation
 
@@ -17,7 +17,6 @@ class Decide:
             - direction (int)[-1,1]: direction of the trade, buy(1) or sell (-1)
             - pips (int): units to trade
             - take_profit(str): expected price to take profit from trade
-            - stop_loss(str): price to stop loss from trade
 
         """
         self.data_buy = data_buy
@@ -25,7 +24,6 @@ class Decide:
         self.direction = direction
         self.pips = pips
         self.take_profit = take_profit
-        self.stop_loss = stop_loss
         self.decision = ''
         self.spread = data_buy.iloc[0]['Open'] - data_sell.iloc[0]['Open']
     
@@ -55,10 +53,10 @@ class Decide:
             probability_cand = data.iloc[i]['Probability']
             profit_cand = get_profit(data.iloc[i]['Open'], data.iloc[i]["Take Profit"], pips)
             # Si la proba es > 0.7, y la ganancia cubre al menos el spread, entonces ese utilizamos
-            if probability_cand >= 0.65:
+            if probability_cand >= 0.7:
                 print('\nNuevo candidato:')
                 print(f'Best_action:\n{data.iloc[i]}')
-                if probability_cand >= 0.7:
+                if probability_cand >= 0.8:
                     profit_cand *= 2
                     spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
@@ -90,44 +88,35 @@ class Decide:
 
         print(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
         if probability_buy > probability_sell:
-            self.stop_loss =  round(2.5 * best_action_buy['Open'] - 1.5 * best_action_buy['Take Profit'],3)
             if best_action_buy['Probability'] >= 0.8:
                 self.pips *= 2
             self.decision = '\nBuy!\n' + f"Take Profit: ${best_action_buy['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
             self.decision += f"\nProfit[{self.pips}]: ${round(best_action_buy.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
-            self.decision += f"\nStop Loss: ${self.stop_loss}"
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
-            self.stop_loss =  round(2.5 * best_action_buy['Open'] - 1.5 * best_action_buy['Take Profit'],3)
             
         elif probability_sell > probability_buy:
-            self.stop_loss =  round(2.5 * best_action_sell['Open'] - 1.5 * best_action_sell['Take Profit'],3)
             if best_action_sell['Probability'] >= 0.8:
                 self.pips *= 2
             self.decision = '\nSell!\n' + f"Take Profit: ${best_action_sell['Take Profit']}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
             self.decision += f"\nProfit[{self.pips}]: ${round(best_action_sell.iloc[-1],2)}"
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
-            self.decision += f"\nStop Loss: ${self.stop_loss}"
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
             
             
         else:
-            stop_loss = round(2.5 * best_action_buy['Open'] - 1.5 * best_action_buy['Take Profit'],3)
             self.decision = '\nNeutral \n\nBuy:'
             self.decision += f"\nBuy Gain: ${round(get_profit(best_action_buy['Open'], best_action_buy['Take Profit'], pips),2)}"
             self.decision += f"\nProbability: {round(best_action_buy['Probability']*100,2)}%"
             self.decision += f"\nLast Best Buy Price: ${best_action_buy['Take Profit']}"
-            self.decision += f"\nStop Loss Buy: ${stop_loss}"
-    
-            stop_loss = round(2.5 * best_action_sell['Open'] - 1.5 * best_action_sell['Take Profit'],3)
+
             self.decision += f"\n\nSell:\nSell Gain: ${round(get_profit(best_action_sell['Open'], best_action_sell['Take Profit'], pips),2)}"
             self.decision += f"\nProbability: {round(best_action_sell['Probability']*100,2)}%"
             self.decision += f"\nLast Best Sell Price: ${best_action_sell['Take Profit']}"
-            self.decision += f"\nStop Loss Sell: ${stop_loss}"
             
             self.decision += f'\n\nSpread: ${round(self.spread * self.pips * 10,2)}'
 
@@ -149,7 +138,7 @@ if __name__ == '__main__':
     df_buy = pd.DataFrame(data_buy)
     df_sell = pd.DataFrame(data_sell)  
     portfolio = 100
-    decision = Decide(df_buy, df_sell, portfolio, direction=0, pips=0, take_profit=0 , stop_loss=0)
+    decision = Decide(df_buy, df_sell, portfolio, direction=0, pips=0, take_profit=0    )
     decision.get_all_pips()
     print(f'Buy Take Profit:\n{decision.data_buy}\n')
     print(f'Sell Take Profit:\n{decision.data_sell}\n')

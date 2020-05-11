@@ -12,7 +12,8 @@ from statsmodels.regression.linear_model import OLSResults
 
 from trade.logic import Decide
 from trade.order import Order
-from trade.orders_status import Positions
+from trade.trade import Trade
+from trade.openTrades import openTrades
 
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
 from send_predictions.telegram_send import telegram_bot
@@ -344,14 +345,13 @@ def main(argv):
         return
 
 # Hacer decisón para la posición
-    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=initial_pip, take_profit=0 , stop_loss=0)
+    decision = Decide(op_buy, op_sell, 100000, direction=0, pips=initial_pip, take_profit=0)
     decision.get_all_pips()
     units = decision.pips * decision.direction * 1000
     
     pip_limit = float(os.environ['pip_limit']) #máximo de unidades en riesgo al mismo tiempo
-    positions = Positions('USD_JPY')
-    positions.get_status()
-    current_pips = positions.long_units + positions.short_units
+    open_trades = openTrades()
+    current_pips = open_trades.number_trades()
 
     print(f'Current units: {current_pips}')
     print(f'Max units: {pip_limit}')
@@ -374,29 +374,46 @@ def main(argv):
     take_profit = decision.take_profit
     op_buy_new = decision.data_buy
     op_sell_new = decision.data_sell
-    stop_loss = decision.stop_loss
 
     print(f'inv_instrument: {inv_instrument}')
     print(f'take_profit: {take_profit}')
-    print(f'stop_loss: {stop_loss}')
 
     logging.info(f'\n{decision.decision}')        
     # Pone orden a precio de mercado
     logging.info(f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
         
     if make_order and units != 0:
-        new_order = Order(inv_instrument, take_profit)
-        new_order.make_market_order(units)
-    
-    if practice_on and units != 0:
-        print(f'inv_instrument: {inv_instrument}')
-        print(f'take_profit: {take_profit}')
-        print(f'stop_loss: {stop_loss}')
+        new_trade = Trade(inv_instrument, units, take_profit=take_profit)
+        new_order = Order(new_trade)
+        new_order.make_market_order()
+        
+    if practice_on:
         os.environ['token'] = os.environ['token_demo']  #token de autenticación
         os.environ['trading_url'] = os.environ['trading_url_demo']# URL de broker
-        new_order = Order(inv_instrument, take_profit, stop_loss=stop_loss)
-        new_order.make_market_order(units)
+        open_trades = openTrades()
+        current_pips = open_trades.number_trades()
+        print(f'trading url: {os.environ["trading_url"]}')
+        if units != 0: # if we want to make a trade
+            print(f'inv_instrument: {inv_instrument}')
+            print(f'take_profit: {take_profit}')
+            new_order = Order(new_trade)
+            new_order.make_market_order()
 
+        print(f'checking open trades({current_pips} pips)')
+        if current_pips > 0: # if there are any open positions
+            open_trades.get_trades_data()
+            # calculate the stop loss for open trades
+            for trade in open_trades.trades:
+                from dateutil import parser
+                duration = dt.now().astimezone(pytz.utc) - parser.parse(trade.openTime)
+                minutes = duration.total_seconds()/60
+                print(f'ID:{trade.i_d}')
+                print(f'minutes passed for trade {trade.i_d}: {minutes}')
+                if minutes > 59 and minutes < 120: # just for trades with more than 50 minutes old
+                    trade.get_stop_loss()
+                    new_order = Order(trade)
+                    new_order.set_stop_loss() # sets it in Oanda
+                
 
     print(f'\nPrevious High Ask:{previous_high_ask}')
     print(op_buy_new)
