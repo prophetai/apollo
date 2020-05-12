@@ -18,7 +18,7 @@ imgkit==1.0.1
 wkhtmltopdf==0.2
 pandas-market-calendars==1.1
 Keras==2.3.0
-tensorflow==1.14.0
+tensorflow==1.15.2
 xgboost==0.90
 cloudstorage==0.10.0
 google-cloud-storage==1.21.0

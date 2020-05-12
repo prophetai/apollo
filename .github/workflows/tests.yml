@@ -44,8 +44,10 @@ jobs:
         telegram_token: ${{ secrets.telegram_test_token}}
         telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
         json_google_account: ${{ secrets.json_google_account}}
+        token_demo: ${{ secrets.oanda_test_token}}
+        trading_url_demo: ${{ secrets.oanda_test_url}}
         initial_pip: 2
         pip_limit: 7000
       run: |
         cd apollo/
-        python src/trading.py -o
+        python src/trading.py -o -p
