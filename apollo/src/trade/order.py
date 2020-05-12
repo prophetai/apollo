@@ -59,5 +59,6 @@ class Order():
         print(f'Content of response:\n{json_response}')
 
 if __name__ == "__main__":
-    new_order = Order('USD_JPY', '107.981')
-    new_order.make_market_order('-1')
+    new_trade = Trade('USD_JPY',1000,take_profit=110.90)
+    new_order = Order(new_trade)
+    new_order.make_market_order()   
