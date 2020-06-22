@@ -46,7 +46,7 @@ class Data():
                 log=True,
                 trading=self.trading)
         
-        return data
+        return data,gf
 
     def process_data(self, data):
         processeddf = get_indicators(data, 
@@ -75,7 +75,7 @@ class Data():
         logging.info('************* Cargando Variables **************')
         variablesh, variablesl = assets.load_vals()                
         logging.info('************* Obteniendo Datos **************')
-        data = self.get_dataset()
+        data, original_dataset = self.get_dataset()
         logging.info('************* Procesando Datos **************')
         data = self.process_data(data)
         
@@ -86,4 +86,4 @@ class Data():
         Xl = data[variablesl]
         Xl = scaler_low.transform(Xl)
 
-        return Xh, Xl
+        return Xh, Xl, original_dataset
