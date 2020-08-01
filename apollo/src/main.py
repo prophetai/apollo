@@ -50,14 +50,17 @@ def main(argv):
     parser.add_argument('-m', '--model-version',
                         help='Model version folder simple name')
     parser.add_argument('-i', '--instrument',
-                        help='instrument to trade')                    
-
+                        help='instrument to trade')
+    parser.add_argument('-a', '--account',
+                        help='suffix of account to trade')
+    
     args = parser.parse_args()
     make_order = args.order or False
     market_sensitive = args.time or False
     debug_mode = args.debug or False
     model_version = args.model_version
     instrument = args.instrument
+    account = args.account
 
     trading = Trading(model_version,instrument)
     op_buy, op_sell, original_dataset = trading.predict()
@@ -74,8 +77,9 @@ def main(argv):
     units = decision.pips * decision.direction * 1000
 
     # máximo de unidades en riesgo al mismo tiempo
+    
     pip_limit = float(os.environ['pip_limit'])
-    open_trades = openTrades()
+    open_trades = openTrades(account)
     current_pips = open_trades.number_trades()
 
     print(f'Current units: {current_pips}')
@@ -108,9 +112,10 @@ def main(argv):
     logging.info(
         f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
 
+    
     if make_order and units != 0:
         new_trade = Trade(inv_instrument, units, take_profit=take_profit)
-        new_order = Order(new_trade)
+        new_order = Order(new_trade,account)
         new_order.make_market_order()
 
     previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)

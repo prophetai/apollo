@@ -12,7 +12,7 @@ logging.basicConfig(
 
 class Order():
 
-    def __init__(self,trade):
+    def __init__(self,trade,account):
         """Inicializa nuestra red.
 
         Args:
@@ -22,7 +22,7 @@ class Order():
         self.trade = trade
         self.auth_token = os.environ['token'] #token de autenticación
         self.head = {'Authorization': 'Bearer ' + self.auth_token} # header
-        self.url = os.environ['trading_url'] # URL de broker
+        self.url = os.environ['trading_url_'+account] # URL de broker
 
 
     def make_market_order(self):
@@ -60,5 +60,5 @@ class Order():
 
 if __name__ == "__main__":
     new_trade = Trade('USD_JPY',1000,take_profit=110.90)
-    new_order = Order(new_trade)
+    new_order = Order(new_trade,'1h')
     new_order.make_market_order()   
