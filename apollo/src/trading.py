@@ -120,8 +120,8 @@ class Trading():
         high_six_minus = model_files[:6]
         high_six_minus.reverse()
 
-        hig_six_plus = model_files[6:13]
-        hig_six_plus.reverse()
+        high_six_plus = model_files[6:13]
+        high_six_plus.reverse()
 
         low_six_minus = model_files[13:19]
         low_six_minus.reverse()
@@ -135,7 +135,7 @@ class Trading():
         for i, file_model in enumerate(high_six_minus):
             models[f'Xh_gbH_{i+1}'] = file_model.predict_proba(Xh)[:, 1]
 
-        for i, file_model in enumerate(hig_six_plus):
+        for i, file_model in enumerate(high_six_plus):
             models[f'Xh_gbH{i}'] = file_model.predict_proba(Xh)[:, 1]
 
         for i, file_model in enumerate(low_six_minus):
@@ -143,7 +143,6 @@ class Trading():
 
         for i, file_model in enumerate(low_six_plus):
             models[f'Xl_gbl{i}'] = file_model.predict_proba(Xl)[:, 1]
-        #
         #models.update({f'Xl_gbl_{i}': file_model.predict_proba(Xl)[:,1] for i, file_model in enumerate(model_files[len(model_files)/2:])})
 
         # predicciones

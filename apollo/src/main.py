@@ -47,8 +47,6 @@ def main(argv):
                         help='Make order only if market is open')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='Debug mode on')
-    parser.add_argument('-p', '--practice', action='store_true',
-                        help='Use practice account too')
     parser.add_argument('-m', '--model-version',
                         help='Model version folder simple name')
     parser.add_argument('-i', '--instrument',
@@ -58,7 +56,6 @@ def main(argv):
     make_order = args.order or False
     market_sensitive = args.time or False
     debug_mode = args.debug or False
-    practice_on = args.practice or False
     model_version = args.model_version
     instrument = args.instrument
 
@@ -116,35 +113,6 @@ def main(argv):
         new_order = Order(new_trade)
         new_order.make_market_order()
 
-    if practice_on:
-        # token de autenticación
-        os.environ['token'] = os.environ['token_demo']
-        # URL de broker
-        os.environ['trading_url'] = os.environ['trading_url_demo']
-        open_trades = openTrades()
-        current_pips = open_trades.number_trades()
-        print(f'trading url: {os.environ["trading_url"]}')
-        if units != 0:  # if we want to make a trade
-            print(f'inv_instrument: {inv_instrument}')
-            print(f'take_profit: {take_profit}')
-            new_order = Order(new_trade)
-            new_order.make_market_order()
-
-        print(f'checking open trades({current_pips} pips)')
-        if current_pips > 0:  # if there are any open positions
-            open_trades.get_trades_data()
-            # calculate the stop loss for open trades
-            for trade in open_trades.trades:
-                from dateutil import parser
-                duration = dt.now().astimezone(pytz.utc) - parser.parse(trade.openTime)
-                minutes = duration.total_seconds()/60
-                print(f'ID:{trade.i_d}')
-                print(f'minutes passed for trade {trade.i_d}: {minutes}')
-                if minutes > 59 and minutes < 120:  # just for trades with more than 50 minutes old
-                    trade.get_stop_loss()
-                    new_order = Order(trade)
-                    new_order.set_stop_loss()  # sets it in Oanda
-
     previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
     previous_high_ask = original_dataset['USD_JPY_highAsk'].iloc[-2].round(3)
     print(f'\nPrevious High Ask:{previous_high_ask}')
@@ -167,9 +135,9 @@ def main(argv):
             CHAT_ID, f"Best course of action: {decision.decision}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # load settings
     with open("src/settings.py", "r") as file:
         exec(file.read())
-
+    
     main(sys.argv)

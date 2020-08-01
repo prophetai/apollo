@@ -4,14 +4,15 @@ import logging
 import pandas as pd
 from getData.extract import get_forex
 from processData.processing import setup_data, get_indicators
-#sys.path.append('./src/assets/')
-#sys.path.append('./src')
+# sys.path.append('./src/assets/')
+# sys.path.append('./src')
+
 
 class Assets():
 
     def __init__(self, model_version, instrument):
-            self.model_version = model_version
-            self.instrument = instrument
+        self.model_version = model_version
+        self.instrument = instrument
 
     def load_vals(self):
         # variables para High
@@ -91,7 +92,9 @@ class Assets():
         return files
 
     def load_scaler(self):
-        scaler_high = pickle.load(open(f'./src/assets/{self.model_version}/scalerH', 'rb'))
-        scaler_low = pickle.load(open(f'./src/assets/{self.model_version}/scalerL', 'rb'))
+        scaler_high = pickle.load(
+            open(f'./src/assets/{self.model_version}/scalerH', 'rb'))
+        scaler_low = pickle.load(
+            open(f'./src/assets/{self.model_version}/scalerL', 'rb'))
 
         return scaler_high, scaler_low
