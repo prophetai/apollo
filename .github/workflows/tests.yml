@@ -48,9 +48,9 @@ jobs:
         telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
         json_google_account: ${{ secrets.json_google_account}}
         token_demo: ${{ secrets.oanda_test_token}}
-        trading_url_demo: ${{ secrets.oanda_test_url}}
-        initial_pip: 2
-        pip_limit: 7000
+        trading_url_1h: ${{ secrets.oanda_test_url}}
+        initial_pip: 6
+        pip_limit: 20000
       run: |
         cd apollo/
         python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
