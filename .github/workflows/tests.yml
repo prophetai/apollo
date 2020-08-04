@@ -13,7 +13,7 @@ jobs:
         python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # (x64 or x86)
   
-    - name: Google Cloud Platform (GCP) CLI - gcloud
+    - name: Downloading models from GCloud
       uses: actions-hub/gcloud@master
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
@@ -21,8 +21,12 @@ jobs:
       with:
         args: |
           info
-          gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models/
-          gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/
+          gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
+          gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/models_1h/variables
+
+          gsutil cp 'gs://forex_models/models_4h/gb*'  apollo/src/assets/models_4h/
+          gsutil cp -r 'gs://forex_models/models_4h/variables'  apollo/src/assets/models_4h/variables
+
     - name: Install htmltopdf
       run: |
         wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb && \
@@ -49,5 +53,5 @@ jobs:
         initial_pip: 2
         pip_limit: 7000
       run: |
-        cd apollo/
+        cd apollo/s
         python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
