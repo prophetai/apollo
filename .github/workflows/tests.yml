@@ -21,8 +21,8 @@ jobs:
       with:
         args: |
           info
-          gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
-          gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/models_1h/variables
+          gsutil cp -m 'gs://forex_models/models/gb*'  apollo/apollo/src/assets/models_1h/
+          gsutil cp -r -m 'gs://forex_models/models/variables'  apollo/apollo/src/assets/models_1h/variables
 
           gsutil cp 'gs://forex_models/models_4h/'  apollo/src/assets/models_4h/
 
