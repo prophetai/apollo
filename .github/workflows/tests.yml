@@ -52,5 +52,5 @@ jobs:
         initial_pip: 2
         pip_limit: 7000
       run: |
-        cd apollo/s
+        cd apollo/
         python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
