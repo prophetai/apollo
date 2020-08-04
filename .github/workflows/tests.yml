@@ -13,7 +13,7 @@ jobs:
         python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # (x64 or x86)
   
-    - name: Downloading models from GCloud
+    - name: Google Cloud Platform (GCP) CLI - gcloud
       uses: actions-hub/gcloud@master
       env:
         PROJECT_ID: ${{ secrets.PROJECT_ID }}
@@ -21,8 +21,8 @@ jobs:
       with:
         args: |
           info
-          gsutil cp -m 'gs://forex_models/models/gb*'  apollo/apollo/src/assets/models_1h/
-          gsutil cp -r -m 'gs://forex_models/models/variables'  apollo/apollo/src/assets/models_1h/variables
+          gsutil cp -m 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
+          gsutil cp -r -m 'gs://forex_models/models/variables/'  apollo/src/assets/models_1h/variables/
 
           gsutil cp 'gs://forex_models/models_4h/'  apollo/src/assets/models_4h/
 
