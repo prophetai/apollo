@@ -11,7 +11,7 @@ logging.basicConfig(
 
 class openTrades():
 
-    def __init__(self):
+    def __init__(self,account):
         """Inicializa los trades abiertos
 
         Args:
@@ -20,7 +20,8 @@ class openTrades():
         """
         self.trades = []
         self.head = {'Authorization': 'Bearer ' + os.environ['token']} # header
-        self.url = f"{ os.environ['trading_url']}openTrades/"
+        self.url = f"{ os.environ['trading_url_'+ account]}openTrades/"
+        self.account = account
 
     def get_trades_data(self):
         """
@@ -42,7 +43,7 @@ class openTrades():
     def number_trades(self):
         auth_token = os.environ['token'] #token de autenticación
         head = {'Authorization': 'Bearer ' + auth_token} # header
-        url = os.environ['trading_url'] + 'positions'
+        url = os.environ['trading_url_' + self.account] + 'positions'
         
         response = requests.get(url, headers=head)
         positions = response.json()
@@ -56,7 +57,7 @@ class openTrades():
 
 
 if __name__ == "__main__":
-    open_trades = openTrades()
+    open_trades = openTrades('1h')
     open_trades.get_trades_data()
     print(f'Number of trades open: {open_trades.number_trades()}')
 

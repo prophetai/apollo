@@ -22,3 +22,4 @@ tensorflow==1.15.2
 xgboost==0.90
 cloudstorage==0.10.0
 google-cloud-storage==1.21.0
+rook

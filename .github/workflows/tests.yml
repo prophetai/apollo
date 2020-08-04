@@ -21,14 +21,17 @@ jobs:
       with:
         args: |
           info
-          gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models/
-          gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/
+          gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
+          gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/models_1h/
+
+          gsutil cp -r 'gs://forex_models/models_4h'  apollo/src/assets/models_4h/
+
     - name: Install htmltopdf
       run: |
-        wget https://downloads.wkhtmltopdf.org/0.12/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+        wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb && \
         sudo apt-get -y install xfonts-75dpi && \
         sudo apt-get -y install xfonts-base && \
-        sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb && \
+        sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb && \
         sudo apt-get install -f
     - name: Install dependencies
       run: |
@@ -45,9 +48,9 @@ jobs:
         telegram_chat_id: ${{ secrets.telegram_test_chat_id}}
         json_google_account: ${{ secrets.json_google_account}}
         token_demo: ${{ secrets.oanda_test_token}}
-        trading_url_demo: ${{ secrets.oanda_test_url}}
-        initial_pip: 2
-        pip_limit: 7000
+        trading_url_1h: ${{ secrets.oanda_test_url}}
+        initial_pip: 6
+        pip_limit: 20000
       run: |
         cd apollo/
-        python src/trading.py -o -p
+        python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
