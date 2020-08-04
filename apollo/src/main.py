@@ -45,8 +45,6 @@ def main(argv):
                         help='Determine if you want to make an order')
     parser.add_argument('-t', '--time', action='store_true',
                         help='Make order only if market is open')
-    parser.add_argument('-d', '--debug', action='store_true',
-                        help='Debug mode on')
     parser.add_argument('-m', '--model-version',
                         help='Model version folder simple name')
     parser.add_argument('-i', '--instrument',
@@ -57,7 +55,6 @@ def main(argv):
     args = parser.parse_args()
     make_order = args.order or False
     market_sensitive = args.time or False
-    debug_mode = args.debug or False
     model_version = args.model_version
     instrument = args.instrument
     account = args.account
@@ -126,18 +123,17 @@ def main(argv):
     print(op_sell_new)
 
     # send telegram
-    if not debug_mode:
-        _, html_path = create_html(
-            [op_buy, op_sell, previous_high_ask, previous_low_bid], html_template_path)
-        _, image_name = from_html_to_jpg(html_path)
-        logging.info('Se mandan predicciones a Telegram')
-        bot = telegram_bot(TOKEN)
-        if not make_order:
-            bot.send_message(CHAT_ID, f"TEST!!!!!")
-        bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
-        bot.send_photo(CHAT_ID, image_name)
-        bot.send_message(
-            CHAT_ID, f"Best course of action: {decision.decision}")
+    _, html_path = create_html(
+        [op_buy, op_sell, previous_high_ask, previous_low_bid], html_template_path)
+    _, image_name = from_html_to_jpg(html_path)
+    logging.info('Se mandan predicciones a Telegram')
+    bot = telegram_bot(TOKEN)
+    if not make_order:
+        bot.send_message(CHAT_ID, f"TEST!!!!!")
+    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
+    bot.send_photo(CHAT_ID, image_name)
+    bot.send_message(
+        CHAT_ID, f"Best course of action: {decision.decision}")
 
 
 if __name__ == "__main__":
