@@ -4,8 +4,6 @@ import logging
 import pandas as pd
 from getData.extract import get_forex
 from processData.processing import setup_data, get_indicators
-# sys.path.append('./src/assets/')
-# sys.path.append('./src')
 
 
 class Assets():
@@ -29,64 +27,63 @@ class Assets():
 
     # carga de modelos
     def load_models(self):
-        files = []
+        files = {}
         logging.info(
             f'************* Cargando Modelos ({self.model_version}) Gradient Boosting (High)**************')
-
-        files.append(pickle.load(
+        files['gbHigh-6']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh-6.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh-5']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh-5.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh-4']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh-4.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh-3']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh-3.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh-2']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh-2.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh-1']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh-1.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh0']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh0.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh1']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh1.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh2']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh2.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh3']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh3.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh4']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh4.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh5']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh5.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbHigh6']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbHigh6.h5', 'rb')))
 
         logging.info(
             f'************* Cargando Modelos ({self.model_version}) Gradient Boosting (Low)**************')
-        files.append(pickle.load(
+        files['gbLow-6']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow-6.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow-5']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow-5.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow-4']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow-4.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow-3']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow-3.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow-2']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow-2.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow-1']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow-1.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow0']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow0.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow1']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow1.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow2']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow2.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow3']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow3.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow4']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow4.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow5']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow5.h5', 'rb')))
-        files.append(pickle.load(
+        files['gbLow6']=(pickle.load(
             open(f'./src/assets/{self.model_version}/gbLow6.h5', 'rb')))
 
         return files

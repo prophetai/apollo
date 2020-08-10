@@ -37,7 +37,7 @@ def main(argv):
     tz_MX = pytz.timezone('America/Mexico_City')
     datetime_MX = dt.now(tz_MX)
 
-    hora_now = f'{datetime_MX.strftime("%H:%M:%S")}'
+    hora_now = f'{datetime_MX.strftime("%H:%M:%S")}'    
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
 
