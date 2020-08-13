@@ -1,10 +1,8 @@
 name: deploy
 
 on: 
-  pull_request:
-    types: [closed]
-    branches:
-      - master
+  workflow_dispatch:
+
 
 jobs:
   build:
@@ -18,5 +16,8 @@ jobs:
         USER: ${{ secrets.APOLLO_USER }}
       with:
         args: |
+          echo $APOLLO_KEY
+          echo $APOLLO_HOST
+          echo $APOLLO_USER
           cd apollo
           git pull
