@@ -115,69 +115,72 @@ class Trading():
         model_files = self.loadAssets()
         Xh, Xl, original_dataset = self.loadData()
 
-        models = {}
-
-        high_six_minus = model_files[:6]
-        high_six_minus.reverse()
-
-        high_six_plus = model_files[6:13]
-        high_six_plus.reverse()
-
-        low_six_minus = model_files[13:19]
-        low_six_minus.reverse()
-
-        low_six_plus = model_files[19:]
-        low_six_plus.reverse()
+        preds = {}
 
         logging.info(f'Xh:{len(Xh[-1])}')
         logging.info('************* Haciendo predicciones **************')
 
-        for i, file_model in enumerate(high_six_minus):
-            models[f'Xh_gbH_{i+1}'] = file_model.predict_proba(Xh)[:, 1]
+        preds['gbHigh-6'] = model_files['gbHigh-6'].predict_proba(Xh)[:, 1]
+        preds['gbHigh-5'] = model_files['gbHigh-5'].predict_proba(Xh)[:, 1]
+        preds['gbHigh-4'] = model_files['gbHigh-4'].predict_proba(Xh)[:, 1]
+        preds['gbHigh-3'] = model_files['gbHigh-3'].predict_proba(Xh)[:, 1]        
+        preds['gbHigh-2'] = model_files['gbHigh-2'].predict_proba(Xh)[:, 1]
+        preds['gbHigh-1'] = model_files['gbHigh-1'].predict_proba(Xh)[:, 1]
+        preds['gbHigh0'] = model_files['gbHigh0'].predict_proba(Xh)[:, 1]
+        preds['gbHigh1'] = model_files['gbHigh1'].predict_proba(Xh)[:, 1]
+        preds['gbHigh2'] = model_files['gbHigh2'].predict_proba(Xh)[:, 1]
+        preds['gbHigh3'] = model_files['gbHigh3'].predict_proba(Xh)[:, 1]
+        preds['gbHigh4'] = model_files['gbHigh4'].predict_proba(Xh)[:, 1]
+        preds['gbHigh5'] = model_files['gbHigh5'].predict_proba(Xh)[:, 1]
+        preds['gbHigh6'] = model_files['gbHigh6'].predict_proba(Xh)[:, 1]
+        
+        preds['gbLow-6'] = model_files['gbLow-6'].predict_proba(Xl)[:, 1]
+        preds['gbLow-5'] = model_files['gbLow-5'].predict_proba(Xl)[:, 1]
+        preds['gbLow-4'] = model_files['gbLow-4'].predict_proba(Xl)[:, 1]
+        preds['gbLow-3'] = model_files['gbLow-3'].predict_proba(Xl)[:, 1]
+        preds['gbLow-2'] = model_files['gbLow-2'].predict_proba(Xl)[:, 1]
+        preds['gbLow-1'] = model_files['gbLow-1'].predict_proba(Xl)[:, 1]
+        preds['gbLow0'] = model_files['gbLow0'].predict_proba(Xl)[:, 1]
+        preds['gbLow1'] = model_files['gbLow1'].predict_proba(Xl)[:, 1]
+        preds['gbLow2'] = model_files['gbLow2'].predict_proba(Xl)[:, 1]
+        preds['gbLow3'] = model_files['gbLow3'].predict_proba(Xl)[:, 1]
+        preds['gbLow4'] = model_files['gbLow4'].predict_proba(Xl)[:, 1]
+        preds['gbLow5'] = model_files['gbLow5'].predict_proba(Xl)[:, 1]
+        preds['gbLow6'] = model_files['gbLow6'].predict_proba(Xl)[:, 1]
 
-        for i, file_model in enumerate(high_six_plus):
-            models[f'Xh_gbH{i}'] = file_model.predict_proba(Xh)[:, 1]
 
-        for i, file_model in enumerate(low_six_minus):
-            models[f'Xl_gbl_{i+1}'] = file_model.predict_proba(Xl)[:, 1]
-
-        for i, file_model in enumerate(low_six_plus):
-            models[f'Xl_gbl{i}'] = file_model.predict_proba(Xl)[:, 1]
-        #models.update({f'Xl_gbl_{i}': file_model.predict_proba(Xl)[:,1] for i, file_model in enumerate(model_files[len(model_files)/2:])})
-
-        # predicciones
-        logging.info('************* Haciendo Predicciones **************')
+                
 
         preds_buy = {
-            'Xh_gbH_6': models['Xh_gbH_6'][-2],
-            'Xh_gbH_5': models['Xh_gbH_5'][-2],
-            'Xh_gbH_4': models['Xh_gbH_4'][-2],
-            'Xh_gbH_3': models['Xh_gbH_3'][-2],
-            'Xh_gbH_2': models['Xh_gbH_2'][-2],
-            'Xh_gbH_1': models['Xh_gbH_1'][-2],
-            'Xh_gbH0': models['Xh_gbH0'][-2],
-            'Xh_gbH1': models['Xh_gbH1'][-2],
-            'Xh_gbH2': models['Xh_gbH2'][-2],
-            'Xh_gbH3': models['Xh_gbH3'][-2],
-            'Xh_gbH4': models['Xh_gbH4'][-2],
-            'Xh_gbH5': models['Xh_gbH5'][-2],
-            'Xh_gbH6': models['Xh_gbH6'][-2]
+            'gbHigh-6': preds['gbHigh-6'][-2],
+            'gbHigh-5': preds['gbHigh-5'][-2],
+            'gbHigh-4': preds['gbHigh-4'][-2],
+            'gbHigh-3': preds['gbHigh-3'][-2],
+            'gbHigh-2': preds['gbHigh-2'][-2],
+            'gbHigh-1': preds['gbHigh-1'][-2],
+            'gbHigh0': preds['gbHigh0'][-2],
+            'gbHigh1': preds['gbHigh1'][-2],
+            'gbHigh2': preds['gbHigh2'][-2],
+            'gbHigh3': preds['gbHigh3'][-2],
+            'gbHigh4': preds['gbHigh4'][-2],
+            'gbHigh5': preds['gbHigh5'][-2],
+            'gbHigh6': preds['gbHigh6'][-2]
         }
 
         preds_sell = {
-            'Xl_gbl_6': models['Xl_gbl_6'][-2],
-            'Xl_gbl_5': models['Xl_gbl_5'][-2],
-            'Xl_gbl_4': models['Xl_gbl_4'][-2],
-            'Xl_gbl_3': models['Xl_gbl_3'][-2],
-            'Xl_gbl_2': models['Xl_gbl_2'][-2],
-            'Xl_gbl_1': models['Xl_gbl_1'][-2],
-            'Xl_gbl0': models['Xl_gbl0'][-2],
-            'Xl_gbl1': models['Xl_gbl1'][-2],
-            'Xl_gbl2': models['Xl_gbl2'][-2],
-            'Xl_gbl3': models['Xl_gbl3'][-2],
-            'Xl_gbl4': models['Xl_gbl4'][-2],
-            'Xl_gbl5': models['Xl_gbl5'][-2],
-            'Xl_gbl6': models['Xl_gbl6'][-2]
+            'gbLow-6': preds['gbLow-6'][-2],
+            'gbLow-5': preds['gbLow-5'][-2],
+            'gbLow-4': preds['gbLow-4'][-2],
+            'gbLow-3': preds['gbLow-3'][-2],
+            'gbLow-2': preds['gbLow-2'][-2],
+            'gbLow-1': preds['gbLow-1'][-2],
+            'gbLow0': preds['gbLow0'][-2],
+            'gbLow1': preds['gbLow1'][-2],
+            'gbLow2': preds['gbLow2'][-2],
+            'gbLow3': preds['gbLow3'][-2],
+            'gbLow4': preds['gbLow4'][-2],
+            'gbLow5': preds['gbLow5'][-2],
+            'gbLow6': preds['gbLow6'][-2]
         }
 
         Actuals = ['HHLL_LogDiff {}_highAsk'.format(self.instrument),
