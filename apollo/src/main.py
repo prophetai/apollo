@@ -124,16 +124,16 @@ def main(argv):
 
     # send telegram
     _, html_path = create_html(
-        [op_buy, op_sell, previous_high_ask, previous_low_bid], html_template_path)
+        [op_buy, op_sell, previous_high_ask, previous_low_bid, f'{model_version}'], html_template_path)
     _, image_name = from_html_to_jpg(html_path)
     logging.info('Se mandan predicciones a Telegram')
     bot = telegram_bot(TOKEN)
     if not make_order:
         bot.send_message(CHAT_ID, f"TEST!!!!!")
-    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now}")
+    bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now} ({model_version})")
     bot.send_photo(CHAT_ID, image_name)
     bot.send_message(
-        CHAT_ID, f"Best course of action: {decision.decision}")
+        CHAT_ID, f"Best course of action ({model_version}): {decision.decision}")
 
 
 if __name__ == "__main__":
