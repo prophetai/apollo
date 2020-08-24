@@ -136,7 +136,10 @@ def main(argv):
     bot.send_message(
         CHAT_ID, f"Best course of action: {decision.decision}")
 
-    save_decisions()
+    save_decisions(account=account,
+                   model=model_version,
+                   instrument=inv_instrument,
+                   decision=decision)
 
 if __name__ == "__main__":
     # load settings
