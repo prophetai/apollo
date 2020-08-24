@@ -59,7 +59,7 @@ def get_instrument_history(instrument,
 
     return df
 
-def load_instrument_history():
+def save_instrument_history():
 
     candleformat = 'bidask'
     instrument = 'USD_JPY'
@@ -77,5 +77,37 @@ def load_instrument_history():
                       freq,
                       trading=trading)
 
-    engine = create_engine('postgresql://dud:dud@localhost:5432/duddb')
-    data.to_sql('dudtablename', engine)
+    engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
+    data.to_sql('trades', engine)
+
+def save_decisions(account=account, model=model_version, instrument=inv_instrument, decision=decision):
+    account_type = os.environ["trading_url_"]
+    if account_type.contains("practice"):
+        account_type = "practice"
+    else:
+        account_type = "live"
+    ask = decision.data_buy["Open"][0]
+    bid = decision.data_sell["Open"][0]
+    prediction_used = decision.decision
+    probability = decision.decision
+    stop_loss = decision.decision
+    take_profit = decision.take_profit
+    spread = decision.spread
+    time = dt.now()
+    pips = decision.pips
+    trade = decision.direction
+    engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
+
+    data = pd.DataFrame({"account": account,
+                         "account_type": account_type,
+                         "ask": ask,
+                         "bid": bid,
+                         "instrument": instrument,
+                         "model": model,
+                         "prediction_used": prediction_used,
+                         "probability": probability,
+                         "stop_loss": stop_loss,
+                         "take_profit": take_profit,
+                         "time": time,
+                         "trade": trade}, index=[dt.now()])
+    data.to_sql('trades_monitoring', engine, if_exists="append")

@@ -14,6 +14,7 @@ from trading import Trading
 from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
+from saveToDB import save_decisions
 
 sys.path.append('./src/assets/')
 sys.path.append('./src')
@@ -37,7 +38,7 @@ def main(argv):
     tz_MX = pytz.timezone('America/Mexico_City')
     datetime_MX = dt.now(tz_MX)
 
-    hora_now = f'{datetime_MX.strftime("%H:%M:%S")}'    
+    hora_now = f'{datetime_MX.strftime("%H:%M:%S")}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
 
@@ -51,7 +52,7 @@ def main(argv):
                         help='instrument to trade')
     parser.add_argument('-a', '--account',
                         help='suffix of account to trade')
-    
+
     args = parser.parse_args()
     make_order = args.order or False
     market_sensitive = args.time or False
@@ -74,7 +75,7 @@ def main(argv):
     units = decision.pips * decision.direction * 1000
 
     # máximo de unidades en riesgo al mismo tiempo
-    
+
     pip_limit = float(os.environ['pip_limit'])
     open_trades = openTrades(account)
     current_pips = open_trades.number_trades()
@@ -109,7 +110,7 @@ def main(argv):
     logging.info(
         f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
 
-    
+
     if make_order and units != 0:
         new_trade = Trade(inv_instrument, units, take_profit=take_profit)
         new_order = Order(new_trade,account)
@@ -135,10 +136,11 @@ def main(argv):
     bot.send_message(
         CHAT_ID, f"Best course of action: {decision.decision}")
 
+    save_decisions()
 
 if __name__ == "__main__":
     # load settings
     with open("src/settings.py", "r") as file:
         exec(file.read())
-    
+
     main(sys.argv)
