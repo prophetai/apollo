@@ -19,6 +19,7 @@ telegram-send==0.20
 imgkit==1.0.1
 wkhtmltopdf==0.2
 pandas-market-calendars==1.1
+SQLAlchemy==1.2.7
 tensorflow==2.3
 Keras==2.2.5
 xgboost==0.90
