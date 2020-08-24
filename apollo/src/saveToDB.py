@@ -1,3 +1,4 @@
+import os
 import logging
 import pandas as pd
 import oandapy as opy
@@ -110,4 +111,5 @@ def save_decisions(account=account, model=model_version, instrument=inv_instrume
                          "take_profit": take_profit,
                          "time": time,
                          "trade": trade}, index=[dt.now()])
+    data = data.reset_index(drop=True)
     data.to_sql('trades', engine, if_exists="append")
