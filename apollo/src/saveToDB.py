@@ -60,15 +60,14 @@ def get_instrument_history(instrument,
 
     return df
 
-def save_instrument_history():
+def save_instrument_history(instrument="USD_JPY"):
 
     candleformat = 'bidask'
-    instrument = 'USD_JPY'
     granularity = 'H1'
     start = '2008-01-01'
     end = str(dt.now())[:12]
     freq = '5D'
-    trading = False
+    trading = True
 
     data = get_instrument_history(instrument,
                       granularity,
@@ -78,8 +77,9 @@ def save_instrument_history():
                       freq,
                       trading=trading)
 
+    data = data[-4:]
     engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
-    data.to_sql('trades', engine)
+    ih_df.to_sql('historical_usdjpy', engine, if_exists="append")
 
 def save_decisions(account=account, model=model_version, instrument=inv_instrument, decision=decision):
     account_type = os.environ["trading_url_"]
