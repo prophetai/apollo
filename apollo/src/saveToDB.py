@@ -110,4 +110,4 @@ def save_decisions(account=account, model=model_version, instrument=inv_instrume
                          "take_profit": take_profit,
                          "time": time,
                          "trade": trade}, index=[dt.now()])
-    data.to_sql('trades_monitoring', engine, if_exists="append")
+    data.to_sql('trades', engine, if_exists="append")
