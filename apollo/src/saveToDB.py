@@ -67,7 +67,7 @@ def save_instrument_history(instrument="USD_JPY"):
     pwd = conn_data['db_pwd']
     host = conn_data['db_host']
     data_base = conn_data['db_name']
-    
+
     candleformat = 'bidask'
     granularity = 'H1'
     start = '2008-01-01'
@@ -95,8 +95,8 @@ def save_decisions(account, model, instrument, decision, conn_data):
 
         ask = decision.data_buy["Open"][0]
         bid = decision.data_sell["Open"][0]
-        prediction_used = np.nan
-        probability = float(s.partition("Sell")[0].partition("Probability")[2][2:7])
+        probability = float(s.partition("Sell")[0].partition("Probability")[2][2:7])/100
+        prediction_used = decision.data_buy[(decision.data_buy["Probability"] >= probability - 0.001) & (decision.data_buy["Probability"] < probability + 0.001)].index[0]
         stop_loss = np.nan
         take_profit = decision.take_profit
         spread = decision.spread
@@ -132,8 +132,8 @@ def save_decisions(account, model, instrument, decision, conn_data):
 
         ask = decision.data_buy["Open"][0]
         bid = decision.data_sell["Open"][0]
-        prediction_used = np.nan
-        probability = float(s.partition("Sell")[2].partition("Probability")[2][2:7])
+        probability = float(s.partition("Sell")[2].partition("Probability")[2][2:7])/100
+        prediction_used = decision.data_sell[(decision.data_sell["Probability"] >= probability - 0.001) & (decision.data_sell["Probability"] < probability + 0.001)].index[0]
         stop_loss = np.nan
         take_profit = decision.take_profit
         spread = decision.spread
