@@ -81,7 +81,7 @@ def save_instrument_history(instrument="USD_JPY"):
     engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
     ih_df.to_sql('historical_usdjpy', engine, if_exists="append")
 
-def save_decisions(account=account, model=model_version, instrument=inv_instrument, decision=decision):
+def save_decisions(account, model, instrument, decision):
     account_type = os.environ["trading_url_"]
     if account_type.contains("practice"):
         account_type = "practice"
