@@ -84,7 +84,7 @@ def save_instrument_history(instrument="USD_JPY"):
 def save_decisions(account, model, instrument, decision,conn_data):
     
     account_type = "live"
-    if account.contains("practice"):
+    if 'practice' in os.environ['trading_url_'+ account]:
         account_type = "practice"
     
     ask = decision.data_buy["Open"][0]
