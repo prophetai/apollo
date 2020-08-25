@@ -1,6 +1,7 @@
 import os
 import logging
 import pandas as pd
+import numpy as np
 import oandapy as opy
 from datetime import datetime as dt
 from sqlalchemy import create_engine
@@ -81,40 +82,76 @@ def save_instrument_history(instrument="USD_JPY"):
     engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
     ih_df.to_sql('historical_usdjpy', engine, if_exists="append")
 
-def save_decisions(account, model, instrument, decision,conn_data):
-    
-    account_type = "live"
-    if 'practice' in os.environ['trading_url_'+ account]:
-        account_type = "practice"
-    
-    ask = decision.data_buy["Open"][0]
-    bid = decision.data_sell["Open"][0]
-    prediction_used = decision.decision
-    probability = decision.decision
-    stop_loss = decision.decision
-    take_profit = decision.take_profit
-    spread = decision.spread
-    time = dt.now()
-    pips = decision.pips
-    trade = decision.direction
-    user = conn_data['db_user']
-    pwd = conn_data['db_pwd']
-    host = conn_data['db_host']
-    data_base = conn_data['db_name']
+def save_decisions(account, model, instrument, decision, conn_data):
+    if decision.direction == 1:
+        account_type = "live"
+        if 'practice' in os.environ['trading_url_'+ account]:
+            account_type = "practice"
 
-    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+        ask = decision.data_buy["Open"][0]
+        bid = decision.data_sell["Open"][0]
+        prediction_used = np.nan
+        probability = float(s.partition("Sell")[0].partition("Probability")[2][2:7])
+        stop_loss = np.nan
+        take_profit = decision.take_profit
+        spread = decision.spread
+        time = dt.now()
+        pips = decision.pips
+        trade = "buy"
+        user = conn_data['db_user']
+        pwd = conn_data['db_pwd']
+        host = conn_data['db_host']
+        data_base = conn_data['db_name']
+        engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
 
-    data = pd.DataFrame({"account": account,
-                         "account_type": account_type,
-                         "ask": ask,
-                         "bid": bid,
-                         "instrument": instrument,
-                         "model": model,
-                         "prediction_used": prediction_used,
-                         "probability": probability,
-                         "stop_loss": stop_loss,
-                         "take_profit": take_profit,
-                         "time": time,
-                         "trade": trade}, index=[dt.now()])
-    data = data.reset_index(drop=True)
-    data.to_sql('trades', engine, if_exists="append")
+        data = pd.DataFrame({"account": account,
+                             "account_type": account_type,
+                             "ask": ask,
+                             "bid": bid,
+                             "instrument": instrument,
+                             "model": model,
+                             "prediction_used": prediction_used,
+                             "probability": probability,
+                             "stop_loss": stop_loss,
+                             "take_profit": take_profit,
+                             "time": time,
+                             "trade": trade}, index=[dt.now()])
+        data = data.reset_index(drop=True)
+        data.to_sql('trades', engine, if_exists="append")
+
+
+    elif decision.direction == -1:
+        account_type = "live"
+        if 'practice' in os.environ['trading_url_'+ account]:
+            account_type = "practice"
+
+        ask = decision.data_buy["Open"][0]
+        bid = decision.data_sell["Open"][0]
+        prediction_used = np.nan
+        probability = float(s.partition("Sell")[2].partition("Probability")[2][2:7])
+        stop_loss = np.nan
+        take_profit = decision.take_profit
+        spread = decision.spread
+        time = dt.now()
+        pips = decision.pips
+        trade = "sell"
+        user = conn_data['db_user']
+        pwd = conn_data['db_pwd']
+        host = conn_data['db_host']
+        data_base = conn_data['db_name']
+        engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+
+        data = pd.DataFrame({"account": account,
+                             "account_type": account_type,
+                             "ask": ask,
+                             "bid": bid,
+                             "instrument": instrument,
+                             "model": model,
+                             "prediction_used": prediction_used,
+                             "probability": probability,
+                             "stop_loss": stop_loss,
+                             "take_profit": take_profit,
+                             "time": time,
+                             "trade": trade}, index=[dt.now()])
+        data = data.reset_index(drop=True)
+        data.to_sql('trades', engine, if_exists="append")
