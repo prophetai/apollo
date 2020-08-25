@@ -26,6 +26,8 @@ logging.basicConfig(
     level=logging.INFO,
     filename='/tmp/log_test.txt'
 )
+
+
 def main(argv):
     """
     Main
@@ -52,6 +54,8 @@ def main(argv):
                         help='instrument to trade')
     parser.add_argument('-a', '--account',
                         help='suffix of account to trade')
+    parser.add_argument('-s', '--save', action='store_true',
+                        help='saves the predictions made')
 
     args = parser.parse_args()
     make_order = args.order or False
@@ -59,9 +63,16 @@ def main(argv):
     model_version = args.model_version
     instrument = args.instrument
     account = args.account
+    save_preds = args.save or False
 
-    trading = Trading(model_version,instrument)
+    trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
+    conn_data = {
+        'db_user': os.environ['db_user'],
+        'db_pwd': os.environ['db_pwd'],
+        'db_host': os.environ['db_host'],
+        'db_name': os.environ['db_name']
+    }
 
     logging.info(f'\nMarket sensitive: {market_sensitive}')
     if market_sensitive and not market_open():
@@ -110,10 +121,9 @@ def main(argv):
     logging.info(
         f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
 
-
     if make_order and units != 0:
         new_trade = Trade(inv_instrument, units, take_profit=take_profit)
-        new_order = Order(new_trade,account)
+        new_order = Order(new_trade, account)
         new_order.make_market_order()
 
     previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
@@ -136,10 +146,14 @@ def main(argv):
     bot.send_message(
         CHAT_ID, f"Best course of action: {decision.decision}")
 
-    save_decisions(account=account,
-                   model=model_version,
-                   instrument=inv_instrument,
-                   decision=decision)
+    if save_preds:
+        logging.info('Saving predictions in Data Base')
+        save_decisions(account,
+                       model_version,
+                       inv_instrument,
+                       decision,
+                       conn_data)
+
 
 if __name__ == "__main__":
     # load settings
