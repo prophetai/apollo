@@ -63,6 +63,11 @@ def get_instrument_history(instrument,
 
 def save_instrument_history(instrument="USD_JPY"):
 
+    user = conn_data['db_user']
+    pwd = conn_data['db_pwd']
+    host = conn_data['db_host']
+    data_base = conn_data['db_name']
+    
     candleformat = 'bidask'
     granularity = 'H1'
     start = '2008-01-01'
@@ -79,8 +84,8 @@ def save_instrument_history(instrument="USD_JPY"):
                       trading=trading)
 
     data = data[-4:]
-    engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
-    ih_df.to_sql('historical_usdjpy', engine, if_exists="append")
+    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+    data.to_sql('historical_usdjpy', engine, if_exists="append")
 
 def save_decisions(account, model, instrument, decision, conn_data):
     if decision.direction == 1:
