@@ -9,10 +9,11 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: actions/setup-python@v1
+    - uses: harmon758/postgresql-action@v1
       with:
         python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # (x64 or x86)
-  
+    - name: Install database
     - name: Google Cloud Platform (GCP) CLI - gcloud
       uses: actions-hub/gcloud@master
       env:
@@ -37,6 +38,17 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt --no-cache-dir
+    - name: Install database
+      uses: harmon758/postgresql-action@v1
+      with:
+        postgresql version: '12'
+      env:
+        db_user: ${{secrets.db_user}}
+        db_pwd: ${{secrets.db_pwd}}
+        db_host: ${{secrets.db_host}}
+        db_name: ${{secrets.db_name}}
+      run: |
+          psql -U $db_user -d $db_name -f $db_name.sql
     - name: Run code
       env:
         email_from: prophetsfai@gmail.com
@@ -49,10 +61,6 @@ jobs:
         json_google_account: ${{ secrets.json_google_account}}
         token_demo: ${{ secrets.oanda_test_token}}
         trading_url_1h: ${{ secrets.oanda_test_url}}
-        db_user: ${{secrets.db_user}}
-        db_pwd: ${{secrets.db_pwd}}
-        db_host: ${{secrets.db_host}}
-        db_name: ${{secrets.db_name}}
         initial_pip: 6
         pip_limit: 20000
       run: |
