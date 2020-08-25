@@ -33,21 +33,24 @@ jobs:
         sudo apt-get -y install xfonts-base && \
         sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb && \
         sudo apt-get install -f
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt --no-cache-dir
-    - name: Install database
-      uses: harmon758/postgresql-action@v1
-      env:
-        db_user: ${{secrets.db_user}}
-        db_pwd: ${{secrets.db_pwd}}
-        db_host: ${{secrets.db_host}}
-        db_name: ${{secrets.db_name}}
-      with:
-        postgresql version: '12'
-      run: |
-          psql -U $db_user -d $db_name -f $db_name.sql
+
+    #- name: Install dependencies
+      #run: |
+        #python -m pip install --upgrade pip
+        #pip install -r requirements.txt --no-cache-dir
+#
+    #- name: Install database
+      #uses: harmon758/postgresql-action@v1
+      #env:
+        #db_user: ${{secrets.db_user}}
+        #db_pwd: ${{secrets.db_pwd}}
+        #db_host: ${{secrets.db_host}}
+        #db_name: ${{secrets.db_name}}
+      #with:
+        #postgresql version: '12'
+      #run: |
+          #psql -U $db_user -d $db_name -f $db_name.sql
+
     - name: Run code
       env:
         email_from: prophetsfai@gmail.com
