@@ -49,8 +49,12 @@ jobs:
         json_google_account: ${{ secrets.json_google_account}}
         token_demo: ${{ secrets.oanda_test_token}}
         trading_url_1h: ${{ secrets.oanda_test_url}}
+        db_user: ${{secrets.db_user}}
+        db_pwd: ${{secrets.db_pwd}}
+        db_host: ${{secrets.db_host}}
+        db_name: ${{secrets.db_name}}
         initial_pip: 6
         pip_limit: 20000
       run: |
         cd apollo/
-        python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
+        python src/main.py -o -s --model-version=models_1h --instrument=USD_JPY --account=1h

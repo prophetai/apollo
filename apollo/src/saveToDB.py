@@ -81,12 +81,12 @@ def save_instrument_history(instrument="USD_JPY"):
     engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
     ih_df.to_sql('historical_usdjpy', engine, if_exists="append")
 
-def save_decisions(account, model, instrument, decision):
-    account_type = os.environ["trading_url_"]
-    if account_type.contains("practice"):
+def save_decisions(account, model, instrument, decision,conn_data):
+    
+    account_type = "live"
+    if account.contains("practice"):
         account_type = "practice"
-    else:
-        account_type = "live"
+    
     ask = decision.data_buy["Open"][0]
     bid = decision.data_sell["Open"][0]
     prediction_used = decision.decision
@@ -97,7 +97,12 @@ def save_decisions(account, model, instrument, decision):
     time = dt.now()
     pips = decision.pips
     trade = decision.direction
-    engine = create_engine('postgresql://postgres:prophets123@35.226.116.93:5432/trading')
+    user = conn_data['db_user']
+    pwd = conn_data['db_pwd']
+    host = conn_data['db_host']
+    data_base = conn_data['db_name']
+
+    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
 
     data = pd.DataFrame({"account": account,
                          "account_type": account_type,
