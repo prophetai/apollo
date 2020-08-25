@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - uses: actions/setup-python@v1s
+    - uses: actions/setup-python@v1
       with:
         python-version: '3.7.x' # Version range or exact version of a Python version to use, using semvers version range syntax.
         architecture: 'x64' # (x64 or x86)
-    - name: Install database
+  
     - name: Google Cloud Platform (GCP) CLI - gcloud
       uses: actions-hub/gcloud@master
       env:
@@ -23,9 +23,7 @@ jobs:
           info
           gsutil cp 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
           gsutil cp -r 'gs://forex_models/models/variables'  apollo/src/assets/models_1h/
-
           gsutil cp -r 'gs://forex_models/models_4h'  apollo/src/assets/models_4h/
-
     - name: Install htmltopdf
       run: |
         wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb && \
@@ -33,24 +31,10 @@ jobs:
         sudo apt-get -y install xfonts-base && \
         sudo dpkg -i wkhtmltox_0.12.6-1.bionic_amd64.deb && \
         sudo apt-get install -f
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt --no-cache-dir
-
-    #- name: Install database
-      #uses: harmon758/postgresql-action@v1
-      #env:
-        #db_user: ${{secrets.db_user}}
-        #db_pwd: ${{secrets.db_pwd}}
-        #db_host: ${{secrets.db_host}}
-        #db_name: ${{secrets.db_name}}
-      #with:
-        #postgresql version: '12'
-      #run: |
-          #psql -U $db_user -d $db_name -f $db_name.sql
-
     - name: Run code
       env:
         email_from: prophetsfai@gmail.com
@@ -67,4 +51,16 @@ jobs:
         pip_limit: 20000
       run: |
         cd apollo/
-        python src/main.py -o -s --model-version=models_1h --instrument=USD_JPY --account=1h
+        python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
+
+    #- name: Install database
+      #uses: harmon758/postgresql-action@v1
+      #env:
+        #db_user: ${{secrets.db_user}}
+        #db_pwd: ${{secrets.db_pwd}}
+        #db_host: ${{secrets.db_host}}
+        #db_name: ${{secrets.db_name}}
+      #with:
+        #postgresql version: '12'
+      #run: |
+          #psql -U $db_user -d $db_name -f $db_name.sql
