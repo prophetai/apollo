@@ -68,9 +68,9 @@ def main(argv):
     trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
     conn_data = {
-        'db_user': os.environ['db_user'],
-        'db_pwd': os.environ['db_pwd'],
-        'db_host': os.environ['db_host'],
+        'db_user': os.environ['POSTGRES_USER'],
+        'db_pwd': os.environ['POSTGRES_PASSWORD'],
+        'db_host': os.environ['POSTGRES_HOST'],
         'db_name': os.environ['db_name']
     }
 
