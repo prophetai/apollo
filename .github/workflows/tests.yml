@@ -37,7 +37,7 @@ jobs:
         pip install -r requirements.txt --no-cache-dir
     
     - name: Install database
-      uses: harmon758/postgresql-action@v1
+      uses: danielweller-swp/postgresql-action@v2
       env:
         db_user: ${{secrets.db_user}}
         db_pwd: ${{secrets.db_pwd}}
@@ -48,6 +48,7 @@ jobs:
         postgresql db: ${{secrets.db_name}}
         postgresql user: ${{secrets.db_user}}
         postgresql password: ${{secrets.db_pwd}}
+        postgresql init scripts: $db_name.sql
     
     - name: Run code
       env:
