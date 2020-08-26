@@ -1,3 +1,7 @@
+env:
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_HOST: localhost
 name: tests
 
 on:
@@ -12,8 +16,13 @@ jobs:
         ports:
         - 5432:5432
         env:
-          POSTGRES_USER: ${{secrets.db_user}}
-          POSTGRES_PASSWORD: ${{secrets.db_pwd}}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@master
@@ -43,14 +52,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt --no-cache-dir
-
-    - name: setup databases
-      env:
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_USER: postgres
-      #run: |
-        #psql -U postgres -d trading -f apollo/trading.sql
+        pip install -r requirements.txt --no-cache-dirs
 
     - name: Run code
       env:
@@ -68,4 +70,5 @@ jobs:
         pip_limit: 20000
       run: |
         cd apollo/
+        psql -h localhost -U postgres -f trading.sql
         python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
