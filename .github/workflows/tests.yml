@@ -64,7 +64,6 @@ jobs:
         initial_pip: 6
         pip_limit: 20000
       run: |
-        service postgresql start
         cd apollo/
         psql -U $db_user -d $db_name -f $db_name.sql
         python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
