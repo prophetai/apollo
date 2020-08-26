@@ -45,6 +45,9 @@ jobs:
         db_name: ${{secrets.db_name}}
       with:
         postgresql version: '12'
+        postgresql db: ${{secrets.db_name}}
+        postgresql user: ${{secrets.db_user}}
+        postgresql password: ${{secrets.db_pwd}}
     
     - name: Run code
       env:
@@ -62,6 +65,6 @@ jobs:
         pip_limit: 20000
       run: |
         service postgresql start
-        psql -U $db_user -d $db_name -f $db_name.sql
         cd apollo/
+        psql -U $db_user -d $db_name -f $db_name.sql
         python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
