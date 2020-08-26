@@ -14,6 +14,7 @@ from trading import Trading
 from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
+from saveToDB import save_decisions
 
 sys.path.append('./src/assets/')
 sys.path.append('./src')
@@ -25,6 +26,8 @@ logging.basicConfig(
     level=logging.INFO,
     filename='/tmp/log_test.txt'
 )
+
+
 def main(argv):
     """
     Main
@@ -37,7 +40,7 @@ def main(argv):
     tz_MX = pytz.timezone('America/Mexico_City')
     datetime_MX = dt.now(tz_MX)
 
-    hora_now = f'{datetime_MX.strftime("%H:%M:%S")}'    
+    hora_now = f'{datetime_MX.strftime("%H:%M:%S")}'
 
     parser = argparse.ArgumentParser(description='Apollo V 0.1 Beta')
 
@@ -51,16 +54,25 @@ def main(argv):
                         help='instrument to trade')
     parser.add_argument('-a', '--account',
                         help='suffix of account to trade')
-    
+    parser.add_argument('-s', '--save', action='store_true',
+                        help='saves the predictions made')
+
     args = parser.parse_args()
     make_order = args.order or False
     market_sensitive = args.time or False
     model_version = args.model_version
     instrument = args.instrument
     account = args.account
+    save_preds = args.save or False
 
-    trading = Trading(model_version,instrument)
+    trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
+    conn_data = {
+        'db_user': os.environ['POSTGRES_USER'],
+        'db_pwd': os.environ['POSTGRES_PASSWORD'],
+        'db_host': os.environ['POSTGRES_HOST'],
+        'db_name': os.environ['db_name']
+    }
 
     logging.info(f'\nMarket sensitive: {market_sensitive}')
     if market_sensitive and not market_open():
@@ -74,7 +86,7 @@ def main(argv):
     units = decision.pips * decision.direction * 1000
 
     # máximo de unidades en riesgo al mismo tiempo
-    
+
     pip_limit = float(os.environ['pip_limit'])
     open_trades = openTrades(account)
     current_pips = open_trades.number_trades()
@@ -109,10 +121,9 @@ def main(argv):
     logging.info(
         f'Units: {units}, inv_instrument: {inv_instrument} , take_profit: {take_profit}\n')
 
-    
     if make_order and units != 0:
         new_trade = Trade(inv_instrument, units, take_profit=take_profit)
-        new_order = Order(new_trade,account)
+        new_order = Order(new_trade, account)
         new_order.make_market_order()
 
     previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
@@ -135,10 +146,18 @@ def main(argv):
     bot.send_message(
         CHAT_ID, f"Best course of action ({model_version}): {decision.decision}")
 
+    if save_preds:
+        logging.info('Saving predictions in Data Base')
+        save_decisions(account,
+                       model_version,
+                       inv_instrument,
+                       decision,
+                       conn_data)
+
 
 if __name__ == "__main__":
     # load settings
     with open("src/settings.py", "r") as file:
         exec(file.read())
-    
+
     main(sys.argv)
