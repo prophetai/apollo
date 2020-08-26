@@ -73,4 +73,4 @@ jobs:
       run: |
         psql -h localhost -U postgres -f trading.sql
         cd apollo/
-        python src/main.py -o --model-version=models_1h --instrument=USD_JPY --account=1h
+        python src/main.py -o -s --model-version=models_1h --instrument=USD_JPY --account=1h
