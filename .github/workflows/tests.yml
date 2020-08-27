@@ -71,7 +71,8 @@ jobs:
         initial_pip: 6
         pip_limit: 20000
       run: |
-        psql -h localhost -U postgres -f trading.sql
+        createdb trading
+        psql -h localhost -U postgres -d trading -f trading.sql
         cd apollo/
-        python src/saveHistoryRun.py --user=postgres --password=postgres --host=localhost --name=postgres
+        python src/saveHistoryRun.py --user=postgres --password=postgres --host=localhost --name=trading
         python src/main.py -o -s --model-version=models_1h --instrument=USD_JPY --account=1h
