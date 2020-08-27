@@ -26,14 +26,14 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
     data_db = pd.read_sql_table('historical_usdjpy', engine, columns=['id','date'])
     data_db['date'] = pd.to_datetime(data_db['date'] , format = '%Y-%m-%dT%H:%M:%S.%f%z',cache = True)
     max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
-    print(f'\nID:{data_db["id"].idxmax()}\nMax date:{max_date_db}')
+    logging.info(f'\nID:{data_db["id"].idxmax()}\nMax date:{max_date_db}')
     
     start = str(max_date_db)[:10]
     end = str(dt.now())[:10]
     freq = 'D'
     trading = True
     
-    print(f'\nFrom: {start}\nTo: {end}\n')
+    logging.info(f'\nFrom: {start}\nTo: {end}\n')
 
     try:
         data = get_forex(instrument,
@@ -48,13 +48,13 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
 
         data = data.iloc[:,1:]
         data.columns = [str(column).split('_')[-1] for column in list(data.columns)]
-        print(list(data.columns))
+        logging.info(list(data.columns))
 
         data = data[data['date']>max_date_db]
-        print(data)
+        logging.info(data)
         data.to_sql('historical_usdjpy', engine, if_exists="append", index=False)
     except Exception as e:
-        print(e)
+        logging.info(e)
 
 def main(argv):
     """
