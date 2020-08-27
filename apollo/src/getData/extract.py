@@ -56,11 +56,12 @@ def get_forex(instrument,
                                              start=d1,
                                              end=d2,
                                              granularity=granularity)
+                except Exception as e:
+                    logging.error(e)
 
-                    df = df.append(pd.DataFrame(data['candles']))
-                    pbar.update(1)
-                except:
-                    pass
+                df = df.append(pd.DataFrame(data['candles']))
+                pbar.update(1)
+                
 
         if trading == False:
             pbar.close()

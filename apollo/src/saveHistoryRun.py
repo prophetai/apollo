@@ -28,29 +28,33 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
     max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
     print(f'\nID:{data_db["id"].idxmax()}\nMax date:{max_date_db}')
     
-    start = max_date_db
-    end = dt.utcnow().astimezone(pytz.timezone('utc'))
+    start = str(max_date_db)[:10]
+    end = str(dt.now())[:10]
     freq = 'D'
-    trading = False
+    trading = True
     
     print(f'\nFrom: {start}\nTo: {end}\n')
 
-    data = get_forex(instrument,
-                    [instrument],
-                      granularity,
-                      start,
-                      end,
-                      candleformat,
-                      freq,
-                      trading=trading)
+    try:
+        data = get_forex(instrument,
+                        [instrument],
+                        granularity,
+                        start,
+                        end,
+                        candleformat,
+                        freq,
+                        trading=trading)
+                            
 
-    data = data.iloc[:,1:]
-    data.columns = [str(column).split('_')[-1] for column in list(data.columns)]
-    print(list(data.columns))
-    
-    data = data[data['date']>max_date_db]
-    print(data)
-    data.to_sql('historical_usdjpy', engine, if_exists="append", index=False)
+        data = data.iloc[:,1:]
+        data.columns = [str(column).split('_')[-1] for column in list(data.columns)]
+        print(list(data.columns))
+
+        data = data[data['date']>max_date_db]
+        print(data)
+        data.to_sql('historical_usdjpy', engine, if_exists="append", index=False)
+    except Exception as e:
+        print(e)
 
 def main(argv):
     """

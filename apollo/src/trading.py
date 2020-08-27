@@ -3,7 +3,7 @@
 
 from data import Data
 from processData.processing import setup_data, get_indicators
-from loadAssets import Assetss
+from loadAssets import Assets
 from keras.models import load_model
 from sklearn import preprocessing
 import pickle
