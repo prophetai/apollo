@@ -27,9 +27,10 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
     data_db['date'] = pd.to_datetime(data_db['date'] , format = '%Y-%m-%dT%H:%M:%S.%f%z',cache = True)
     try:
         max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
+        logging.info(f'\nID:{data_db["id"].idxmax()}\nMax date:{max_date_db}')
     except:
         max_date_db = '2018-01-01'
-    logging.info(f'\nID:{data_db["id"].idxmax()}\nMax date:{max_date_db}')
+        logging.info(f'\nMax date:{max_date_db}')
     
     start = str(max_date_db)[:10]
     end = str(dt.now())[:10]
