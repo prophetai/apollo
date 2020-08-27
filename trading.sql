@@ -79,6 +79,17 @@ ALTER TABLE ONLY public.historical_usdjpy ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- TOC entry 3138 (class 0 OID 24577)
+-- Dependencies: 202
+-- Data for Name: historical_usdjpy; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.historical_usdjpy (date, "openBid", "openAsk", "highBid", "highAsk", "lowBid", "lowAsk", "closeBid", "closeAsk", volume, complete, id) FROM stdin;
+2018-01-01 16:00:00-06	112.626	112.706	112.647	112.727	112.59	112.662	112.601	112.662	181	t	1
+\.
+
+
+--
 -- TOC entry 3146 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: historical_usdjpy_ID_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
@@ -101,3 +112,4 @@ ALTER TABLE ONLY public.historical_usdjpy
 --
 -- PostgreSQL database dump complete
 --
+
