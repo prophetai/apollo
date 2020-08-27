@@ -2,7 +2,6 @@ import sys
 import pickle
 import logging
 import pandas as pd
-from getData.extract import get_forex
 from processData.processing import setup_data, get_indicators
 
 
