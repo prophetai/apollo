@@ -35,6 +35,7 @@ def get_forex(instrument,
         d1 = start
         d2 = end
         dates = pd.date_range(start=d1, end=d2, freq=freq)
+        print(dates)
         df = pd.DataFrame()
 
         if trading:
