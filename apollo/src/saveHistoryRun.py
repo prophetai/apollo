@@ -11,6 +11,13 @@ from sqlalchemy import create_engine
 from getData.extract import get_forex
 import pytz
 
+# Setup logging
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%m/%d/%Y %I:%M:%S %p',
+    level=logging.INFO,
+)
+
 
 def save_instrument_history(conn_data, instrument="USD_JPY"):
 
@@ -25,16 +32,17 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
     
     data_db = pd.read_sql_table('historical_usdjpy', engine, columns=['id','date'])
     data_db['date'] = pd.to_datetime(data_db['date'] , format = '%Y-%m-%dT%H:%M:%S.%f%z',cache = True)
+    print(data_db)
     try:
         max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
-        logging.info(f'\nID:{data_db["id"].idxmax()}\nMax date:{max_date_db}')
+        logging.info(f'ID:{data_db["id"].idxmax()}\nMax date on DB: {max_date_db}\n')
     except:
         max_date_db = '2018-01-01'
-        logging.info(f'\nMax date:{max_date_db}')
+        logging.info(f'Default date:{max_date_db}')
     
-    start = str(max_date_db)[:10]
-    end = str(dt.now())[:10]
-    freq = 'D'
+    start = str(max_date_db).replace(' ', 'T')
+    end = str(dt.now()) + '+00:00'
+    freq = 'M'
     trading = True
     
     logging.info(f'\nFrom: {start}\nTo: {end}\n')
@@ -48,17 +56,19 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
                         candleformat,
                         freq,
                         trading=trading)
-                            
-
-        data = data.iloc[:,1:]
+        if data.empty:
+            logging.info('empty data')
+            return      
         data.columns = [str(column).split('_')[-1] for column in list(data.columns)]
+        data = data.drop('time', axis=1)
         logging.info(list(data.columns))
 
-        data = data[data['date']>max_date_db]
+        data = data[(data['complete']) & (data['date']>max_date_db)]
         logging.info(data)
         data.to_sql('historical_usdjpy', engine, if_exists="append", index=False)
+        
     except Exception as e:
-        logging.info(e)
+        logging.error(e)
 
 def main(argv):
     """

@@ -2,6 +2,7 @@ import pandas as pd
 import oandapy as opy
 import logging
 from tqdm import tqdm
+from datetime import datetime as dt
 
 def get_forex(instrument,
               instruments,
@@ -35,6 +36,8 @@ def get_forex(instrument,
         d1 = start
         d2 = end
         dates = pd.date_range(start=d1, end=d2, freq=freq)
+        dates = [str(date) for date in dates]
+        dates.append(str(dt.now()))
         print(dates)
         df = pd.DataFrame()
 
@@ -44,27 +47,32 @@ def get_forex(instrument,
                                          since=d1,
                                          granularity=granularity)
             df = pd.DataFrame(data['candles'])
+        elif df.empty:
+            return df
         else:
             pbar = tqdm(total=len(dates) - 1)
-
             for i in range(0, len(dates) - 1):
                 d1 = str(dates[i]).replace(' ', 'T')
                 d2 = str(dates[i+1]).replace(' ', 'T')
                 try:
                     data = oanda.get_history(instrument=j,
-                                             candleFormat=candleformat,
-                                             start=d1,
-                                             end=d2,
-                                             granularity=granularity)
+                                            candleFormat=candleformat,
+                                            start=d1,
+                                            end=d2,
+                                            granularity=granularity)
+                    pbar.update(1)
+                    df = df.append(pd.DataFrame(data['candles']))
                 except Exception as e:
-                    logging.error(e)
-
-                df = df.append(pd.DataFrame(data['candles']))
-                pbar.update(1)
+                    logging.error(f'error:{e}')
                 
+                
+                if df.empty:
+                    logging.info('empty data')
+                    return data
 
         if trading == False:
             pbar.close()
+
         date = pd.DatetimeIndex(df['time'])
         df['date'] = date
         cols = [j + '_' + k for k in df.columns]
