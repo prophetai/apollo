@@ -26,6 +26,9 @@ class Decide:
         self.take_profit = take_profit
         self.decision = ''
         self.spread = data_buy.iloc[0]['Open'] - data_sell.iloc[0]['Open']
+        self.probability = np.nan
+        self.stop_loss = np.nan
+        self.decision_level = np.nan
     
     def get_best_action(self, buy_sell):
         """
@@ -96,6 +99,8 @@ class Decide:
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
+            self.probability = probability_buy
+            self.decision_level = best_action_buy.index[0]
             
         elif probability_sell > probability_buy:
             if best_action_sell['Probability'] >= 0.8:
@@ -106,7 +111,8 @@ class Decide:
             self.decision += f'\nSpread[{self.pips}]: ${round(self.spread * self.pips * 10,2)}'
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
-            
+            self.probability = probability_sell
+            self.decision_level = best_action_sell.index[0]
             
         else:
             self.decision = '\nNeutral \n\nBuy:'
