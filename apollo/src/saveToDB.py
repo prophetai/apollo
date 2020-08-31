@@ -27,8 +27,8 @@ def save_decisions(account, model, instrument, decision, conn_data):
     }
     """
     account_type = "live"
-        if 'practice' in os.environ['trading_url_'+ account]:
-            account_type = "practice"
+    if 'practice' in os.environ['trading_url_'+ account]:
+        account_type = "practice"
     s = decision.decision
     ask = decision.data_buy["Open"][0]
     bid = decision.data_sell["Open"][0]
