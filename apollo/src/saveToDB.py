@@ -26,47 +26,42 @@ def save_decisions(account, model, instrument, decision, conn_data):
             'db_name': 
     }
     """
+    if decision.direction == 1: # We are making a Buy
+        trade = "buy"
+    elif decision.direction == -1: # We are making a Sell
+        trade = "sell"   
+    else: # We are not making a trade
+        logging.info('Neutral - No decision to save')
+        return
+
     account_type = "live"
     if 'practice' in os.environ['trading_url_'+ account]:
         account_type = "practice"
-    s = decision.decision
-    ask = decision.data_buy["Open"][0]
-    bid = decision.data_sell["Open"][0]
+    
     user = conn_data['db_user']
     pwd = conn_data['db_pwd']
     host = conn_data['db_host']
     data_base = conn_data['db_name']
     engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
-
-    if decision.direction == 1: # We are making a Buy 
-        probability = float(s.partition("Sell")[0].partition("Probability")[2][2:7])/100
-        prediction_used = decision.data_buy[(decision.data_buy["Probability"] >= probability - 0.001) & (decision.data_buy["Probability"] < probability + 0.001)].index[0]
-        stop_loss = np.nan
-        take_profit = float(decision.take_profit)
-        time = dt.now()        
-        trade = "buy"
-
-    #elif decision.direction == -1: # We are making a Sell
-    else:
-        probability = float(s.partition("Sell")[2].partition("Probability")[2][2:7])/100
-        prediction_used = decision.data_sell[(decision.data_sell["Probability"] >= probability - 0.001) & (decision.data_sell["Probability"] < probability + 0.001)].index[0]
-        stop_loss = np.nan
-        take_profit = float(decision.take_profit)
-        time = dt.now()
-        trade = "sell"
+    probability = decision.probability
+    decision_level = decision.decision_level
     
     data = pd.DataFrame({"account": account,
                             "account_type": account_type,
-                            "ask": ask,
-                            "bid": bid,
+                            "ask": decision.data_buy["Open"][0],
+                            "bid": decision.data_sell["Open"][0],
                             "instrument": instrument,
                             "model": model,
-                            "prediction_used": prediction_used,
+                            "prediction_used": decision_level,
                             "probability": probability,
-                            "stop_loss": stop_loss,
-                            "take_profit": take_profit,
-                            "time": time,
+                            "stop_loss": decision.stop_loss,
+                            "take_profit": decision.take_profit,
+                            "time": dt.now(),
                             "trade": trade}, index=[dt.now()])
-    
+    logging.info('Data to save on Database')
+    logging.info(data)
     data = data.reset_index(drop=True)
-    data.to_sql('trades', engine, if_exists="append")
+    try:
+        data.to_sql('trades', engine, if_exists="append")
+    except Exception as e:
+        logging.error(e)
