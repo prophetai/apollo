@@ -100,7 +100,7 @@ class Decide:
             self.direction = 1
             self.take_profit = str(best_action_buy['Take Profit'])
             self.probability = probability_buy
-            self.decision_level = best_action_buy.index[0]
+            self.decision_level = best_action_buy.name
             
         elif probability_sell > probability_buy:
             if best_action_sell['Probability'] >= 0.8:
@@ -112,7 +112,7 @@ class Decide:
             self.direction = -1
             self.take_profit = str(best_action_sell['Take Profit'])
             self.probability = probability_sell
-            self.decision_level = best_action_sell.index[0]
+            self.decision_level = best_action_sell.name
             
         else:
             self.decision = '\nNeutral \n\nBuy:'
