@@ -55,7 +55,7 @@ def save_decisions(account, model, instrument, decision, conn_data):
                             "prediction_used": decision_level,
                             "probability": probability,
                             "stop_loss": decision.stop_loss,
-                            "take_profit": decision.take_profit,
+                            "take_profit": float(decision.take_profit),
                             "time": dt.now(),
                             "trade": trade}, index=[dt.now()])
     logging.info('Data to save on Database')
