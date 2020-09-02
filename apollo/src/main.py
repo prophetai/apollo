@@ -151,7 +151,8 @@ def main(argv):
                        model_version,
                        inv_instrument,
                        decision,
-                       conn_data)
+                       conn_data,
+                       units)
 
 
 if __name__ == "__main__":

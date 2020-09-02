@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 
 
 
-def save_decisions(account, model, instrument, decision, conn_data):
+def save_decisions(account, model, instrument, decision, conn_data, units):
     """
     Saves the desition made from the predictions
 
@@ -44,7 +44,6 @@ def save_decisions(account, model, instrument, decision, conn_data):
     data_base = conn_data['db_name']
     engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
     probability = decision.probability
-    decision_level = decision.decision_level
     
     data = pd.DataFrame({"account": account,
                             "account_type": account_type,
@@ -52,7 +51,7 @@ def save_decisions(account, model, instrument, decision, conn_data):
                             "bid": decision.data_sell["Open"][0],
                             "instrument": instrument,
                             "model": model,
-                            "prediction_used": decision_level,
+                            "units": units,
                             "probability": probability,
                             "stop_loss": decision.stop_loss,
                             "take_profit": float(decision.take_profit),
