@@ -44,6 +44,7 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
     data_base = conn_data['db_name']
     engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
     probability = decision.probability
+    account = str(os.environ['trading_url_'+ account]).split('/')[-2]
     
     data = pd.DataFrame({"account": account,
                             "account_type": account_type,
