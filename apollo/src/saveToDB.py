@@ -58,9 +58,9 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
                             "time": dt.now(),
                             "trade": trade}, index=[dt.now()])
     logging.info('Data to save on Database')
-    logging.info(data)
+    logging.info(data.reset_index(drop=True).to_dict())
     data = data.reset_index(drop=True)
     try:
-        data.to_sql('trades', engine, if_exists="append")
+        data.to_sql('trades', engine, if_exists="append",index=False)
     except Exception as e:
         logging.error(e)
