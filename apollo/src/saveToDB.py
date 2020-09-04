@@ -44,6 +44,7 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
     data_base = conn_data['db_name']
     engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
     probability = decision.probability
+    account = str(os.environ['trading_url_'+ account]).split('/')[-2]
     
     data = pd.DataFrame({"account": account,
                             "account_type": account_type,
@@ -58,9 +59,9 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
                             "time": dt.now(),
                             "trade": trade}, index=[dt.now()])
     logging.info('Data to save on Database')
-    logging.info(data)
+    logging.info(data.reset_index(drop=True).to_dict())
     data = data.reset_index(drop=True)
     try:
-        data.to_sql('trades', engine, if_exists="append")
+        data.to_sql('trades', engine, if_exists="append",index=False)
     except Exception as e:
         logging.error(e)
