@@ -14,7 +14,7 @@ from trading import Trading
 from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
-from saveToDB import save_decisions
+from saveToDB import save_order
 
 sys.path.append('./src/assets/')
 sys.path.append('./src')
@@ -147,12 +147,12 @@ def main(argv):
 
     if save_preds:
         logging.info('Saving predictions in Data Base')
-        save_decisions(account,
+        save_order(account,
                        model_version,
                        inv_instrument,
-                       decision,
-                       conn_data,
-                       units)
+                       new_order,
+                       decision.probability,
+                       conn_data)
 
 
 if __name__ == "__main__":
