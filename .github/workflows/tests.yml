@@ -74,4 +74,4 @@ jobs:
         psql -h localhost -U postgres -f trading.sql
         cd apollo/
         python src/saveHistoryRun.py --user=postgres --password=postgres --host=localhost --name=postgres
-        python src/main.py -o -s --model-version=models_1h --instrument=USD_JPY --account=1h
+        python src/main.py -o -s -t --model-version=models_1h --instrument=USD_JPY --account=1h
