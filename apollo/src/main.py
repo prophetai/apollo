@@ -14,7 +14,7 @@ from trading import Trading
 from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
-from saveToDB import save_decisions
+from saveToDB import save_order
 
 sys.path.append('./src/assets/')
 sys.path.append('./src')
@@ -66,6 +66,9 @@ def main(argv):
 
     trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
+    previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
+    previous_high_ask = original_dataset['USD_JPY_highAsk'].iloc[-2].round(3)
+
     conn_data = {
         'db_user': os.environ['POSTGRES_USER'],
         'db_pwd': os.environ['POSTGRES_PASSWORD'],
@@ -124,9 +127,19 @@ def main(argv):
         new_trade = Trade(inv_instrument, units, take_profit=take_profit)
         new_order = Order(new_trade, account)
         new_order.make_market_order()
+        previous_low_bid = new_order.bid_price
+        previous_high_ask = new_order.ask_price
+        
+        if save_preds:
+            logging.info('Saving predictions in Data Base')
+            save_order(account,
+                       model_version,
+                       inv_instrument,
+                       new_order,
+                       decision.probability,
+                       conn_data)
 
-    previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
-    previous_high_ask = original_dataset['USD_JPY_highAsk'].iloc[-2].round(3)
+    
     print(f'\nPrevious High Ask:{previous_high_ask}')
     print(op_buy_new)
     print(f'\nPrevious Low Bid: {previous_low_bid}')
@@ -144,15 +157,6 @@ def main(argv):
     bot.send_photo(CHAT_ID, image_name)
     bot.send_message(
         CHAT_ID, f"Best course of action ({model_version}): {decision.decision}")
-
-    if save_preds:
-        logging.info('Saving predictions in Data Base')
-        save_decisions(account,
-                       model_version,
-                       inv_instrument,
-                       decision,
-                       conn_data,
-                       units)
 
 
 if __name__ == "__main__":

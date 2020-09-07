@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 
 
 
-def save_decisions(account, model, instrument, decision, conn_data, units):
+def save_order(account,model,instrument,order,probability,conn_data):
     """
     Saves the desition made from the predictions
 
@@ -17,7 +17,8 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
         - account(str): nickname of destination account
         - model(str): model used
         - instrument(str): instrument traded
-        - decision(str): decision made
+        - order(Order): order data from broker
+        - probability(float): probability from decision
         - conn_data(dic): dictionary to connect to the database
             conn_data = {
             'db_user': ,
@@ -26,16 +27,18 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
             'db_name': 
     }
     """
-    if decision.direction == 1: # We are making a Buy
+    if order.trade.units > 0: # We are making a Buy
         trade = "buy"
-    elif decision.direction == -1: # We are making a Sell
+    elif order.trade.units < 0: # We are making a Sell
         trade = "sell"   
     else: # We are not making a trade
         logging.info('Neutral - No decision to save')
         return
 
     account_type = "live"
-    if 'practice' in os.environ['trading_url_'+ account]:
+    trading_url = os.environ['trading_url_'+ account]
+    account = os.environ['trading_url_'+ account].split('/')[-2]
+    if 'practice' in trading_url:
         account_type = "practice"
     
     user = conn_data['db_user']
@@ -43,21 +46,21 @@ def save_decisions(account, model, instrument, decision, conn_data, units):
     host = conn_data['db_host']
     data_base = conn_data['db_name']
     engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
-    probability = decision.probability
-    account = str(os.environ['trading_url_'+ account]).split('/')[-2]
     
-    data = pd.DataFrame({"account": account,
-                            "account_type": account_type,
-                            "ask": decision.data_buy["Open"][0],
-                            "bid": decision.data_sell["Open"][0],
-                            "instrument": instrument,
-                            "model": model,
-                            "units": units,
-                            "probability": probability,
-                            "stop_loss": decision.stop_loss,
-                            "take_profit": float(decision.take_profit),
-                            "time": dt.now(),
-                            "trade": trade}, index=[dt.now()])
+    data = pd.DataFrame(data = {"account": account,
+                            "order_id": [order.i_d],
+                            "account_type": [account_type],
+                            "entry_price":[order.entry_price],
+                            "ask": [order.ask_price],
+                            "bid": [order.bid_price],
+                            "instrument": [order.trade.instrument],
+                            "model": [model],
+                            "units": [order.trade.units],
+                            "probability": [probability],
+                            "stop_loss": [order.trade.stop_loss],
+                            "take_profit": [float(order.trade.take_profit)],
+                            "time": [dt.now()],
+                            "trade": [trade]})
     logging.info('Data to save on Database')
     logging.info(data.reset_index(drop=True).to_dict())
     data = data.reset_index(drop=True)
