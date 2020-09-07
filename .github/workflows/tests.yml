@@ -42,7 +42,7 @@ jobs:
           info
           gsutil -m cp 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
           gsutil -m cp -r 'gs://forex_models/models/variables'  apollo/src/assets/models_1h/
-          gsutil -m cp -r 'gs://forex_models/models_4h'  apollo/src/assets/models_4h/
+          gsutil -m cp -r 'gs://forex_models/models_4h'  apollo/src/assets/
     - name: Install htmltopdf
       run: |
         wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb && \
