@@ -24,6 +24,11 @@ class Order():
         self.head = {'Authorization': 'Bearer ' + self.auth_token} # header
         self.account = account
         self.url = os.environ['trading_url_'+account] # URL de broker
+        self.i_d = None
+        self.entry_price = None
+        self.ask_price = None
+        self.bid_price = None
+        self.spread = None
 
     def make_market_order(self):
         data = {

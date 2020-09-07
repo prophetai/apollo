@@ -36,7 +36,9 @@ def save_order(account,model,instrument,order,probability,conn_data):
         return
 
     account_type = "live"
-    if 'practice' in os.environ['trading_url_'+ account]:
+    trading_url = os.environ['trading_url_'+ account]
+    account = os.environ['trading_url_'+ account].split('/')[-2]
+    if 'practice' in trading_url:
         account_type = "practice"
     
     user = conn_data['db_user']
@@ -45,20 +47,20 @@ def save_order(account,model,instrument,order,probability,conn_data):
     data_base = conn_data['db_name']
     engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
     
-    data = pd.DataFrame(data = {"account": order.account,
-                            "order_id": order.id,
-                            "account_type": account_type,
-                            "entry_price":order.entry_price,
-                            "ask": order.ask_price,
-                            "bid": order.bid_price,
-                            "instrument": order.trade.instrument,
-                            "model": model,
-                            "units": order.trade.units,
-                            "probability": probability,
-                            "stop_loss": order.trade.stop_loss,
-                            "take_profit": float(order.trade.take_profit),
-                            "time": dt.now(),
-                            "trade": trade})
+    data = pd.DataFrame(data = {"account": account,
+                            "order_id": [order.i_d],
+                            "account_type": [account_type],
+                            "entry_price":[order.entry_price],
+                            "ask": [order.ask_price],
+                            "bid": [order.bid_price],
+                            "instrument": [order.trade.instrument],
+                            "model": [model],
+                            "units": [order.trade.units],
+                            "probability": [probability],
+                            "stop_loss": [order.trade.stop_loss],
+                            "take_profit": [float(order.trade.take_profit)],
+                            "time": [dt.now()],
+                            "trade": [trade]})
     logging.info('Data to save on Database')
     logging.info(data.reset_index(drop=True).to_dict())
     data = data.reset_index(drop=True)
