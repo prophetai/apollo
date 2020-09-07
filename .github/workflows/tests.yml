@@ -42,7 +42,7 @@ jobs:
           info
           gsutil -m cp 'gs://forex_models/models/gb*'  apollo/src/assets/models_1h/
           gsutil -m cp -r 'gs://forex_models/models/variables'  apollo/src/assets/models_1h/
-          gsutil -m cp -r 'gs://forex_models/models_4h'  apollo/src/assets/models_4h/
+          gsutil -m cp -r 'gs://forex_models/models_4h'  apollo/src/assets/
     - name: Install htmltopdf
       run: |
         wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.bionic_amd64.deb && \
@@ -74,4 +74,4 @@ jobs:
         psql -h localhost -U postgres -f trading.sql
         cd apollo/
         python src/saveHistoryRun.py --user=postgres --password=postgres --host=localhost --name=postgres
-        python src/main.py -o -s --model-version=models_1h --instrument=USD_JPY --account=1h
+        python src/main.py -o -s --model-version=models_4h --instrument=USD_JPY --account=1h
