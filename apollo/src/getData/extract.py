@@ -47,8 +47,8 @@ def get_forex(instrument,
                                          since=d1,
                                          granularity=granularity)
             df = pd.DataFrame(data['candles'])
-        elif df.empty:
-            return df
+            if df.empty:
+                return df
         else:
             pbar = tqdm(total=len(dates) - 1)
             for i in range(0, len(dates) - 1):
@@ -64,8 +64,6 @@ def get_forex(instrument,
                     df = df.append(pd.DataFrame(data['candles']))
                 except Exception as e:
                     logging.error(f'error:{e}')
-                
-                
                 if df.empty:
                     logging.info('empty data')
                     return data
@@ -81,6 +79,7 @@ def get_forex(instrument,
 
     dat = divs[instruments[0]]
     for i in instruments[1:]:
+        print(f'intrument:{i}')
         join_id = [k for k in divs[i].columns if 'date' in k][0]
         dat = pd.merge(dat,
                        divs[i],

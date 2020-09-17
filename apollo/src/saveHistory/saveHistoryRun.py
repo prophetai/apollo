@@ -8,6 +8,8 @@ import argparse
 import oandapy as opy
 from datetime import datetime as dt
 from sqlalchemy import create_engine
+sys.path.append("..")
+from assets.currencies import currencies
 from getData.extract import get_forex
 import pytz
 
@@ -19,7 +21,7 @@ logging.basicConfig(
 )
 
 
-def save_instrument_history(conn_data, instrument="USD_JPY"):
+def save_instrument_history(conn_data, instruments):
 
     user = conn_data['db_user']
     pwd = conn_data['db_pwd']
@@ -29,26 +31,33 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
 
     candleformat = 'bidask'
     granularity = 'M15'
-    
-    data_db = pd.read_sql_table('historical_usdjpy', engine, columns=['id','date'])
-    data_db['date'] = pd.to_datetime(data_db['date'] , format = '%Y-%m-%dT%H:%M:%S.%f%z',cache = True)
-    print(data_db)
-    try:
-        max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
-        logging.info(f'ID:{data_db["id"].idxmax()}\nMax date on DB: {max_date_db}\n')
-    except:
-        max_date_db = '2018-01-01'
-        logging.info(f'Default date:{max_date_db}')
-    
-    start = str(max_date_db).replace(' ', 'T')
-    end = str(dt.now()) + '+00:00'
-    freq = 'M'
-    trading = True
-    
-    logging.info(f'\nFrom: {start}\nTo: {end}\n')
 
-    try:
-        data = get_forex(instrument,
+    freq = 'M'
+    trading = False
+    
+    
+
+    for instrument in instruments:
+        try:
+            data_db = pd.read_sql_table(f'historical_{instrument}', engine, columns=['id','date'])
+            data_db['date'] = pd.to_datetime(data_db['date'] , format = '%Y-%m-%dT%H:%M:%S.%f%z',cache = True)
+            print(data_db)
+            max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
+            start = str(max_date_db).replace(' ', 'T')
+            end = str(dt.now()) + '+00:00'
+            logging.info(f'\nFrom: {start}\nTo: {end}\n')
+            logging.info(f'ID:{data_db["id"].idxmax()}\nMax date on DB: {max_date_db}\n')
+        except:
+            max_date_db = '2018-01-01 00:00:00.000000+00:00'
+            start = max_date_db
+            end = str(dt.now()) + '+00:00'
+            logging.info(f'Default date:{max_date_db}')
+            logging.info(f'\nFrom: {start}\nTo: {end}\n')
+        
+
+        
+        try:
+            data = get_forex(instrument,
                         [instrument],
                         granularity,
                         start,
@@ -56,19 +65,19 @@ def save_instrument_history(conn_data, instrument="USD_JPY"):
                         candleformat,
                         freq,
                         trading=trading)
-        if data.empty:
-            logging.info('empty data')
-            return      
-        data.columns = [str(column).split('_')[-1] for column in list(data.columns)]
-        data = data.drop('time', axis=1)
-        logging.info(list(data.columns))
+            if data.empty:
+                logging.info('empty data')
+                return      
+            data.columns = [str(column).split('_')[-1] for column in list(data.columns)]
+            data = data.drop('time', axis=1)
+            logging.info(list(data.columns))
 
-        data = data[(data['complete']) & (data['date']>max_date_db)]
-        logging.info(data)
-        data.to_sql('historical_usdjpy', engine, if_exists="append", index=False)
-        
-    except Exception as e:
-        logging.error(e)
+            data = data[(data['complete']) & (data['date']>max_date_db)]
+            logging.info(data)
+            data.to_sql(f'historical_{instrument}', engine, if_exists="append", index=False)
+            
+        except Exception as e:
+            logging.error(e)
 
 def main(argv):
     """
@@ -97,8 +106,8 @@ def main(argv):
         'db_host': host,
         'db_name': name
     }
-
-    save_instrument_history(conn_data, instrument="USD_JPY")
+    
+    save_instrument_history(conn_data, currencies)
 
 if __name__ == "__main__":
     main(sys.argv)
