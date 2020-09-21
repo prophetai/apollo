@@ -39,15 +39,16 @@ def save_instrument_history(conn_data, instruments):
 
     for instrument in instruments:
         try:
-            data_db = pd.read_sql_table(f'historical_{instrument}', engine, columns=['id','date'])
+            data_db = pd.read_sql_table(f'historical_{instrument}', engine, columns=['date'])            
             data_db['date'] = pd.to_datetime(data_db['date'] , format = '%Y-%m-%dT%H:%M:%S.%f%z',cache = True)
             print(data_db)
-            max_date_db = data_db.iloc[data_db['id'].idxmax()]['date']
+            max_date_db = data_db.iloc[data_db['date'].idxmax()]['date']
             start = str(max_date_db).replace(' ', 'T')
             end = str(dt.now()) + '+00:00'
             logging.info(f'\nFrom: {start}\nTo: {end}\n')
-            logging.info(f'ID:{data_db["id"].idxmax()}\nMax date on DB: {max_date_db}\n')
-        except:
+            logging.info(f'Max date on DB: {max_date_db}\n')
+        except Exception as e:
+            logging.warning(f'Exception:{e}')
             max_date_db = '2018-01-01 00:00:00.000000+00:00'
             start = max_date_db
             end = str(dt.now()) + '+00:00'
