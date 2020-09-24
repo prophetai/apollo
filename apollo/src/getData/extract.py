@@ -65,9 +65,9 @@ def get_forex(instrument,
                 except Exception as e:
                     logging.error(f'error:{e}')
                     logging.error(f'start:{d1}, end:{d2}')                    
-                if df.empty:
-                    logging.info('empty data')
-                    return data
+            if df.empty:
+                logging.info('empty data from OANDA')
+                return df
 
         if trading == False:
             pbar.close()
