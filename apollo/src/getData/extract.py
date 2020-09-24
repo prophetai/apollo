@@ -64,6 +64,7 @@ def get_forex(instrument,
                     df = df.append(pd.DataFrame(data['candles']))
                 except Exception as e:
                     logging.error(f'error:{e}')
+                    logging.error(f'start:{d1}, end:{d2}')                    
                 if df.empty:
                     logging.info('empty data')
                     return data
