@@ -52,6 +52,7 @@ def save_instrument_history(conn_data, instruments):
             max_date_db = '2018-01-01 00:00:00.000000+00:00'
             start = max_date_db
             end = str(dt.now()) + '+00:00'
+            freq = 'M'
             logging.info(f'Default date:{max_date_db}')
             logging.info(f'\nFrom: {start}\nTo: {end}\n')
 
@@ -66,14 +67,13 @@ def save_instrument_history(conn_data, instruments):
                              trading=trading)
             if data.empty:
                 logging.info('empty data')
-                return
+                return 
             data.columns = [str(column).split('_')[-1]
                             for column in list(data.columns)]
             data = data.drop('time', axis=1)
             logging.info(list(data.columns))
 
             data = data[(data['complete']) & (data['date'] > max_date_db) & ~(data.duplicated(subset=["date"]))]
-            print(data)
             logging.info(data)
             data.to_sql(f'historical_{instrument}',
                         engine, if_exists="append", index=False)
