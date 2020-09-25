@@ -205,13 +205,13 @@ class Trading():
         
 
         # aquí se toma el precio más caro a la venta de la hora previa (investigar por qué aquí es el último dato)
-        previous_high_ask = truncate(original_dataset['USD_JPY_highAsk'].iloc[-2], 3)
-        take_profit_buy = [truncate((truncate(1+i/(1000.00),3))*previous_high_ask , 3)
+        previous_high_ask = original_dataset['USD_JPY_highAsk'].iloc[-2].round(3)
+        take_profit_buy = [((1+i/(10000.00))*previous_high_ask).round(3)	
                            for i in range(-6, 7)]
 
         # aquí se toma el precio más barato a la compra de la hora previa (investigar por qué aquí es el penúltimo dato)
-        previous_low_bid = truncate(original_dataset['USD_JPY_lowBid'].iloc[-2], 3)
-        take_profit_sell = [truncate(((1-i/(10000.000))*previous_low_bid),3)
+        previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
+        take_profit_sell = [((1-i/(10000.00))*previous_low_bid).round(3)
                             for i in range(-6, 7)]
 
         op_buy = pd.DataFrame({'Open': current_open_ask,

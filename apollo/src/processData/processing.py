@@ -164,8 +164,9 @@ def setup_data(dat,
     df = df[1:]
     #df[date] = df[date].astype(str)
     #df[date] = df[date].str[:13]
-    df = df.fillna(method='ffill')
-    df = df.fillna(method='bfill')
+    
+    #df = df.fillna(method='ffill')
+    #df = df.fillna(method='bfill')
 
     return df
 
