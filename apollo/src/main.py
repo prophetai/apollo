@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
+from timeit import default_timer as timer
+start = timer()
 import os
 import sys
 import pytz
@@ -15,6 +17,10 @@ from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
 from saveToDB import save_order
+
+
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 sys.path.append('./src/assets/')
 sys.path.append('./src')
@@ -63,7 +69,6 @@ def main(argv):
     instrument = args.instrument
     account = args.account
     save_preds = args.save or False
-
     trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
     previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
@@ -129,7 +134,8 @@ def main(argv):
         new_order.make_market_order()
         previous_low_bid = new_order.bid_price
         previous_high_ask = new_order.ask_price
-        
+        end = timer()
+        print('Apollo time to market: ' + str(end - start))
         if save_preds:
             logging.info('Saving predictions in Data Base')
             save_order(account,
@@ -138,7 +144,8 @@ def main(argv):
                        new_order,
                        decision.probability,
                        conn_data)
-
+    else:
+        end = timer()
     
     print(f'\nPrevious High Ask:{previous_high_ask}')
     print(op_buy_new)
@@ -149,7 +156,7 @@ def main(argv):
     _, html_path = create_html(
         [op_buy, op_sell, previous_high_ask, previous_low_bid, f'{model_version}'], html_template_path)
     _, image_name = from_html_to_jpg(html_path)
-    logging.info('Se mandan predicciones a Telegram')
+    logging.info('Sending predictions to Telegram')
     bot = telegram_bot(TOKEN)
     if not make_order:
         bot.send_message(CHAT_ID, f"TEST!!!!!")
@@ -157,7 +164,9 @@ def main(argv):
     bot.send_photo(CHAT_ID, image_name)
     bot.send_message(
         CHAT_ID, f"Best course of action ({model_version}): {decision.decision}")
-
+    
+    
+    print('Apollo prediction time: ' + str(end - start))
 
 if __name__ == "__main__":
     # load settings

@@ -4,7 +4,6 @@
 from data import Data
 from processData.processing import setup_data, get_indicators
 from loadAssets import Assets
-from keras.models import load_model
 from sklearn import preprocessing
 import pickle
 import argparse
@@ -97,7 +96,6 @@ class Trading():
 
         # Descarga de datos
         logging.info('************* Descargando datos **************')
-        time.sleep(3)
         data = Data(instrument=self.instrument,
                     ins_variables=instruments,
                     granularity='H1',
@@ -118,7 +116,7 @@ class Trading():
 
         preds = {}
 
-        logging.info(f'Xh:{len(Xh[-1])}')
+        logging.info(f'# of input variables:{len(Xh[-1])}')
         logging.info('************* Haciendo predicciones **************')
 
         preds['gbHigh-6'] = model_files['gbHigh-6'].predict_proba(Xh)[:, 1]
