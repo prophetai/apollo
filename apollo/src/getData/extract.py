@@ -38,7 +38,6 @@ def get_forex(instrument,
         dates = pd.date_range(start=d1, end=d2, freq=freq)
         dates = [str(date) for date in dates]
         dates.append(str(dt.now()))
-        print(dates)
         df = pd.DataFrame()
 
         if trading:
@@ -55,6 +54,7 @@ def get_forex(instrument,
                 d1 = str(dates[i]).replace(' ', 'T')
                 d2 = str(dates[i+1]).replace(' ', 'T')
                 try:
+                    logging.info(f'Intervalo de fechas:{dates}')
                     data = oanda.get_history(instrument=j,
                                             candleFormat=candleformat,
                                             start=d1,
@@ -80,7 +80,6 @@ def get_forex(instrument,
 
     dat = divs[instruments[0]]
     for i in instruments[1:]:
-        print(f'intrument:{i}')
         join_id = [k for k in divs[i].columns if 'date' in k][0]
         dat = pd.merge(dat,
                        divs[i],
