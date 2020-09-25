@@ -163,10 +163,10 @@ def main(argv):
     bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now} ({model_version})")
     bot.send_photo(CHAT_ID, image_name)
     bot.send_message(
-        CHAT_ID, f"Best course of action ({model_version}): {decision.decision}")
+        CHAT_ID, f"Best course of action ({model_version}): {decision.decision}\nApollo speed:{str(round(end - start,3))}s")
     
     
-    print('Apollo prediction time: ' + str(end - start))
+    print(f'Apollo prediction time: {str(end - start)} s')
 
 if __name__ == "__main__":
     # load settings

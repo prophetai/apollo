@@ -7,7 +7,6 @@ from datetime import datetime as dt
 from datetime import timedelta
 from tqdm import tqdm_notebook as tqdm
 import math
-import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve
 from sklearn.metrics import average_precision_score
 from sklearn.metrics import precision_recall_curve
