@@ -16,6 +16,8 @@ from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
 from saveToDB import save_order
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 sys.path.append('./src/assets/')
 sys.path.append('./src')
 
