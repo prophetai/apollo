@@ -52,9 +52,10 @@ class Order():
             self.entry_price = self.broker_data['orderFillTransaction']['tradeOpened']['price']
             self.ask_price = self.broker_data['orderFillTransaction']['fullPrice']['closeoutAsk']
             self.bid_price = self.broker_data['orderFillTransaction']['fullPrice']['closeoutBid']
-            self.spread = float(self.broker_data['orderFillTransaction']['tradeOpened']['tradeID']['halfSpreadCost']) * 2
+            self.spread = float(self.broker_data['orderFillTransaction']['tradeOpened']['halfSpreadCost']) * 2
             # TO-DO #81 self.trade.time = self.broker_data['orderFillTransaction']['time']
         except Exception as e:
+            logging.error(f'Error in make_market_order')
             logging.error(e)
         
 

@@ -71,8 +71,8 @@ def main(argv):
     save_preds = args.save or False
     trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
-    previous_low_bid = original_dataset['USD_JPY_lowBid'].iloc[-2].round(3)
-    previous_high_ask = original_dataset['USD_JPY_highAsk'].iloc[-2].round(3)
+    previous_low_bid = str(original_dataset['USD_JPY_lowBid'].iloc[-2].round(3))
+    previous_high_ask = str(original_dataset['USD_JPY_highAsk'].iloc[-2].round(3))
 
     conn_data = {
         'db_user': os.environ['POSTGRES_USER'],
@@ -86,7 +86,7 @@ def main(argv):
         logging.info('Market Closed')
         return
 
-# Hacer decisón para la posición
+    # Hacer decisón para la posición
     decision = Decide(op_buy, op_sell, 100000, direction=0,
                       pips=initial_pip, take_profit=0)
     decision.get_all_pips()
@@ -132,12 +132,13 @@ def main(argv):
         new_trade = Trade(inv_instrument, units, take_profit=take_profit)
         new_order = Order(new_trade, account)
         new_order.make_market_order()
-        previous_low_bid = new_order.bid_price
-        previous_high_ask = new_order.ask_price
+        previous_low_bid += f' ({new_order.bid_price})'
+        previous_high_ask += f' ({new_order.ask_price})'
         end = timer()
+        speed_time = end - start
         print('Apollo time to market: ' + str(end - start))
         if save_preds:
-            logging.info('Saving predictions in Data Base')
+            logging.info('\n\n************* Saving predictions in Data Base **************')
             save_order(account,
                        model_version,
                        inv_instrument,
@@ -146,6 +147,8 @@ def main(argv):
                        conn_data)
     else:
         end = timer()
+        speed_time = end - start
+        print(f'Apollo prediction time: {str(speed_time)} s')
     
     print(f'\nPrevious High Ask:{previous_high_ask}')
     print(op_buy_new)
@@ -158,15 +161,13 @@ def main(argv):
     _, image_name = from_html_to_jpg(html_path)
     logging.info('Sending predictions to Telegram')
     bot = telegram_bot(TOKEN)
-    if not make_order:
-        bot.send_message(CHAT_ID, f"TEST!!!!!")
     bot.send_message(CHAT_ID, f"Predictions for the hour: {hora_now} ({model_version})")
     bot.send_photo(CHAT_ID, image_name)
     bot.send_message(
-        CHAT_ID, f"Best course of action ({model_version}): {decision.decision}\nApollo speed:{str(round(end - start,3))}s")
+        CHAT_ID, f"Best course of action ({model_version}): {decision.decision}\nApollo speed:{str(round(speed_time,3))}s")
     
     
-    print(f'Apollo prediction time: {str(end - start)} s')
+    print(f'Apollo prediction time: {str(speed_time)} s')
 
 if __name__ == "__main__":
     # load settings
