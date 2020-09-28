@@ -63,7 +63,7 @@ def create_html(body_text, html_template_path):
     
     soup.find("p", {"id": "previous_price"})
     soup.new_tag('br')
-    prices = [body_text[-2], body_text[-1]]
+    prices = [body_text[-3], body_text[-2]]
     tables = [body_text[0], body_text[1]]
     model = body_text[-1]
 
