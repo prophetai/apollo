@@ -151,35 +151,35 @@ class Trading():
                 
 
         preds_buy = {
-            'gbHigh-6': preds['gbHigh-6'][-2],
-            'gbHigh-5': preds['gbHigh-5'][-2],
-            'gbHigh-4': preds['gbHigh-4'][-2],
-            'gbHigh-3': preds['gbHigh-3'][-2],
-            'gbHigh-2': preds['gbHigh-2'][-2],
-            'gbHigh-1': preds['gbHigh-1'][-2],
-            'gbHigh0': preds['gbHigh0'][-2],
-            'gbHigh1': preds['gbHigh1'][-2],
-            'gbHigh2': preds['gbHigh2'][-2],
-            'gbHigh3': preds['gbHigh3'][-2],
-            'gbHigh4': preds['gbHigh4'][-2],
-            'gbHigh5': preds['gbHigh5'][-2],
-            'gbHigh6': preds['gbHigh6'][-2]
+            'gbHigh-6': round(preds['gbHigh-6'][-2],2),
+            'gbHigh-5': round(preds['gbHigh-5'][-2],2),
+            'gbHigh-4': round(preds['gbHigh-4'][-2],2),
+            'gbHigh-3': round(preds['gbHigh-3'][-2],2),
+            'gbHigh-2': round(preds['gbHigh-2'][-2],2),
+            'gbHigh-1': round(preds['gbHigh-1'][-2],2),
+            'gbHigh0': round(preds['gbHigh0'][-2],2),
+            'gbHigh1': round(preds['gbHigh1'][-2],2),
+            'gbHigh2': round(preds['gbHigh2'][-2],2),
+            'gbHigh3': round(preds['gbHigh3'][-2],2),
+            'gbHigh4': round(preds['gbHigh4'][-2],2),
+            'gbHigh5': round(preds['gbHigh5'][-2],2),
+            'gbHigh6': round(preds['gbHigh6'][-2],2)
         }
 
         preds_sell = {
-            'gbLow-6': preds['gbLow-6'][-2],
-            'gbLow-5': preds['gbLow-5'][-2],
-            'gbLow-4': preds['gbLow-4'][-2],
-            'gbLow-3': preds['gbLow-3'][-2],
-            'gbLow-2': preds['gbLow-2'][-2],
-            'gbLow-1': preds['gbLow-1'][-2],
-            'gbLow0': preds['gbLow0'][-2],
-            'gbLow1': preds['gbLow1'][-2],
-            'gbLow2': preds['gbLow2'][-2],
-            'gbLow3': preds['gbLow3'][-2],
-            'gbLow4': preds['gbLow4'][-2],
-            'gbLow5': preds['gbLow5'][-2],
-            'gbLow6': preds['gbLow6'][-2]
+            'gbLow-6': round(preds['gbLow-6'][-2],2),
+            'gbLow-5': round(preds['gbLow-5'][-2],2),
+            'gbLow-4': round(preds['gbLow-4'][-2],2),
+            'gbLow-3': round(preds['gbLow-3'][-2],2),
+            'gbLow-2': round(preds['gbLow-2'][-2],2),
+            'gbLow-1': round(preds['gbLow-1'][-2],2),
+            'gbLow0': round(preds['gbLow0'][-2],2),
+            'gbLow1': round(preds['gbLow1'][-2],2),
+            'gbLow2': round(preds['gbLow2'][-2],2),
+            'gbLow3': round(preds['gbLow3'][-2],2),
+            'gbLow4': round(preds['gbLow4'][-2],2),
+            'gbLow5': round(preds['gbLow5'][-2],2),
+            'gbLow6': round(preds['gbLow6'][-2],2)
         }
 
         Actuals = ['HHLL_LogDiff {}_highAsk'.format(self.instrument),
