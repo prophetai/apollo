@@ -19,7 +19,7 @@ kiwisolver==1.2.0
 lxml==4.3.3
 matplotlib==3.0.3
 numpy==1.16.1
-oandapy==0.1
+git+https://github.com/oanda/oandapy.git
 pandas==1.0.1
 pandas-market-calendars==1.6.0
 patsy==0.5.1
