@@ -10,7 +10,7 @@ def market_open():
         True if markets are open
         False if markets are closed
     """
-    currentDT = datetime.datetime.now().strftime("%Y-%m-%d")
+    currentDT = str(datetime.datetime.now().strftime("%Y-%m-%d"))
     futureDT = str(datetime.datetime.now() + datetime.timedelta(days=+2))[:10]
     dt_string = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 

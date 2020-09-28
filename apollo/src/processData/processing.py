@@ -162,11 +162,11 @@ def setup_data(dat,
     df[hpldiff_bid] = df[high_bid].shift(1) - df[low_bid]
 
     df = df[1:]
-    #df[date] = df[date].astype(str)
-    #df[date] = df[date].str[:13]
+    df[date] = df[date].astype(str)
+    df[date] = df[date].str[:13]
     
-    #df = df.fillna(method='ffill')
-    #df = df.fillna(method='bfill')
+    df = df.fillna(method='ffill')
+    df = df.fillna(method='bfill')
 
     return df
 
@@ -175,7 +175,6 @@ def get_indicators(data, instrument, column, wind, bidask):
     Rolling Mean, Bollinger Bands and RSI Calculations
 
     """
-
     # Finance Inidcators
     df = data.copy()
     df['rolling_mean_{}_{}'.format(column, wind)] = df['{}_close{}'.format(instrument, bidask)].rolling(window=wind).mean()

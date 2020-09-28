@@ -53,14 +53,12 @@ class Data():
     def process_data(self, data):
         processeddf = get_indicators(data,
                                      self.instrument,
-                                     column='{}_closeBid'.format(
-                                         self.instrument),
+                                     column=f'{self.instrument}_closeBid',
                                      wind=10,
                                      bidask='Bid')
         processeddf = get_indicators(processeddf,
                                      self.instrument,
-                                     column='{}_closeAsk'.format(
-                                         self.instrument),
+                                     column=f'{self.instrument}_closeAsk',
                                      wind=10,
                                      bidask='Ask')
 
