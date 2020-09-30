@@ -98,9 +98,9 @@ def main(argv):
     open_trades = openTrades(account)
     current_pips = open_trades.number_trades()
 
-    print(f'Current units: {current_pips}')
-    print(f'Max units: {pip_limit}')
-    print(f'Units: {units}')
+    logging.info(f'Current units: {current_pips}')
+    logging.info(f'Max units: {pip_limit}')
+    logging.info(f'Units: {units}')
 
     # si queremos hacer una operación (units puede ser positivo o negativo)
     if units != 0:
@@ -120,8 +120,8 @@ def main(argv):
     op_buy_new = decision.data_buy
     op_sell_new = decision.data_sell
 
-    print(f'inv_instrument: {inv_instrument}')
-    print(f'take_profit: {take_profit}')
+    logging.info(f'inv_instrument: {inv_instrument}')
+    logging.info(f'take_profit: {take_profit}')
 
     logging.info(f'\n{decision.decision}')
     # Pone orden a precio de mercado
@@ -136,7 +136,7 @@ def main(argv):
         previous_high_ask += f' ({new_order.ask_price})'
         end = timer()
         speed_time = end - start
-        print('Apollo time to market: ' + str(end - start))
+        logging.info('Apollo time to market: ' + str(end - start))
         if save_preds:
             logging.info('\n\n************* Saving predictions in Data Base **************')
             save_order(account,
@@ -148,12 +148,12 @@ def main(argv):
     else:
         end = timer()
         speed_time = end - start
-        print(f'Apollo prediction time: {str(speed_time)} s')
+        logging.info(f'Apollo prediction time: {str(speed_time)} s')
     
-    print(f'\nPrevious High Ask:{previous_high_ask}')
-    print(op_buy_new)
-    print(f'\nPrevious Low Bid: {previous_low_bid}')
-    print(op_sell_new)
+    logging.info(f'\nPrevious High Ask:{previous_high_ask}')
+    logging.info(op_buy_new)
+    logging.info(f'\nPrevious Low Bid: {previous_low_bid}')
+    logging.info(op_sell_new)
 
     # send telegram
     _, html_path = create_html(
@@ -167,7 +167,7 @@ def main(argv):
         CHAT_ID, f"Best course of action ({model_version}): {decision.decision}\nApollo speed:{str(round(speed_time,3))}s")
     
     
-    print(f'Apollo prediction time: {str(speed_time)} s')
+    logging.info(f'Apollo prediction time: {str(speed_time)} s')
 
 if __name__ == "__main__":
     # load settings
