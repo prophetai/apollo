@@ -34,4 +34,4 @@ if __name__ == "__main__":
     trade = Trade(1,'USD_JPY',110.101, 2000, 111.00)
     trade.get_stop_loss()
 
-    print(f'ID:{trade.i_d} \nUnits:{trade.units} \nStop Loss:{trade.stop_loss}')
+    logging.info(f'ID:{trade.i_d} \nUnits:{trade.units} \nStop Loss:{trade.stop_loss}')

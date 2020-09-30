@@ -46,7 +46,7 @@ class Decide:
 
         data[f'Expected Profit ({pips})'] = round(get_profit(data['Open'], data["Take Profit"], pips),2)
 
-        print(f'\nSearching for best {buy_sell} strategy(TP):')
+        logging.info(f'\nSearching for best {buy_sell} strategy(TP):')
 
         max_profit = 0
         probability = 0
@@ -57,15 +57,15 @@ class Decide:
             profit_cand = get_profit(data.iloc[i]['Open'], data.iloc[i]["Take Profit"], pips)
             # Si la proba es > 0.7, y la ganancia cubre al menos el spread, entonces ese utilizamos
             if probability_cand >= 0.65:
-                print('\nNuevo candidato:')
-                print(f'Best_action:\n{data.iloc[i]}')
+                logging.info('\nNuevo candidato:')
+                logging.info(f'Best_action:\n{data.iloc[i]}')
                 if probability_cand >= 0.7:
                     profit_cand *= 2
                     spread *= 2
                 if profit_cand/spread >= 1.6 and profit_cand > max_profit:
-                    print('\nNuevo ganador:')
-                    print(f'Probabilidad:{probability_cand}')
-                    print(f'Profit: ${profit_cand}')
+                    logging.info('\nNuevo ganador:')
+                    logging.info(f'Probabilidad:{probability_cand}')
+                    logging.info(f'Profit: ${profit_cand}')
                     probability = probability_cand 
                     max_profit = profit_cand
                     best_action = data.iloc[i]
@@ -89,7 +89,7 @@ class Decide:
         best_action_sell, probability_sell = self.get_best_action('Sell')
 
 
-        print(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
+        logging.info(f'Best Action Buy:\n{best_action_buy}\nBest Action Sell:\n{best_action_sell}')
         if probability_buy > probability_sell:
             if best_action_buy['Probability'] >= 0.8:
                 self.pips *= 2
@@ -146,6 +146,6 @@ if __name__ == '__main__':
     portfolio = 100
     decision = Decide(df_buy, df_sell, portfolio, direction=0, pips=0, take_profit=0    )
     decision.get_all_pips()
-    print(f'Buy Take Profit:\n{decision.data_buy}\n')
-    print(f'Sell Take Profit:\n{decision.data_sell}\n')
-    print(f'\nDecision: {decision.decision}')
+    logging.info(f'Buy Take Profit:\n{decision.data_buy}\n')
+    logging.info(f'Sell Take Profit:\n{decision.data_sell}\n')
+    logging.info(f'\nDecision: {decision.decision}')
