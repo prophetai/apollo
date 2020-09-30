@@ -38,7 +38,7 @@ def calculate_difference(dat, log=True):
                 df['Diff ' + i] = df[i].diff(1)
 
         except Exception as e:
-            logging.warning(f'({print(i)}):{e}')
+            logging.warning(f'({i}):{e}')
             
 
     return df
