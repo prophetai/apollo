@@ -59,11 +59,11 @@ class openTrades():
 if __name__ == "__main__":
     open_trades = openTrades('1h')
     open_trades.get_trades_data()
-    print(f'Number of trades open: {open_trades.number_trades()}')
+    logging.info(f'Number of trades open: {open_trades.number_trades()}')
 
     for trade in open_trades.trades:
         trade.get_stop_loss()
-        print(f'ID:{trade.i_d} \n\
+        logging.info(f'ID:{trade.i_d} \n\
             Instrument: {trade.instrument}\n\
             Price: {trade.price}\n\
             Units:{trade.units} \n\

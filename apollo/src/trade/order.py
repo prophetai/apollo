@@ -45,9 +45,9 @@ class Order():
         url = self.url + 'orders'
         try:
             response = requests.post(url, json=data, headers=self.head)
-            print(f'Response code for Order sent:\n{response}')
+            logging.info(f'Response code for Order sent:\n{response}')
             self.broker_data = response.json()
-            print(f'Content of response:\n{self.broker_data}')
+            logging.info(f'Content of response:\n{self.broker_data}')
             self.i_d = self.broker_data['orderFillTransaction']['tradeOpened']['tradeID']
             self.entry_price = self.broker_data['orderFillTransaction']['tradeOpened']['price']
             self.ask_price = self.broker_data['orderFillTransaction']['fullPrice']['closeoutAsk']
@@ -69,7 +69,7 @@ class Order():
         url = f'{self.url}trades/{self.trade.i_d}/orders'
         response = requests.put(url, json=data, headers=self.head)
         json_response = response.json()
-        print(f'Content of response:\n{json_response}')
+        logging.info(f'Content of response:\n{json_response}')
 
 if __name__ == "__main__":
     new_trade = Trade('USD_JPY',1000,take_profit=110.90)

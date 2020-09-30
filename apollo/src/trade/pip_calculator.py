@@ -25,4 +25,4 @@ if __name__ == '__main__':
     open_price = 109.562
     close_price = 109.662
     lots = 1
-    print(get_profit(open_price, close_price, lots))
+    logging.info(get_profit(open_price, close_price, lots))
