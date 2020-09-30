@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from .pip_calculator import get_profit, get_loss
 import time
+import logging
 
 class Decide:
     
