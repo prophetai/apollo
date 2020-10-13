@@ -4,6 +4,7 @@ import os
 import sys
 import logging
 import pandas as pd
+from tqdm import tqdm
 import argparse
 import oandapy as opy
 from datetime import datetime as dt
@@ -49,13 +50,14 @@ def save_instrument_history(conn_data, instruments):
             logging.info(f'Max date on DB: {max_date_db}\n')
         except Exception as e:
             logging.warning(f'Exception:{e}')
-            max_date_db = '2018-01-01 00:00:00.000000+00:00'
+            max_date_db = '2018-01-01T00:00:00'
             start = max_date_db
-            end = str(dt.now()) + '+00:00'
+            end = str(dt.now()) 
             freq = 'M'
             logging.info(f'Default date:{max_date_db}')
             logging.info(f'\nFrom: {start}\nTo: {end}\n')
 
+        
         try:
             data = get_forex(instrument,
                              [instrument],
@@ -68,18 +70,17 @@ def save_instrument_history(conn_data, instruments):
             if data.empty:
                 logging.info('empty data')
                 return 
-            data.columns = [str(column).split('_')[-1]
-                            for column in list(data.columns)]
             data = data.drop('time', axis=1)
+            
             logging.info(list(data.columns))
-
             data = data[(data['complete']) & (data['date'] > max_date_db) & ~(data.duplicated(subset=["date"]))]
-            logging.info(data)
+
+            logging.info(f'Se van a meter {len(data)} elementos a la tabla historical_{instrument}')
             data.to_sql(f'historical_{instrument}',
                         engine, if_exists="append", index=False)
-
         except Exception as e:
             logging.error(e)
+        
 
 
 def main(argv):
