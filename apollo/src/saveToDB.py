@@ -5,7 +5,8 @@ import numpy as np
 import oandapy as opy
 from datetime import datetime as dt
 from sqlalchemy import create_engine
-
+from loadAssets import Assets
+import json
 
 
 
@@ -68,3 +69,38 @@ def save_order(account,model,instrument,order,probability,conn_data):
         data.to_sql('trades', engine, if_exists="append",index=False)
     except Exception as e:
         logging.error(e)
+    
+def save_input(conn_data, account, model_version, current_time, inv_instrument, original_datasets, order_id=None):
+    """
+    Saves model input data to Database
+
+    -
+    """
+    user = conn_data['db_user']
+    pwd = conn_data['db_pwd']
+    host = conn_data['db_host']
+    data_base = conn_data['db_name']
+        
+    assets = Assets(model_version, inv_instrument)
+    variablesh, variablesl = assets.load_vals()
+
+    data_high = {variablesh[i]: original_datasets[0][0][i] for i in range(len(original_datasets[0][0]))}
+    data_low = {variablesl[i]: original_datasets[1][0][i] for i in range(len(original_datasets[1][0]))}
+    
+    df_todb = pd.DataFrame()
+    df_todb['account'] = [os.environ['trading_url_'+ account].split('/')[-2]]
+    df_todb['model_version'] = [model_version]
+    df_todb['date'] = [current_time]
+    df_todb['order_id'] = [order_id]
+    df_todb['data_high'] = [json.dumps(data_high)]
+    df_todb['data_low'] = [json.dumps(data_low)]
+    
+    
+    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+    try:
+        df_todb.to_sql(f'historical_datasets',
+            engine, if_exists="append", index=False)
+    except Exception as e:
+        logging.error(e)
+
+    

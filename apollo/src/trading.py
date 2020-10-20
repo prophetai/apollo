@@ -233,4 +233,4 @@ class Trading():
         op_buy = op_buy[op_buy.columns[new]]
         op_sell = op_sell[op_sell.columns[new]]
 
-        return op_buy, op_sell, original_dataset
+        return op_buy, op_sell, [Xh, Xl, original_dataset]

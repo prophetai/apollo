@@ -16,8 +16,7 @@ from trading import Trading
 from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
-from saveToDB import save_order
-
+from saveToDB import save_order, save_input
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -71,8 +70,8 @@ def main(argv):
     save_preds = args.save or False
     trading = Trading(model_version, instrument)
     op_buy, op_sell, original_dataset = trading.predict()
-    previous_low_bid = str(original_dataset['USD_JPY_lowBid'].iloc[-2].round(3))
-    previous_high_ask = str(original_dataset['USD_JPY_highAsk'].iloc[-2].round(3))
+    previous_low_bid = str(original_dataset[2]['USD_JPY_lowBid'].iloc[-2].round(3))
+    previous_high_ask = str(original_dataset[2]['USD_JPY_highAsk'].iloc[-2].round(3))
 
     conn_data = {
         'db_user': os.environ['POSTGRES_USER'],
@@ -145,11 +144,17 @@ def main(argv):
                        new_order,
                        decision.probability,
                        conn_data)
+            logging.info(f'\n\n************* Saving dataset in Data Base **************')
+            save_input(conn_data, account, model_version, hora_now, inv_instrument, 
+                original_dataset, order_id=new_order.i_d)
     else:
         end = timer()
         speed_time = end - start
         logging.info(f'Apollo prediction time: {str(speed_time)} s')
-    
+        logging.info(f'\n\n************* Saving dataset in Data Base **************')
+        save_input(conn_data, account, model_version, hora_now, inv_instrument, 
+                original_dataset)
+
     logging.info(f'\nPrevious High Ask:{previous_high_ask}')
     logging.info(op_buy_new)
     logging.info(f'\nPrevious Low Bid: {previous_low_bid}')
