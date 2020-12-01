@@ -59,7 +59,7 @@ class Order():
             logging.error(e)
         
 
-    def set_stop_loss(self):
+    def set_stop_loss(self, stop_loss):
         data = {
             "stopLoss": {
                 "timeInForce": "GTC",

@@ -17,6 +17,7 @@ from trade.order import Order
 from send_predictions.telegram_send import telegram_bot
 from send_predictions.email_send import send_email, create_html, from_html_to_jpg, make_image
 from saveToDB import save_order, save_input
+from risk_management import check_stop_loss
 
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -39,7 +40,7 @@ def main(argv):
     TOKEN = os.environ['telegram_token']
     CHAT_ID = os.environ['telegram_chat_id']
     initial_pip = float(os.environ['initial_pip'])
-    html_template_path = "./src/assets/email/email_template.html"
+    html_template_path = "./assets/email/email_template.html"
 
     tz_MX = pytz.timezone('America/Mexico_City')
     datetime_MX = dt.now(tz_MX)
@@ -95,7 +96,10 @@ def main(argv):
 
     pip_limit = float(os.environ['pip_limit'])
     open_trades = openTrades(account)
-    current_pips = open_trades.number_trades()
+    current_pips = open_trades.get_pips_traded()
+    current_trades = open_trades.get_all_trades()
+
+    check_stop_loss(current_trades,account)
 
     logging.info(f'Current units: {current_pips}')
     logging.info(f'Max units: {pip_limit}')
@@ -145,15 +149,20 @@ def main(argv):
                        decision.probability,
                        conn_data)
             logging.info(f'\n\n************* Saving dataset in Data Base **************')
-            save_input(conn_data, account, model_version, hora_now, inv_instrument, 
-                original_dataset, order_id=new_order.i_d)
+            save_input(account,
+                    model_version,
+                    hora_now,
+                    inv_instrument, 
+                    original_dataset,
+                    conn_data,
+                    order_id=new_order.i_d)
     else:
         end = timer()
         speed_time = end - start
         logging.info(f'Apollo prediction time: {str(speed_time)} s')
         logging.info(f'\n\n************* Saving dataset in Data Base **************')
-        save_input(conn_data, account, model_version, hora_now, inv_instrument, 
-                original_dataset)
+        save_input(account, model_version, hora_now, inv_instrument, 
+                original_dataset, conn_data)
 
     logging.info(f'\nPrevious High Ask:{previous_high_ask}')
     logging.info(op_buy_new)

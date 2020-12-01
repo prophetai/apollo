@@ -40,7 +40,7 @@ class openTrades():
             new_trade = Trade(instrument, units, i_d=i_d, price=price, take_profit=take_profit, openTime=openTime)
             self.trades.append(new_trade)
     
-    def number_trades(self):
+    def get_pips_traded(self):
         auth_token = os.environ['token'] #token de autenticación
         head = {'Authorization': 'Bearer ' + auth_token} # header
         url = os.environ['trading_url_' + self.account] + 'positions'
@@ -55,6 +55,14 @@ class openTrades():
 
         return number
 
+    def get_all_trades(self):
+        auth_token = os.environ['token'] #token de autenticación
+        head = {'Authorization': 'Bearer ' + auth_token} # header
+        
+        response = requests.get(self.url, headers=head)
+        positions = response.json()['trades']
+        
+        return positions
 
 if __name__ == "__main__":
     open_trades = openTrades('1h')

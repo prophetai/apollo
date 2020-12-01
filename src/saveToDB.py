@@ -3,11 +3,28 @@ import logging
 import pandas as pd
 import numpy as np
 import oandapy as opy
+import trade
 from datetime import datetime as dt
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from loadAssets import Assets
 import json
 
+def get_engine(conn_data):
+    """
+    Gets a connection engine for a database
+
+    Output:
+        - engine: Connection engine for the DB
+    """
+    user = conn_data['db_user']
+    pwd = conn_data['db_pwd']
+    host = conn_data['db_host']
+    data_base = conn_data['db_name']
+
+    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+
+    return engine
 
 
 def save_order(account,model,instrument,order,probability,conn_data):
@@ -38,15 +55,12 @@ def save_order(account,model,instrument,order,probability,conn_data):
 
     account_type = "live"
     trading_url = os.environ['trading_url_'+ account]
-    account = os.environ['trading_url_'+ account].split('/')[-2]
+    account = trading_url.split('/')[-2]
+    
     if 'practice' in trading_url:
         account_type = "practice"
-    
-    user = conn_data['db_user']
-    pwd = conn_data['db_pwd']
-    host = conn_data['db_host']
-    data_base = conn_data['db_name']
-    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+
+    engine = get_engine(conn_data)
     
     data = pd.DataFrame(data = {"account": account,
                             "order_id": [order.i_d],
@@ -70,17 +84,12 @@ def save_order(account,model,instrument,order,probability,conn_data):
     except Exception as e:
         logging.error(e)
     
-def save_input(conn_data, account, model_version, current_time, inv_instrument, original_datasets, order_id=None):
+def save_input(account, model_version, current_time, inv_instrument, original_datasets, conn_data, order_id=None):
     """
     Saves model input data to Database
 
     -
-    """
-    user = conn_data['db_user']
-    pwd = conn_data['db_pwd']
-    host = conn_data['db_host']
-    data_base = conn_data['db_name']
-        
+    """        
     assets = Assets(model_version, inv_instrument)
     variablesh, variablesl = assets.load_vals()
 
@@ -96,11 +105,25 @@ def save_input(conn_data, account, model_version, current_time, inv_instrument, 
     df_todb['data_low'] = [json.dumps(data_low)]
     
     
-    engine = create_engine(f'postgresql://{user}:{pwd}@{host}:5432/{data_base}')
+    engine = get_engine(conn_data)
     try:
         df_todb.to_sql(f'historical_datasets',
             engine, if_exists="append", index=False)
     except Exception as e:
         logging.error(e)
 
-    
+
+def get_trade_from_id(trade_id, conn_data):
+    """
+    Gets a trade from the DB using its ID
+    """ 
+    engine = get_engine(conn_data)
+
+    try:
+        session = sessionmaker(bind=engine)
+        trade_data = session.query(Trade).filter_by(id=trade_id).first() 
+    except Exception as e:
+        logging.error(e)
+
+    return trade_data
+#def save_stop_loss()
