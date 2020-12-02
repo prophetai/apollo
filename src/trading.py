@@ -67,8 +67,7 @@ class Trading():
 
         return model_files
 
-    def loadData(self, delay=0):
-        time.sleep(delay)
+    def loadData(self):
         instruments = ['USD_JPY',
                        'USB02Y_USD',
                        'USB05Y_USD',
@@ -113,7 +112,7 @@ class Trading():
     def predict(self):
         # HAY QUE VER CÓMO ARREGLAR PARA PONER DE -6 A 6 Y ERROR QUE SALE DEL LINTER
         model_files = self.loadAssets()
-        Xh, Xl, original_dataset = self.loadData(delay=3)
+        Xh, Xl, original_dataset = self.loadData()
 
         preds = {}
 

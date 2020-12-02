@@ -118,4 +118,6 @@ apollo/USDJPY_predictions.html
 *config.yaml
 *cronjob.yaml
 *.png
-apollo/lightning.py
+lightning.py
+USDJPY_predictions*
+scaler*
