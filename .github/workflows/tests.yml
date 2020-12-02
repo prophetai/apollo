@@ -72,5 +72,4 @@ jobs:
         pip_limit: 20000
       run: |
         psql -h localhost -U postgres -f trading.sql
-        cd apollo/
         python src/main.py -o -s --model-version=models_4h --instrument=USD_JPY --account=1h
