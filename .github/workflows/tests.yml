@@ -3,6 +3,7 @@ env:
   POSTGRES_USER: postgres
   POSTGRES_HOST: localhost
   db_name: postgres
+  db_port: 5433
 name: tests
 
 on:
