@@ -74,13 +74,6 @@ def main(argv):
     previous_low_bid = str(original_dataset[2]['USD_JPY_lowBid'].iloc[-2].round(3))
     previous_high_ask = str(original_dataset[2]['USD_JPY_highAsk'].iloc[-2].round(3))
 
-    conn_data = {
-        'db_user': os.environ['POSTGRES_USER'],
-        'db_pwd': os.environ['POSTGRES_PASSWORD'],
-        'db_host': os.environ['POSTGRES_HOST'],
-        'db_name': os.environ['db_name']
-    }
-
     logging.info(f'\nMarket sensitive: {market_sensitive}')
     if market_sensitive and not market_open():
         logging.info('Market Closed')
@@ -146,15 +139,13 @@ def main(argv):
                        model_version,
                        inv_instrument,
                        new_order,
-                       decision.probability,
-                       conn_data)
+                       decision.probability)
             logging.info(f'\n\n************* Saving dataset in Data Base **************')
             save_input(account,
                     model_version,
                     hora_now,
                     inv_instrument, 
                     original_dataset,
-                    conn_data,
                     order_id=new_order.i_d)
     else:
         end = timer()
@@ -162,7 +153,7 @@ def main(argv):
         logging.info(f'Apollo prediction time: {str(speed_time)} s')
         logging.info(f'\n\n************* Saving dataset in Data Base **************')
         save_input(account, model_version, hora_now, inv_instrument, 
-                original_dataset, conn_data)
+                original_dataset)
 
     logging.info(f'\nPrevious High Ask:{previous_high_ask}')
     logging.info(op_buy_new)

@@ -16,9 +16,11 @@ def check_stop_loss(trades_list, account):
                         price=element['price'],
                         take_profit=element['takeProfitOrder']['price'],
                         openTime=element['openTime'])
-
+        
         if trade.get_trade_duration() >= 3 and 'stopLossOrder' not in element:
-            stop_loss = trade.get_stop_loss()
+            print(f'Duration:{trade.get_trade_duration()}')
+            print(f'Trade found for SL:{trade.i_d}')
+            trade.get_stop_loss()
+            stop_loss = trade.stop_loss
             order = Order(trade, account)
             order.set_stop_loss(stop_loss)
-            #save_stop_loss()
