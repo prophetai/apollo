@@ -92,7 +92,6 @@ def main(argv):
     current_pips = open_trades.get_pips_traded()
     current_trades = open_trades.get_all_trades()
 
-    check_stop_loss(current_trades,account)
 
     logging.info(f'Current units: {current_pips}')
     logging.info(f'Max units: {pip_limit}')
@@ -154,6 +153,9 @@ def main(argv):
         logging.info(f'\n\n************* Saving dataset in Data Base **************')
         save_input(account, model_version, hora_now, inv_instrument, 
                 original_dataset)
+    
+    logging.info('\n\n************* Checando trades activos  **************')
+    check_stop_loss(current_trades,account)
 
     logging.info(f'\nPrevious High Ask:{previous_high_ask}')
     logging.info(op_buy_new)
