@@ -37,7 +37,7 @@ class openTrades():
             instrument = trade['instrument']
             price = trade['price']
             openTime = trade['openTime']
-            new_trade = Trade(instrument, units, i_d=i_d, price=price, take_profit=take_profit, openTime=openTime)
+            new_trade = Trade(instrument, units, i_d=i_d, price=price, account=self.account, take_profit=take_profit, openTime=openTime)
             self.trades.append(new_trade)
     
     def get_pips_traded(self):

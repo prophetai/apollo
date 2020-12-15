@@ -19,7 +19,7 @@ class Trade(Base):
     __tablename__ = 'trades'
     id = Column(Integer, primary_key=True)
 
-    def __init__(self, instrument, units, i_d=None, price=None, take_profit=None, openTime=None):
+    def __init__(self, instrument, units, i_d=None, price=None, account=None, take_profit=None, openTime=None):
         """Inicializa un trade
         Args:
             instrument (str): investment instrument name
@@ -33,6 +33,7 @@ class Trade(Base):
         self.take_profit = take_profit
         self.stop_loss = None
         self.openTime = openTime
+        self.account = account
 
     def __repr__(self):
 
@@ -60,7 +61,7 @@ class Trade(Base):
         calc_sl = (((units * (take_profit_pips * 0.01/take_profit)) * probability * price) / ((1-probability) * units * 0.01))
         
         self.stop_loss = round(price + math.copysign(calc_sl, inv_direction),3)
-        print(f"SL calculated for trade ({self.i_d}): {self.stop_loss}")
+
 
     def get_trade_duration(self):
         """
@@ -77,8 +78,7 @@ class Trade(Base):
         """
         Gets the probability of success from the trade's DB
         """
-        data = get_trade_from_id(self.i_d)
-        print(f'data:{data}')
+        data = get_trade_from_id(self.i_d, self.account)
         probability = round(float(data.probability), 2)
 
         return probability

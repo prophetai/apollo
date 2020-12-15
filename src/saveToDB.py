@@ -121,7 +121,7 @@ def save_input(account, model_version, current_time, inv_instrument, original_da
         logging.error(e)
 
 
-def get_trade_from_id(trade_id):
+def get_trade_from_id(trade_id, account):
     """
     Gets a trade from the DB using its ID
     """
@@ -129,7 +129,7 @@ def get_trade_from_id(trade_id):
     try:
         with engine.connect() as con:
             result = con.execute(
-                f"SELECT * FROM public.trades where order_id = \'{trade_id}\';")
+                f"SELECT * FROM public.trades where order_id=\'{trade_id}\' AND account=\'{account}\';")
     except Exception as e:
         logging.error(e)
     result = result.fetchone()
