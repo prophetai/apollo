@@ -77,6 +77,10 @@ def main(argv):
     logging.info(f'\nMarket sensitive: {market_sensitive}')
     if market_sensitive and not market_open():
         logging.info('Market Closed')
+        open_trades = openTrades(account)
+        current_pips = open_trades.get_pips_traded()
+        current_trades = open_trades.get_all_trades()
+        check_stop_loss(current_trades,account)
         return
 
     # Hacer decisón para la posición
@@ -154,7 +158,7 @@ def main(argv):
         save_input(account, model_version, hora_now, inv_instrument, 
                 original_dataset)
     
-    logging.info('\n\n************* Checando trades activos  **************')
+    logging.info('\n\n ************* Checando trades activos  **************')
     check_stop_loss(current_trades,account)
 
     logging.info(f'\nPrevious High Ask:{previous_high_ask}')
