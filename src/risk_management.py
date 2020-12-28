@@ -20,7 +20,7 @@ def check_stop_loss(trades_list, account):
                         openTime=element['openTime'])
         duration = trade.get_trade_duration()
 
-        if duration >= 2 and 'stopLossOrder' not in element:
+        if duration >= 3 and 'stopLossOrder' not in element:
             logging.info(f'Trade to set SL:{trade.i_d} [{duration}h]')
             try:
                 trade.get_stop_loss()
