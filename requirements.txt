@@ -45,7 +45,7 @@ tornado==6.0.4
 tqdm==4.31.0
 trading-calendars==1.11.11
 ujson==1.35
-urllib3==1.25.10
+urllib3==1.26.5
 v20==3.0.25.0
 wkhtmltopdf==0.2
 xgboost==0.90
